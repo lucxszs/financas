@@ -2,29 +2,34 @@ import { useState, type FormEvent } from 'react';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
 import { CATEGORIAS, TIPOS, TIPOS_CREDITO, isEntrada } from '../../domain/catalogos';
 import { hojeIso, rotuloMesLongo, somarMeses } from '../../domain/datas';
-import type { Categoria, TipoTransacao } from '../../domain/types';
+import type { Categoria, TipoTransacao, Transacao } from '../../domain/types';
 import { useEnvio } from '../../hooks/useEnvio';
-import { criarTransacao } from '../../services/repositorio';
+import { atualizarTransacao, criarTransacao } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
 const MESES_FATURA_A_FRENTE = 6;
 
-export const ModalTransacao = ({ onFechar }: { onFechar: () => void }) => {
+/** Sem `transacao`: cria um lançamento. Com `transacao`: edita o existente. */
+export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao; onFechar: () => void }) => {
   const { uid, config } = useDadosConfigurados();
   const { msg, erro, salvando, avisar, enviar } = useEnvio(onFechar);
+  const editando = Boolean(transacao);
 
-  const [tipo, setTipo] = useState<TipoTransacao | ''>('');
-  const [cartao, setCartao] = useState('');
-  const [desc, setDesc] = useState('');
-  const [val, setVal] = useState('');
-  const [cat, setCat] = useState<Categoria>('alimentacao');
-  const [data, setData] = useState(hojeIso());
-  const [mesFatura, setMesFatura] = useState('');
-  const [obs, setObs] = useState('');
+  const [tipo, setTipo] = useState<TipoTransacao | ''>(transacao?.tipo ?? '');
+  const [cartao, setCartao] = useState(transacao?.cartao ?? '');
+  const [desc, setDesc] = useState(transacao?.desc ?? '');
+  const [val, setVal] = useState(transacao ? String(transacao.val) : '');
+  const [cat, setCat] = useState<Categoria>(transacao?.cat ?? 'alimentacao');
+  const [data, setData] = useState(transacao?.data ?? hojeIso());
+  const [mesFatura, setMesFatura] = useState(transacao?.mesFatura ?? '');
+  const [obs, setObs] = useState(transacao?.obs ?? '');
 
   const credito = tipo !== '' && TIPOS_CREDITO.includes(tipo);
   const mesBase = data.slice(0, 7);
-  const opcoesFatura = Array.from({ length: MESES_FATURA_A_FRENTE }, (_, i) => somarMeses(mesBase, i + 1));
+  const proximosMeses = Array.from({ length: MESES_FATURA_A_FRENTE }, (_, i) => somarMeses(mesBase, i + 1));
+  // Ao editar, mantém o mês de fatura salvo mesmo que ele não esteja mais entre os próximos meses.
+  const opcoesFatura =
+    mesFatura && !proximosMeses.includes(mesFatura) ? [mesFatura, ...proximosMeses] : proximosMeses;
 
   const selecionarTipo = (t: TipoTransacao) => {
     setTipo(t);
@@ -41,26 +46,34 @@ export const ModalTransacao = ({ onFechar }: { onFechar: () => void }) => {
     if (!desc.trim() || !Number.isFinite(valor) || valor <= 0) return avisar('⚠️ Preencha descrição e valor');
     if (credito && !cartao) return avisar('⚠️ Selecione o cartão');
 
+    const dados = {
+      desc: desc.trim(),
+      val: valor,
+      tipo,
+      cartao: credito ? cartao : null,
+      cat,
+      data: data || hojeIso(),
+      mesFatura: credito && mesFatura ? mesFatura : null,
+      obs: obs.trim(),
+      isEntrada: isEntrada(tipo),
+    };
+    const agora = new Date().toISOString();
+
     void enviar(
       () =>
-        criarTransacao(uid, {
-          desc: desc.trim(),
-          val: valor,
-          tipo,
-          cartao: credito ? cartao : null,
-          cat,
-          data: data || hojeIso(),
-          mesFatura: credito && mesFatura ? mesFatura : null,
-          obs: obs.trim(),
-          isEntrada: isEntrada(tipo),
-          criadoEm: new Date().toISOString(),
-        }),
-      '✅ Lançado!',
+        transacao
+          ? atualizarTransacao(uid, transacao.id, {
+              ...dados,
+              criadoEm: transacao.criadoEm,
+              atualizadoEm: agora,
+            })
+          : criarTransacao(uid, { ...dados, criadoEm: agora }),
+      editando ? '✅ Atualizado!' : '✅ Lançado!',
     );
   };
 
   return (
-    <Modal aberto titulo="Lançar transação" onFechar={onFechar}>
+    <Modal titulo={editando ? 'Editar lançamento' : 'Lançar transação'} onFechar={onFechar}>
       <form onSubmit={onSubmit}>
         <div className="field">
           <label htmlFor="tx-desc">Descrição</label>
@@ -148,7 +161,7 @@ export const ModalTransacao = ({ onFechar }: { onFechar: () => void }) => {
           />
         </div>
 
-        <AcoesModal onCancelar={onFechar} rotuloSalvar="Lançar" salvando={salvando} />
+        <AcoesModal onCancelar={onFechar} rotuloSalvar={editando ? 'Salvar' : 'Lançar'} salvando={salvando} />
         <div className={`save-msg${erro ? ' erro' : ''}`}>{msg}</div>
       </form>
     </Modal>

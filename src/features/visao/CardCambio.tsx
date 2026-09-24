@@ -1,4 +1,5 @@
 import { paraBRL } from '../../domain/calculos';
+import { rotuloDataHora } from '../../domain/datas';
 import { fmt, formatarMoeda } from '../../domain/formatadores';
 import type { MoedaEstrangeira } from '../../domain/types';
 import { useDadosConfigurados } from '../dados/useDados';
@@ -47,7 +48,7 @@ export const CardCambio = () => {
               <div className="mono pequeno muted">
                 {m} → BRL · <span className="verde">ao vivo</span>
               </div>
-              <div className="cambio-taxa">R$ {taxa.toFixed(4)}</div>
+              <div className="cambio-taxa">{fmt(taxa)}</div>
             </div>
             {caixinhas.map((c) => {
               const valor = saldos.valores[c.id] ?? 0;
@@ -63,7 +64,9 @@ export const CardCambio = () => {
           </div>
         );
       })}
-      {cotacaoAtualizadaEm && <div className="nota">cotação de {cotacaoAtualizadaEm} · AwesomeAPI</div>}
+      {cotacaoAtualizadaEm && (
+        <div className="nota">cotação de {rotuloDataHora(cotacaoAtualizadaEm)} · AwesomeAPI</div>
+      )}
     </div>
   );
 };

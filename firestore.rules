@@ -49,6 +49,11 @@ service cloud.firestore {
         && (!('obs' in d) || textoCurto(d.obs, 200));
     }
 
+    // Na edição, a data de criação original não pode ser alterada.
+    function criadoEmMantido() {
+      return request.resource.data.criadoEm == resource.data.criadoEm;
+    }
+
     // Allowlist: o usuário só consegue ler o próprio registro (para o app saber se está liberado).
     match /acessos/{uid} {
       allow read: if autenticado() && request.auth.uid == uid;
@@ -70,12 +75,14 @@ service cloud.firestore {
 
       match /transacoes/{id} {
         allow read, delete: if dono(uid);
-        allow create, update: if dono(uid) && transacaoValida(request.resource.data);
+        allow create: if dono(uid) && transacaoValida(request.resource.data);
+        allow update: if dono(uid) && transacaoValida(request.resource.data) && criadoEmMantido();
       }
 
       match /aportes/{id} {
         allow read, delete: if dono(uid);
-        allow create, update: if dono(uid) && aporteValido(request.resource.data);
+        allow create: if dono(uid) && aporteValido(request.resource.data);
+        allow update: if dono(uid) && aporteValido(request.resource.data) && criadoEmMantido();
       }
     }
   }

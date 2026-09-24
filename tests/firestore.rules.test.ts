@@ -144,3 +144,43 @@ describe('validação de aportes', () => {
     await assertFails(aporte({ ...base, val: -1 }));
   });
 });
+
+describe('edição', () => {
+  const criarTx = async () => {
+    const db = dbDe(DONO);
+    return assertSucceeds(addDoc(collection(db, 'users', DONO, 'transacoes'), transacao()));
+  };
+
+  it('dono edita a transação mantendo criadoEm', async () => {
+    const ref = await criarTx();
+    await assertSucceeds(setDoc(ref, transacao({ val: 80, atualizadoEm: '2026-09-25T10:00:00.000Z' })));
+  });
+
+  it('edição continua validando os campos', async () => {
+    const ref = await criarTx();
+    await assertFails(setDoc(ref, transacao({ val: -5 })));
+  });
+
+  it('não permite alterar criadoEm', async () => {
+    const ref = await criarTx();
+    await assertFails(setDoc(ref, transacao({ criadoEm: '2020-01-01T00:00:00.000Z' })));
+  });
+
+  it('outro usuário não edita', async () => {
+    const ref = await criarTx();
+    await assertFails(setDoc(doc(dbDe(INTRUSO), 'users', DONO, 'transacoes', ref.id), transacao({ val: 1 })));
+  });
+
+  it('dono edita aporte', async () => {
+    const aporte = {
+      caixinha: 'reserva',
+      val: 100,
+      data: '2026-09-24',
+      obs: '',
+      criadoEm: '2026-09-24T12:00:00.000Z',
+    };
+    const ref = await assertSucceeds(addDoc(collection(dbDe(DONO), 'users', DONO, 'aportes'), aporte));
+    await assertSucceeds(setDoc(ref, { ...aporte, val: 150 }));
+    await assertFails(setDoc(ref, { ...aporte, criadoEm: 'outro' }));
+  });
+});

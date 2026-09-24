@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useId, useState, type CSSProperties, type ReactNode } from 'react';
 
 export const Secao = ({ titulo, children }: { titulo: ReactNode; children: ReactNode }) => (
   <section className="section">
@@ -29,31 +29,90 @@ export const Barra = ({
 export const Vazio = ({ children }: { children: ReactNode }) => <div className="vazio">{children}</div>;
 
 export const Modal = ({
-  aberto,
   titulo,
   onFechar,
   children,
 }: {
-  aberto: boolean;
   titulo: ReactNode;
   onFechar: () => void;
   children: ReactNode;
 }) => {
+  const idTitulo = useId();
+
   useEffect(() => {
-    if (!aberto) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onFechar();
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [aberto, onFechar]);
+    // Evita que a página de fundo role junto no celular.
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = overflowAnterior;
+    };
+  }, [onFechar]);
 
-  if (!aberto) return null;
   return (
-    <div className="modal-overlay open" onMouseDown={(e) => e.target === e.currentTarget && onFechar()}>
-      <div className="modal" role="dialog" aria-modal="true">
-        <h2>{titulo}</h2>
+    <div className="modal-overlay" onMouseDown={(e) => e.target === e.currentTarget && onFechar()}>
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby={idTitulo}>
+        <div className="modal-topo">
+          <h2 id={idTitulo}>{titulo}</h2>
+          <button type="button" className="btn-icone" onClick={onFechar} aria-label="Fechar">
+            ✕
+          </button>
+        </div>
         {children}
       </div>
     </div>
+  );
+};
+
+/** Confirmação de ação destrutiva, no lugar do window.confirm (que é ruim no celular). */
+export const ModalConfirmacao = ({
+  titulo,
+  mensagem,
+  rotuloConfirmar = 'Excluir',
+  onConfirmar,
+  onFechar,
+}: {
+  titulo: string;
+  mensagem: ReactNode;
+  rotuloConfirmar?: string;
+  onConfirmar: () => Promise<unknown>;
+  onFechar: () => void;
+}) => {
+  const [executando, setExecutando] = useState(false);
+  const [erro, setErro] = useState('');
+
+  const confirmar = async () => {
+    setExecutando(true);
+    setErro('');
+    try {
+      await onConfirmar();
+      onFechar();
+    } catch (e) {
+      setErro(`❌ Erro: ${e instanceof Error ? e.message : String(e)}`);
+      setExecutando(false);
+    }
+  };
+
+  return (
+    <Modal titulo={titulo} onFechar={onFechar}>
+      <div className="confirmacao-msg">{mensagem}</div>
+      <div className="modal-actions">
+        <button type="button" className="btn-cancel" onClick={onFechar}>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="btn-save perigo"
+          onClick={() => void confirmar()}
+          disabled={executando}
+        >
+          {executando ? 'Excluindo...' : rotuloConfirmar}
+        </button>
+      </div>
+      <div className="save-msg erro">{erro}</div>
+    </Modal>
   );
 };
 
@@ -73,7 +132,7 @@ export const GradeOpcoes = <T extends string>({
   onChange: (v: T) => void;
   colunas?: number;
 }) => (
-  <div className="tipo-grid" style={{ gridTemplateColumns: `repeat(${colunas}, 1fr)` }} role="radiogroup">
+  <div className="tipo-grid" style={{ '--colunas': colunas } as CSSProperties} role="radiogroup">
     {opcoes.map((o) => (
       <button
         type="button"
@@ -108,8 +167,34 @@ export const AcoesModal = ({
   </div>
 );
 
-export const BotaoExcluir = ({ onClick, titulo = 'Excluir' }: { onClick: () => void; titulo?: string }) => (
-  <button type="button" className="btn-excluir" onClick={onClick} title={titulo} aria-label={titulo}>
-    🗑
-  </button>
+/** Botões de editar e excluir de uma linha de lista. */
+export const AcoesItem = ({
+  descricao,
+  onEditar,
+  onExcluir,
+}: {
+  descricao: string;
+  onEditar: () => void;
+  onExcluir: () => void;
+}) => (
+  <div className="acoes-item">
+    <button
+      type="button"
+      className="btn-icone"
+      onClick={onEditar}
+      title="Editar"
+      aria-label={`Editar ${descricao}`}
+    >
+      ✏️
+    </button>
+    <button
+      type="button"
+      className="btn-icone perigo"
+      onClick={onExcluir}
+      title="Excluir"
+      aria-label={`Excluir ${descricao}`}
+    >
+      🗑
+    </button>
+  </div>
 );

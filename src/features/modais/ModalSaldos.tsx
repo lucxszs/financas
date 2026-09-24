@@ -64,7 +64,7 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
   };
 
   return (
-    <Modal aberto titulo="Atualizar saldos" onFechar={onFechar}>
+    <Modal titulo="Atualizar saldos" onFechar={onFechar}>
       <form onSubmit={onSubmit}>
         <div className="modal-section-title">Investimentos</div>
         <div className="field-row">

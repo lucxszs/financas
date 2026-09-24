@@ -1,8 +1,11 @@
 import { initializeApp } from 'firebase/app';
-import { GoogleAuthProvider, getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { GoogleAuthProvider, connectAuthEmulator, getAuth } from 'firebase/auth';
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
 
 const env = import.meta.env;
+
+/** true quando rodando com `npm run dev:emulador` (Auth e Firestore locais, sem tocar em produção). */
+export const usandoEmuladores = env.VITE_USE_EMULATORS === 'true';
 
 const firebaseConfig = {
   apiKey: env.VITE_FIREBASE_API_KEY,
@@ -24,3 +27,8 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+if (usandoEmuladores) {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+}

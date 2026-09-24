@@ -111,6 +111,7 @@ export interface Transacao {
   obs: string;
   isEntrada: boolean;
   criadoEm: string;
+  atualizadoEm?: string;
 }
 
 export interface Aporte {
@@ -120,6 +121,7 @@ export interface Aporte {
   data: string;
   obs: string;
   criadoEm: string;
+  atualizadoEm?: string;
 }
 
 export interface ItemFechamento {

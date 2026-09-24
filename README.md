@@ -1,59 +1,27 @@
 # 💰 Plano Financeiro
 
-Dashboard pessoal de finanças: caixinhas de investimento em BRL/USD/EUR, metas com contagem regressiva, lançamentos,
-uso de cartões, aportes e histórico mensal.
+[![Pipeline](https://github.com/lucxszs/financas/actions/workflows/pipeline.yml/badge.svg)](https://github.com/lucxszs/financas/actions/workflows/pipeline.yml)
 
-**Stack:** React 19 + TypeScript + Vite · Firebase (Auth, Firestore, Hosting) · Vitest · GitHub Actions.
+Dashboard pessoal de finanças: caixinhas de investimento em BRL, USD e EUR, metas com contagem regressiva,
+lançamentos, cartões, aportes e histórico mensal. Funciona no computador e no celular.
 
-## Segurança
+**Stack:** React 19 · TypeScript · Vite · Firebase (Auth, Firestore, Hosting) · Vitest · GitHub Actions
 
-Este repositório é público e **não contém dados financeiros**. Todos os dados ficam no Firestore, protegidos por:
+## Funcionalidades
 
-1. **Firebase Auth (Google).** Nada é acessível sem login.
-2. **Allowlist.** Só contas com documento em `acessos/{uid}` usam o app. O documento é criado manualmente no Console;
-   nenhum cliente consegue se autoliberar.
-3. **Isolamento.** Cada usuário só lê e escreve em `users/{seu-uid}/**`.
-4. **Validação de campos** nas regras (tipos, tamanhos, datas).
+- 🔐 Login com Google e acesso restrito por allowlist
+- 📊 Visão geral: total investido, rendimento estimado, score do mês, uso dos cartões e metas
+- 🎯 Contagem regressiva para objetivos com data (financeiro e temporal)
+- 💱 Câmbio USD e EUR ao vivo ([AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)), com 2 casas decimais
+- 📝 Lançamentos e aportes com CRUD completo (criar, listar, editar e excluir com confirmação)
+- 📈 Evolução mensal dos saldos, com a cotação de cada mês
+- 🧾 Fechamentos mensais com pendências e notas
+- 📱 Layout responsivo, com menu fixo, formulários em bottom sheet e alvos de toque grandes
+- 🏳️ Bandeiras emoji inclusive no Windows
 
-As regras estão em [`firestore.rules`](firestore.rules) e são testadas no emulador
-([`tests/firestore.rules.test.ts`](tests/firestore.rules.test.ts)) a cada PR.
+Detalhes em [docs/funcionalidades.md](docs/funcionalidades.md).
 
-> A `apiKey` do Firebase Web **não é segredo**: ela identifica o projeto e vai para o navegador de qualquer forma.
-> Ela fica em `.env.local` só para manter o código genérico. Recomenda-se restringi-la por domínio no Google Cloud
-> Console (APIs e serviços > Credenciais).
-
-## Estrutura
-
-```
-src/
-  domain/         regras de negócio puras (tipos, cálculos, datas, validação) + testes
-  services/       acesso a Firestore e à API de câmbio
-  hooks/          hooks reutilizáveis (cotação, envio de formulários)
-  features/       telas por funcionalidade (auth, visão, lançamentos, histórico, gastos, modais, onboarding)
-  components/     componentes de UI compartilhados
-  lib/firebase.ts inicialização do Firebase a partir das variáveis de ambiente
-tests/            testes das regras do Firestore (emulador)
-seed/exemplo.json formato dos dados iniciais (fictícios)
-```
-
-### Modelo de dados
-
-```
-acessos/{uid}                      allowlist (criado à mão no Console)
-users/{uid}/perfil/config          caixinhas, objetivos, cartões, renda
-users/{uid}/perfil/saldos          saldo atual por caixinha + score do mês
-users/{uid}/snapshots/{YYYY-MM}    foto mensal dos saldos (com a cotação do dia)
-users/{uid}/fechamentos/{YYYY-MM}  fechamento manual do mês
-users/{uid}/transacoes/{id}
-users/{uid}/aportes/{id}
-```
-
-Câmbio: [AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) (`/json/last/USD-BRL,EUR-BRL`). Caixinhas podem ser
-em `BRL`, `USD` ou `EUR`.
-
-## Rodando localmente
-
-Requisitos: Node 22+. Para os testes das regras, Java 21+.
+## Começando
 
 ```bash
 npm install
@@ -61,40 +29,34 @@ cp .env.example .env.local   # preencha com a config do app Web do Firebase
 npm run dev
 ```
 
-| Script               | O que faz                                    |
-| -------------------- | -------------------------------------------- |
-| `npm run dev`        | servidor de desenvolvimento                  |
-| `npm run check`      | format + lint + typecheck + testes unitários |
-| `npm run test:rules` | testes das `firestore.rules` no emulador     |
-| `npm run build`      | build de produção em `dist/`                 |
-| `npm run deploy`     | build + deploy manual de hosting e regras    |
+Para rodar sem tocar no Firebase real, com dados de exemplo e login de teste:
 
-## Primeiro acesso
+```bash
+npm run dev:emulador          # requer Java 21+
+```
 
-1. No Console do Firebase, ative **Authentication > Google**.
-2. Entre no app com sua conta Google. A tela mostrará seu `uid`.
-3. No **Firestore**, crie o documento `acessos/{seu-uid}` (pode ser vazio) e recarregue.
-4. Importe um JSON no formato de [`seed/exemplo.json`](seed/exemplo.json). Arquivos `seed/*.json` (exceto o exemplo) são
-   ignorados pelo git: é ali que ficam seus dados reais.
+## Documentação
 
-## CI/CD
+| Guia                                       | Conteúdo                                                      |
+| ------------------------------------------ | ------------------------------------------------------------- |
+| [Funcionalidades](docs/funcionalidades.md) | O que o app faz, tela por tela                                |
+| [Arquitetura](docs/arquitetura.md)         | Stack, pastas, fluxo de dados e decisões                      |
+| [Modelo de dados](docs/modelo-de-dados.md) | Coleções, campos, validações e formato do JSON de importação  |
+| [Segurança](docs/seguranca.md)             | Regras do Firestore, allowlist, API key e segredos            |
+| [Desenvolvimento](docs/desenvolvimento.md) | Setup, emuladores, scripts, convenções e solução de problemas |
+| [Deploy e CI/CD](docs/deploy.md)           | Pipeline, configuração do GitHub e Firebase, rollback         |
 
-[`.github/workflows/pipeline.yml`](.github/workflows/pipeline.yml):
+## Scripts principais
 
-| Evento         | Jobs                                                                         |
-| -------------- | ---------------------------------------------------------------------------- |
-| Pull request   | qualidade (format, lint, tipos, testes, build) · regras (emulador) · preview |
-| Push na `main` | qualidade · regras · deploy em produção (hosting + `firestore.rules`)        |
+| Script                 | O que faz                                        |
+| ---------------------- | ------------------------------------------------ |
+| `npm run dev`          | desenvolvimento com o Firebase real              |
+| `npm run dev:emulador` | desenvolvimento com emuladores e dados fictícios |
+| `npm run check`        | format + lint + typecheck + testes               |
+| `npm run test:rules`   | testes das regras do Firestore                   |
+| `npm run build`        | build de produção                                |
 
-O deploy de preview publica um canal temporário (7 dias) e comenta a URL no PR. O login com Google só funciona em
-domínios autorizados; para testar login no preview, adicione o domínio do canal em Authentication > Settings.
+## Segurança em uma linha
 
-Configuração no GitHub (Settings > Secrets and variables > Actions):
-
-- **Variables:** `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`,
-  `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
-- **Secret:** `FIREBASE_SERVICE_ACCOUNT`: JSON de uma service account com os papéis _Firebase Hosting Admin_,
-  _Firebase Rules Admin_, _API Keys Viewer_ e _Service Usage Consumer_.
-- **Environment:** `production` (opcional: exigir aprovação antes do deploy).
-
-Dependabot abre PRs semanais para npm e mensais para as actions.
+Este repositório é público e **não contém dados financeiros**: tudo fica no Firestore, acessível só por contas
+liberadas, cada uma restrita aos próprios dados. Veja [docs/seguranca.md](docs/seguranca.md).

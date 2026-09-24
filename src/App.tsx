@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { fmt } from './domain/formatadores';
+import type { Aporte, Transacao } from './domain/types';
 import { AuthProvider } from './features/auth/AuthProvider';
 import { TelaLogin } from './features/auth/TelaLogin';
 import { useAuth } from './features/auth/useAuth';
@@ -15,7 +16,8 @@ import { TelaOnboarding } from './features/onboarding/TelaOnboarding';
 import { PaginaVisao } from './features/visao/PaginaVisao';
 
 type Pagina = 'visao' | 'lancamentos' | 'historico' | 'gastos';
-type ModalAberto = 'saldos' | 'transacao' | 'aporte' | null;
+type ModalAberto =
+  { tipo: 'saldos' } | { tipo: 'transacao'; item?: Transacao } | { tipo: 'aporte'; item?: Aporte } | null;
 
 const PAGINAS: { id: Pagina; nome: string }[] = [
   { id: 'visao', nome: 'Visão geral' },
@@ -67,13 +69,13 @@ const Principal = () => {
           </div>
         </div>
         <div className="header-actions">
-          <button className="btn" onClick={() => setModal('aporte')}>
+          <button className="btn" onClick={() => setModal({ tipo: 'aporte' })}>
             🐷 Lançar aporte
           </button>
-          <button className="btn" onClick={() => setModal('transacao')}>
+          <button className="btn" onClick={() => setModal({ tipo: 'transacao' })}>
             + Lançar gasto
           </button>
-          <button className="btn" onClick={() => setModal('saldos')}>
+          <button className="btn" onClick={() => setModal({ tipo: 'saldos' })}>
             ✏️ Atualizar saldos
           </button>
           <button className="btn" onClick={() => void sair()} title="Sair">
@@ -97,14 +99,24 @@ const Principal = () => {
 
       <main>
         {pagina === 'visao' && <PaginaVisao />}
-        {pagina === 'lancamentos' && <PaginaLancamentos onNovo={() => setModal('transacao')} />}
-        {pagina === 'historico' && <PaginaHistorico onNovoAporte={() => setModal('aporte')} />}
+        {pagina === 'lancamentos' && (
+          <PaginaLancamentos
+            onNovo={() => setModal({ tipo: 'transacao' })}
+            onEditar={(item) => setModal({ tipo: 'transacao', item })}
+          />
+        )}
+        {pagina === 'historico' && (
+          <PaginaHistorico
+            onNovoAporte={() => setModal({ tipo: 'aporte' })}
+            onEditarAporte={(item) => setModal({ tipo: 'aporte', item })}
+          />
+        )}
         {pagina === 'gastos' && <PaginaGastos />}
       </main>
 
-      {modal === 'saldos' && <ModalSaldos onFechar={fechar} />}
-      {modal === 'transacao' && <ModalTransacao onFechar={fechar} />}
-      {modal === 'aporte' && <ModalAporte onFechar={fechar} />}
+      {modal?.tipo === 'saldos' && <ModalSaldos onFechar={fechar} />}
+      {modal?.tipo === 'transacao' && <ModalTransacao transacao={modal.item} onFechar={fechar} />}
+      {modal?.tipo === 'aporte' && <ModalAporte aporte={modal.item} onFechar={fechar} />}
     </div>
   );
 };
