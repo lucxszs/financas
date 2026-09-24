@@ -94,7 +94,7 @@ Configuração no GitHub (Settings > Secrets and variables > Actions):
 - **Variables:** `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`,
   `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
 - **Secret:** `FIREBASE_SERVICE_ACCOUNT`: JSON de uma service account com os papéis _Firebase Hosting Admin_,
-  _Firebase Rules Admin_ e _API Keys Viewer_.
+  _Firebase Rules Admin_, _API Keys Viewer_ e _Service Usage Consumer_.
 - **Environment:** `production` (opcional: exigir aprovação antes do deploy).
 
 Dependabot abre PRs semanais para npm e mensais para as actions.
