@@ -1,0 +1,115 @@
+{
+  "config": {
+    "nome": "Exemplo",
+    "rendaMensal": 6000,
+    "taxaAnualEstimada": 0.14,
+    "alocacaoDesde": "2026-01",
+    "caixinhas": [
+      {
+        "id": "reserva",
+        "nome": "Reserva",
+        "emoji": "🛡",
+        "moeda": "BRL",
+        "rendimento": "100% CDI",
+        "descricao": "liquidez diária",
+        "cor": "emerald"
+      },
+      {
+        "id": "viagem",
+        "nome": "Viagem",
+        "emoji": "✈️",
+        "moeda": "BRL",
+        "rendimento": "110% CDI",
+        "cor": "violet"
+      },
+      {
+        "id": "dolar",
+        "nome": "Conta em dólar",
+        "emoji": "🇺🇸",
+        "moeda": "USD",
+        "rendimento": "~3% a.a.",
+        "cor": "sky"
+      },
+      {
+        "id": "euro",
+        "nome": "Conta em euro",
+        "emoji": "🇪🇺",
+        "moeda": "EUR",
+        "rendimento": "~2% a.a.",
+        "cor": "amber"
+      }
+    ],
+    "objetivos": [
+      {
+        "id": "reserva",
+        "nome": "Reserva de emergência",
+        "meta": 18000,
+        "caixinhas": ["reserva"],
+        "cor": "emerald",
+        "aporteMensal": 500,
+        "previsao": "~2028"
+      },
+      {
+        "id": "viagem",
+        "nome": "Viagem Europa",
+        "emoji": "🇪🇺",
+        "descricao": "Viagem + contas em moeda estrangeira",
+        "meta": 20000,
+        "caixinhas": ["viagem", "dolar", "euro"],
+        "cor": "violet",
+        "aporteMensal": 800,
+        "dataInicio": "2026-01-01",
+        "dataAlvo": "2027-12-01"
+      }
+    ],
+    "cartoes": [
+      { "id": "cartao-a", "nome": "Cartão A", "emoji": "🟡", "limite": 4000, "cor": "amber" },
+      { "id": "cartao-b", "nome": "Cartão B", "emoji": "🔵", "limite": 2500, "cor": "sky" }
+    ],
+    "mediasGastos": {
+      "periodo": "últimos 3 meses",
+      "itens": [
+        { "nome": "Faturas cartão", "emoji": "💳", "valor": 2500, "cor": "coral" },
+        { "nome": "Fixos", "emoji": "🏠", "valor": 1800, "cor": "sky" },
+        { "nome": "Mercado", "emoji": "🛒", "valor": 700, "cor": "amber" },
+        { "nome": "Transporte", "emoji": "🚗", "valor": 300, "cor": "emerald" }
+      ]
+    }
+  },
+  "saldos": {
+    "valores": { "reserva": 7200, "viagem": 3100, "dolar": 250, "euro": 120 }
+  },
+  "snapshots": [
+    {
+      "mes": "2026-06",
+      "valores": { "reserva": 6000, "viagem": 1500, "dolar": 100 },
+      "rendimentos": { "reserva": 60 },
+      "cotacoes": { "USD": 5.4 }
+    },
+    {
+      "mes": "2026-07",
+      "valores": { "reserva": 6500, "viagem": 2300, "dolar": 180 },
+      "rendimentos": { "reserva": 66 },
+      "cotacoes": { "USD": 5.35 }
+    },
+    {
+      "mes": "2026-08",
+      "valores": { "reserva": 7200, "viagem": 3100, "dolar": 250, "euro": 120 },
+      "rendimentos": { "reserva": 72, "viagem": 30 },
+      "cotacoes": { "USD": 5.3, "EUR": 5.9 }
+    }
+  ],
+  "fechamentos": [
+    {
+      "mes": "2026-08",
+      "itens": [
+        { "nome": "Salário", "emoji": "✅", "valor": 6000, "tipo": "entrada" },
+        { "nome": "Aluguel", "emoji": "🏠", "valor": 1800, "tipo": "saida", "pago": true },
+        { "nome": "Cartão A", "emoji": "💳", "valor": 1900, "tipo": "saida", "pago": true },
+        { "nome": "Cartão B", "emoji": "💳", "valor": 700, "tipo": "saida", "pago": false },
+        { "nome": "Aportes", "emoji": "🐷", "valor": 1300, "tipo": "saida", "pago": true }
+      ],
+      "notas": ["Cartão B vence dia 10"]
+    }
+  ]
+}

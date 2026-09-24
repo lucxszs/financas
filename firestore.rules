@@ -1,0 +1,82 @@
+rules_version = '2';
+
+// Modelo de acesso:
+// 1. Só usuários autenticados (Firebase Auth) acessam algo.
+// 2. Só quem tem um documento em /acessos/{uid} pode usar o app. Esse documento é
+//    criado manualmente no Console do Firebase: nenhum cliente consegue se autoliberar.
+// 3. Cada usuário liberado só enxerga a própria árvore /users/{uid}/**.
+// Todo o resto é negado por padrão.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticado() {
+      return request.auth != null;
+    }
+
+    function liberado() {
+      return autenticado()
+        && exists(/databases/$(database)/documents/acessos/$(request.auth.uid));
+    }
+
+    function dono(uid) {
+      return liberado() && request.auth.uid == uid;
+    }
+
+    function dataIso(v) {
+      return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+
+    function textoCurto(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    function transacaoValida(d) {
+      return d.keys().hasAll(['desc', 'val', 'tipo', 'cat', 'data', 'isEntrada', 'criadoEm'])
+        && textoCurto(d.desc, 120) && d.desc.size() > 0
+        && d.val is number && d.val > 0 && d.val < 10000000
+        && textoCurto(d.tipo, 20)
+        && textoCurto(d.cat, 20)
+        && dataIso(d.data)
+        && d.isEntrada is bool
+        && (!('obs' in d) || textoCurto(d.obs, 200));
+    }
+
+    function aporteValido(d) {
+      return d.keys().hasAll(['caixinha', 'val', 'data', 'criadoEm'])
+        && textoCurto(d.caixinha, 40)
+        && d.val is number && d.val > 0 && d.val < 10000000
+        && dataIso(d.data)
+        && (!('obs' in d) || textoCurto(d.obs, 200));
+    }
+
+    // Allowlist: o usuário só consegue ler o próprio registro (para o app saber se está liberado).
+    match /acessos/{uid} {
+      allow read: if autenticado() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      match /perfil/{docId} {
+        allow read, write: if dono(uid) && docId in ['config', 'saldos'];
+      }
+
+      match /snapshots/{mes} {
+        allow read, write: if dono(uid);
+      }
+
+      match /fechamentos/{mes} {
+        allow read, write: if dono(uid);
+      }
+
+      match /transacoes/{id} {
+        allow read, delete: if dono(uid);
+        allow create, update: if dono(uid) && transacaoValida(request.resource.data);
+      }
+
+      match /aportes/{id} {
+        allow read, delete: if dono(uid);
+        allow create, update: if dono(uid) && aporteValido(request.resource.data);
+      }
+    }
+  }
+}
