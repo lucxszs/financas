@@ -65,9 +65,13 @@ export const salvarSaldos = async (uid: string, saldos: Saldos, snapshot: Snapsh
 };
 
 export const criarTransacao = (uid: string, t: SemId<Transacao>) => addDoc(colecao(uid, 'transacoes'), t);
+export const atualizarTransacao = (uid: string, id: string, t: SemId<Transacao>) =>
+  setDoc(doc(colecao(uid, 'transacoes'), id), t);
 export const excluirTransacao = (uid: string, id: string) => deleteDoc(doc(colecao(uid, 'transacoes'), id));
 
 export const criarAporte = (uid: string, a: SemId<Aporte>) => addDoc(colecao(uid, 'aportes'), a);
+export const atualizarAporte = (uid: string, id: string, a: SemId<Aporte>) =>
+  setDoc(doc(colecao(uid, 'aportes'), id), a);
 export const excluirAporte = (uid: string, id: string) => deleteDoc(doc(colecao(uid, 'aportes'), id));
 
 export const salvarConfig = (uid: string, config: Config) => setDoc(perfilDoc(uid, 'config'), config);

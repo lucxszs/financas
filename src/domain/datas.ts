@@ -58,3 +58,9 @@ export const rotuloMesLongo = (mesIso: string) => {
 
 /** "2026-09-24" -> "24/09" */
 export const rotuloDiaMes = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+
+/** "2026-09-24 13:53:12" (formato da AwesomeAPI) -> "24/09/2026 às 13:53" */
+export const rotuloDataHora = (texto: string) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(texto);
+  return m ? `${m[3]}/${m[2]}/${m[1]} às ${m[4]}:${m[5]}` : texto;
+};

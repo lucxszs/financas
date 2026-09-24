@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hojeIso, mesesAte, progressoTemporal, rotuloMesCurto, somarMeses } from './datas';
+import { hojeIso, mesesAte, progressoTemporal, rotuloDataHora, rotuloMesCurto, somarMeses } from './datas';
 
 describe('hojeIso', () => {
   it('usa o fuso local mesmo à noite', () => {
@@ -32,5 +32,15 @@ describe('progressoTemporal', () => {
 describe('rotuloMesCurto', () => {
   it('formata mês/ano', () => {
     expect(rotuloMesCurto('2026-07')).toBe('Jul/26');
+  });
+});
+
+describe('rotuloDataHora', () => {
+  it('formata a data da AwesomeAPI', () => {
+    expect(rotuloDataHora('2026-09-24 13:53:12')).toBe('24/09/2026 às 13:53');
+  });
+
+  it('devolve o texto original se o formato for outro', () => {
+    expect(rotuloDataHora('ontem')).toBe('ontem');
   });
 });

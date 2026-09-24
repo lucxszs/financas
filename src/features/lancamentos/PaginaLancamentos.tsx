@@ -1,35 +1,35 @@
 import { useState } from 'react';
-import { BotaoExcluir, Secao } from '../../components/ui';
+import { AcoesItem, ModalConfirmacao, Secao } from '../../components/ui';
 import { categoriaPorId, tipoPorId } from '../../domain/catalogos';
 import { resumoTransacoes, transacoesDoMes } from '../../domain/calculos';
 import { mesAtualIso, rotuloDiaMes, rotuloMesLongo, somarMeses } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
+import type { Transacao } from '../../domain/types';
 import { excluirTransacao } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
-export const PaginaLancamentos = ({ onNovo }: { onNovo: () => void }) => {
+export const PaginaLancamentos = ({
+  onNovo,
+  onEditar,
+}: {
+  onNovo: () => void;
+  onEditar: (t: Transacao) => void;
+}) => {
   const { uid, transacoes, config } = useDadosConfigurados();
   const [mes, setMes] = useState(mesAtualIso());
+  const [aExcluir, setAExcluir] = useState<Transacao | null>(null);
+
   const doMes = transacoesDoMes(transacoes, mes);
   const { entradas, saidas, saldo } = resumoTransacoes(doMes);
   const nomeCartao = (id: string | null) => config.cartoes.find((c) => c.id === id)?.nome;
 
-  const excluir = async (id: string) => {
-    if (!window.confirm('Excluir este lançamento?')) return;
-    try {
-      await excluirTransacao(uid, id);
-    } catch (e) {
-      window.alert(`Erro ao excluir: ${e instanceof Error ? e.message : e}`);
-    }
-  };
-
   return (
-    <Secao titulo={`Lançamentos · ${rotuloMesLongo(mes)}`}>
+    <Secao titulo="Lançamentos">
       <div className="card">
         <div className="tx-header">
           <div className="seletor-mes">
             <button
-              className="btn btn-mini"
+              className="btn-icone"
               onClick={() => setMes((m) => somarMeses(m, -1))}
               aria-label="Mês anterior"
             >
@@ -37,7 +37,7 @@ export const PaginaLancamentos = ({ onNovo }: { onNovo: () => void }) => {
             </button>
             <span className="tx-header-title">{rotuloMesLongo(mes)}</span>
             <button
-              className="btn btn-mini"
+              className="btn-icone"
               onClick={() => setMes((m) => somarMeses(m, 1))}
               aria-label="Próximo mês"
             >
@@ -53,7 +53,7 @@ export const PaginaLancamentos = ({ onNovo }: { onNovo: () => void }) => {
           <div className="tx-empty">
             Nenhum lançamento neste mês.
             <br />
-            Clique em &quot;+ Novo&quot; para começar.
+            Toque em &quot;+ Novo&quot; para começar.
           </div>
         ) : (
           doMes.map((t) => {
@@ -75,7 +75,7 @@ export const PaginaLancamentos = ({ onNovo }: { onNovo: () => void }) => {
                   {t.isEntrada ? '+' : '−'}
                   {fmt(t.val)}
                 </div>
-                <BotaoExcluir onClick={() => void excluir(t.id)} />
+                <AcoesItem descricao={t.desc} onEditar={() => onEditar(t)} onExcluir={() => setAExcluir(t)} />
               </div>
             );
           })
@@ -91,6 +91,21 @@ export const PaginaLancamentos = ({ onNovo }: { onNovo: () => void }) => {
           />
         </div>
       </div>
+
+      {aExcluir && (
+        <ModalConfirmacao
+          titulo="Excluir lançamento?"
+          mensagem={
+            <>
+              <strong>{aExcluir.desc}</strong> · {fmt(aExcluir.val)} · {rotuloDiaMes(aExcluir.data)}
+              <br />
+              Essa ação não pode ser desfeita.
+            </>
+          }
+          onConfirmar={() => excluirTransacao(uid, aExcluir.id)}
+          onFechar={() => setAExcluir(null)}
+        />
+      )}
     </Secao>
   );
 };

@@ -4,6 +4,7 @@ dist
 .env
 .env.*
 !.env.example
+!.env.emulador
 .firebase
 .firebaserc
 firebase-debug.log

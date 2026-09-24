@@ -11,8 +11,9 @@
   --violet: #a78bfa;
   --coral: #ff6b6b;
   --sky: #38bdf8;
-  --font: 'Sora', sans-serif;
-  --mono: 'JetBrains Mono', monospace;
+  /* 'Twemoji Country Flags' só cobre os códigos de bandeira (unicode-range); o resto cai na fonte seguinte. */
+  --font: 'Twemoji Country Flags', 'Sora', sans-serif;
+  --mono: 'Twemoji Country Flags', 'JetBrains Mono', monospace;
   --r: 14px;
   --r-lg: 20px;
   color-scheme: dark;
@@ -29,7 +30,10 @@ body {
   color: var(--text);
   font-family: var(--font);
   min-height: 100vh;
-  padding: 28px 16px 80px;
+  min-height: 100dvh;
+  padding: 28px max(16px, env(safe-area-inset-right)) calc(80px + env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  -webkit-text-size-adjust: 100%;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -46,6 +50,7 @@ button:disabled {
   outline-offset: 2px;
 }
 code {
+  overflow-wrap: anywhere;
   font-family: var(--mono);
   font-size: 0.9em;
   background: var(--surface2);
@@ -232,16 +237,34 @@ code {
   font-size: 11px;
   cursor: pointer;
 }
-.btn-excluir {
+.btn-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
   background: none;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
   color: var(--muted);
-  cursor: pointer;
   font-size: 14px;
-  padding: 0 4px;
+  cursor: pointer;
+  transition: all 0.15s;
 }
-.btn-excluir:hover {
+.btn-icone:hover {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-icone.perigo:hover {
   color: var(--coral);
+  border-color: rgb(255 107 107 / 0.3);
+}
+.acoes-item {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 .section {
@@ -863,10 +886,24 @@ code {
   max-height: 92vh;
   overflow-y: auto;
 }
+.modal-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.confirmacao-msg {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.confirmacao-msg strong {
+  color: var(--text);
+}
 .modal h2 {
   font-size: 17px;
   font-weight: 700;
-  margin-bottom: 18px;
 }
 .modal-section-title {
   font-family: var(--mono);
@@ -926,6 +963,10 @@ code {
   cursor: pointer;
   transition: opacity 0.15s;
 }
+.btn-save.perigo {
+  background: var(--coral);
+  color: #fff;
+}
 .btn-save:hover {
   opacity: 0.85;
 }
@@ -956,6 +997,7 @@ code {
 }
 .tipo-grid {
   display: grid;
+  grid-template-columns: repeat(var(--colunas, 3), 1fr);
   gap: 6px;
   margin-bottom: 4px;
 }
@@ -977,15 +1019,219 @@ code {
   background: rgb(0 214 143 / 0.08);
 }
 
-@media (max-width: 480px) {
+/* ───────────── celular ───────────── */
+@media (max-width: 600px) {
+  body {
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 12px;
+    padding-bottom: 16px;
+  }
+  .header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .header-actions .btn {
+    min-height: 42px;
+    white-space: normal;
+  }
+
+  /* Menu fixo no topo, rolando na horizontal. */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -12px 20px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+  .nav-btn {
+    flex-shrink: 0;
+    min-height: 38px;
+  }
+
+  .section {
+    margin-bottom: 24px;
+  }
+
+  .countdown-card,
+  .total-card {
+    padding: 16px;
+  }
+  .cd-stat .n {
+    font-size: clamp(17px, 5.5vw, 26px);
+  }
+  .tc-val {
+    font-size: 26px;
+  }
+  .tc-right {
+    text-align: left;
+  }
+
   .invest-grid,
   .field-row {
     grid-template-columns: 1fr;
   }
+
+  .cambio-card {
+    padding: 14px 16px;
+  }
+  .cambio-card .texto-direita {
+    width: 100%;
+    text-align: left;
+    padding-left: 38px;
+  }
+
+  .cartao-row,
+  .meta-row,
+  .aloc-row,
+  .brow {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  /* Lançamentos e aportes: descrição e valor empilhados, ações à direita. */
+  .tx-header {
+    padding: 10px 12px;
+  }
+  .tx-header-title {
+    font-size: 12px;
+  }
+  .seletor-mes {
+    gap: 2px;
+  }
+  .tx-row {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    grid-template-areas:
+      'icone info acoes'
+      'icone valor acoes';
+    column-gap: 10px;
+    row-gap: 2px;
+    padding: 10px 12px;
+  }
+  .tx-icon {
+    grid-area: icone;
+    align-self: center;
+  }
+  .tx-info {
+    grid-area: info;
+  }
+  .tx-val {
+    grid-area: valor;
+    text-align: left;
+  }
+  .tx-row .acoes-item {
+    grid-area: acoes;
+    align-self: center;
+  }
+  .tx-summary {
+    gap: 4px;
+    padding: 12px;
+  }
+  .tx-sum-val {
+    font-size: 12px;
+  }
+
+  /* Histórico: chips de saldo descem para a linha de baixo. */
+  .evo-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .evo-vals {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .evo-mes {
+    width: auto;
+  }
+  .evo-total {
+    width: auto;
+    margin-left: auto;
+  }
+  .evo-cabecalho .flex-1 {
+    display: none;
+  }
+
   .chart-label {
-    width: 120px;
+    width: 108px;
+  }
+  .chart-val {
+    width: 78px;
+    font-size: 10px;
+  }
+
+  /* Modais abrem de baixo, ocupando a largura toda. */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal {
+    max-width: none;
+    max-height: 92dvh;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-bottom: none;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    animation: subir 0.2s ease-out;
+  }
+  .modal-actions {
+    position: sticky;
+    bottom: calc(-18px - env(safe-area-inset-bottom));
+    background: var(--surface);
+    padding: 12px 0 4px;
+    margin-top: 8px;
+  }
+
+  /* 16px evita o zoom automático do iOS ao focar um campo. */
+  .field input,
+  .field select {
+    font-size: 16px;
+    padding: 10px 12px;
   }
   .tipo-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tipo-btn {
+    font-size: 12px;
+    padding: 10px 6px;
+  }
+}
+
+/* Telas de toque: alvos com pelo menos 40px. */
+@media (pointer: coarse) {
+  .btn-icone {
+    width: 40px;
+    height: 40px;
+  }
+  .btn,
+  .mes-tab {
+    min-height: 38px;
+  }
+}
+
+@keyframes subir {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }

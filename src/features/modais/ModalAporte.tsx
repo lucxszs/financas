@@ -2,17 +2,20 @@ import { useState, type FormEvent } from 'react';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
 import { hojeIso } from '../../domain/datas';
 import { useEnvio } from '../../hooks/useEnvio';
-import { criarAporte } from '../../services/repositorio';
+import { atualizarAporte, criarAporte } from '../../services/repositorio';
+import type { Aporte } from '../../domain/types';
 import { useDadosConfigurados } from '../dados/useDados';
 
-export const ModalAporte = ({ onFechar }: { onFechar: () => void }) => {
+/** Sem `aporte`: cria. Com `aporte`: edita o existente. */
+export const ModalAporte = ({ aporte, onFechar }: { aporte?: Aporte; onFechar: () => void }) => {
   const { uid, config } = useDadosConfigurados();
   const { msg, erro, salvando, avisar, enviar } = useEnvio(onFechar);
+  const editando = Boolean(aporte);
 
-  const [caixinha, setCaixinha] = useState('');
-  const [val, setVal] = useState('');
-  const [data, setData] = useState(hojeIso());
-  const [obs, setObs] = useState('');
+  const [caixinha, setCaixinha] = useState(aporte?.caixinha ?? '');
+  const [val, setVal] = useState(aporte ? String(aporte.val) : '');
+  const [data, setData] = useState(aporte?.data ?? hojeIso());
+  const [obs, setObs] = useState(aporte?.obs ?? '');
 
   const moeda = config.caixinhas.find((c) => c.id === caixinha)?.moeda ?? 'BRL';
 
@@ -22,21 +25,20 @@ export const ModalAporte = ({ onFechar }: { onFechar: () => void }) => {
     const valor = Number(val);
     if (!Number.isFinite(valor) || valor <= 0) return avisar('⚠️ Informe o valor');
 
+    const dados = { caixinha, val: valor, data: data || hojeIso(), obs: obs.trim() };
+    const agora = new Date().toISOString();
+
     void enviar(
       () =>
-        criarAporte(uid, {
-          caixinha,
-          val: valor,
-          data: data || hojeIso(),
-          obs: obs.trim(),
-          criadoEm: new Date().toISOString(),
-        }),
-      '✅ Aporte lançado!',
+        aporte
+          ? atualizarAporte(uid, aporte.id, { ...dados, criadoEm: aporte.criadoEm, atualizadoEm: agora })
+          : criarAporte(uid, { ...dados, criadoEm: agora }),
+      editando ? '✅ Aporte atualizado!' : '✅ Aporte lançado!',
     );
   };
 
   return (
-    <Modal aberto titulo="🐷 Lançar aporte" onFechar={onFechar}>
+    <Modal titulo={editando ? '🐷 Editar aporte' : '🐷 Lançar aporte'} onFechar={onFechar}>
       <form onSubmit={onSubmit}>
         <div className="field">
           <label>Caixinha</label>
@@ -78,7 +80,7 @@ export const ModalAporte = ({ onFechar }: { onFechar: () => void }) => {
           />
         </div>
 
-        <AcoesModal onCancelar={onFechar} rotuloSalvar="Lançar" salvando={salvando} />
+        <AcoesModal onCancelar={onFechar} rotuloSalvar={editando ? 'Salvar' : 'Lançar'} salvando={salvando} />
         <div className={`save-msg${erro ? ' erro' : ''}`}>{msg}</div>
       </form>
     </Modal>
