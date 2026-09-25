@@ -5,24 +5,28 @@ import { TelaLogin } from './features/auth/TelaLogin';
 import { useAuth } from './features/auth/useAuth';
 import { DadosProvider } from './features/dados/DadosProvider';
 import { useDados } from './features/dados/useDados';
+import { PaginaAnalises } from './features/analises/PaginaAnalises';
+import { PaginaConfiguracoes } from './features/configuracoes/PaginaConfiguracoes';
+import { PaginaDashboard } from './features/dashboard/PaginaDashboard';
 import { PaginaGastos } from './features/gastos/PaginaGastos';
-import { PaginaHistorico } from './features/historico/PaginaHistorico';
-import { PaginaLancamentos } from './features/lancamentos/PaginaLancamentos';
+import { PaginaMetas } from './features/metas/PaginaMetas';
 import { ModalAporte } from './features/modais/ModalAporte';
 import { ModalSaldos } from './features/modais/ModalSaldos';
 import { ModalTransacao } from './features/modais/ModalTransacao';
 import { TelaOnboarding } from './features/onboarding/TelaOnboarding';
-import { PaginaVisao } from './features/visao/PaginaVisao';
+import { PaginaPatrimonio } from './features/patrimonio/PaginaPatrimonio';
 
-type Pagina = 'visao' | 'lancamentos' | 'historico' | 'gastos';
+type Pagina = 'dashboard' | 'gastos' | 'patrimonio' | 'metas' | 'analises' | 'configuracoes';
 type ModalAberto =
   { tipo: 'saldos' } | { tipo: 'transacao'; item?: Transacao } | { tipo: 'aporte'; item?: Aporte } | null;
 
 const PAGINAS: { id: Pagina; nome: string }[] = [
-  { id: 'visao', nome: 'Visão geral' },
-  { id: 'lancamentos', nome: 'Lançamentos' },
-  { id: 'historico', nome: 'Histórico' },
-  { id: 'gastos', nome: 'Gastos' },
+  { id: 'dashboard', nome: '🏠 Dashboard' },
+  { id: 'gastos', nome: '💳 Gastos' },
+  { id: 'patrimonio', nome: '📈 Patrimônio' },
+  { id: 'metas', nome: '🎯 Metas' },
+  { id: 'analises', nome: '📊 Análises' },
+  { id: 'configuracoes', nome: '⚙️ Configurações' },
 ];
 
 export const App = () => (
@@ -45,7 +49,7 @@ const Portao = () => {
 const Principal = () => {
   const { config, saldos, erro } = useDados();
   const { sair } = useAuth();
-  const [pagina, setPagina] = useState<Pagina>('visao');
+  const [pagina, setPagina] = useState<Pagina>('dashboard');
   const [modal, setModal] = useState<ModalAberto>(null);
   const fechar = useCallback(() => setModal(null), []);
 
@@ -94,20 +98,22 @@ const Principal = () => {
       </nav>
 
       <main>
-        {pagina === 'visao' && <PaginaVisao />}
-        {pagina === 'lancamentos' && (
-          <PaginaLancamentos
+        {pagina === 'dashboard' && <PaginaDashboard />}
+        {pagina === 'gastos' && (
+          <PaginaGastos
             onNovo={() => setModal({ tipo: 'transacao' })}
             onEditar={(item) => setModal({ tipo: 'transacao', item })}
           />
         )}
-        {pagina === 'historico' && (
-          <PaginaHistorico
+        {pagina === 'patrimonio' && <PaginaPatrimonio />}
+        {pagina === 'metas' && <PaginaMetas />}
+        {pagina === 'analises' && (
+          <PaginaAnalises
             onNovoAporte={() => setModal({ tipo: 'aporte' })}
             onEditarAporte={(item) => setModal({ tipo: 'aporte', item })}
           />
         )}
-        {pagina === 'gastos' && <PaginaGastos />}
+        {pagina === 'configuracoes' && <PaginaConfiguracoes />}
       </main>
 
       {modal?.tipo === 'saldos' && <ModalSaldos onFechar={fechar} />}

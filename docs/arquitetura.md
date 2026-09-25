@@ -32,6 +32,9 @@ src/
   domain/          regras de negócio puras, sem React nem Firebase
     types.ts         tipos do modelo de dados
     calculos.ts      conversão de moedas, progresso de metas, score, uso de cartão, totais
+    cartoes.ts       mês da fatura pelo melhor dia de compra
+    recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
+    ids.ts           ids legíveis a partir do nome
     datas.ts         datas no fuso local, rótulos de mês
     formatadores.ts  moeda (BRL/USD/EUR) com Intl
     catalogos.ts     tipos de transação e categorias
@@ -44,7 +47,8 @@ src/
   features/        telas, uma pasta por funcionalidade
     auth/            AuthProvider, login, allowlist
     dados/           DadosProvider: assina as coleções do usuário e expõe via contexto
-    visao/ lancamentos/ historico/ gastos/ onboarding/
+    dashboard/ gastos/ patrimonio/ metas/ analises/ onboarding/
+    configuracoes/   formulários de caixinhas, cartões, objetivos, orçamento e recorrentes
     modais/          formulários de saldos, transação e aporte (criar e editar)
   components/      UI compartilhada (Modal, ModalConfirmacao, AcoesItem, Barra...)
   lib/firebase.ts  inicialização; conecta nos emuladores quando VITE_USE_EMULATORS=true
@@ -59,7 +63,8 @@ docs/              esta documentação
 
 1. `AuthProvider` observa o login. Com usuário logado, lê `acessos/{uid}` para saber se ele está liberado.
 2. `DadosProvider` abre listeners (`onSnapshot`) em `users/{uid}/...` e mantém tudo em estado React. Qualquer
-   gravação (inclusive de outro dispositivo) chega em tempo real.
+   gravação (inclusive de outro dispositivo) chega em tempo real. Transações: só dos últimos 12 meses em diante.
+   Quando a config chega, ele também lança as recorrências vencidas.
 3. As telas leem o contexto com `useDadosConfigurados()` e calculam o que mostram com funções de `domain/`.
 4. Formulários gravam via `services/repositorio.ts`. Não há estado otimista: a tela atualiza quando o listener do
    Firestore recebe a mudança (o SDK aplica gravações locais imediatamente, então a resposta é instantânea).

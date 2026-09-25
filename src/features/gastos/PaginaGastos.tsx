@@ -4,9 +4,18 @@ import { categoriaPorId } from '../../domain/catalogos';
 import { gastosPorCategoria, transacoesDoMes } from '../../domain/calculos';
 import { mesAtualIso, rotuloMesLongo } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
+import type { Transacao } from '../../domain/types';
 import { useDadosConfigurados } from '../dados/useDados';
+import { CartoesResumo } from './CartoesResumo';
+import { ListaLancamentos } from './ListaLancamentos';
 
-export const PaginaGastos = () => {
+export const PaginaGastos = ({
+  onNovo,
+  onEditar,
+}: {
+  onNovo: () => void;
+  onEditar: (t: Transacao) => void;
+}) => {
   const { transacoes, config } = useDadosConfigurados();
   const mes = mesAtualIso();
   const porCat = gastosPorCategoria(transacoesDoMes(transacoes, mes));
@@ -17,6 +26,9 @@ export const PaginaGastos = () => {
 
   return (
     <>
+      <ListaLancamentos onNovo={onNovo} onEditar={onEditar} />
+      <CartoesResumo />
+
       <Secao titulo={`Gastos por categoria · ${rotuloMesLongo(mes)}`}>
         <div className="card card-pad">
           {porCat.length === 0 ? (

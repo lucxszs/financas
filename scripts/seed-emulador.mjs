@@ -105,7 +105,9 @@ await pedir(`${AUTH}/accounts`, {
 });
 
 await gravar(`acessos/${uid}`, { ativo: true });
-await gravar(`users/${uid}/perfil/config`, exemplo.config);
+// Recorrências começam no mês atual: sem lançar meses passados de uma vez.
+const recorrentes = (exemplo.config.recorrentes ?? []).map((r) => ({ ...r, inicio: mes }));
+await gravar(`users/${uid}/perfil/config`, { ...exemplo.config, recorrentes });
 await gravar(`users/${uid}/perfil/saldos`, {
   ...exemplo.saldos,
   score: { pagou: 'sim', positivo: 'sim', aporte: 'parcial' },

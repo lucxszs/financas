@@ -9,10 +9,21 @@ import {
   orderBy,
   query,
   setDoc,
+  where,
   writeBatch,
+  type QueryConstraint,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { mesAtualIso } from '../domain/datas';
+import {
+  aporteDeRecorrente,
+  idLancamentoRecorrente,
+  marcarLancados,
+  semRetroativo,
+  transacaoDeRecorrente,
+  type LancamentoRecorrente,
+} from '../domain/recorrentes';
 import type { Aporte, Config, DadosIniciais, Fechamento, Saldos, Snapshot, Transacao } from '../domain/types';
 
 // Todos os dados ficam em /users/{uid}/..., protegidos por firestore.rules.
@@ -35,27 +46,28 @@ const observarColecao = <T>(
   uid: string,
   nome: 'transacoes' | 'aportes' | 'snapshots' | 'fechamentos',
   campoOrdem: string,
-  max: number,
+  filtro: QueryConstraint,
   cb: (itens: T[]) => void,
   erro: Erro,
 ): Unsubscribe =>
   onSnapshot(
-    query(colecao(uid, nome), orderBy(campoOrdem, 'desc'), limit(max)),
+    query(colecao(uid, nome), filtro, orderBy(campoOrdem, 'desc')),
     (s) => cb(s.docs.map((d) => ({ id: d.id, ...d.data() }) as T)),
     erro,
   );
 
-export const observarTransacoes = (uid: string, cb: (t: Transacao[]) => void, erro: Erro) =>
-  observarColecao<Transacao>(uid, 'transacoes', 'data', 300, cb, erro);
+/** Transações a partir de `desde` ("YYYY-MM-DD"), incluindo parcelas futuras. */
+export const observarTransacoes = (uid: string, desde: string, cb: (t: Transacao[]) => void, erro: Erro) =>
+  observarColecao<Transacao>(uid, 'transacoes', 'data', where('data', '>=', desde), cb, erro);
 
 export const observarAportes = (uid: string, cb: (a: Aporte[]) => void, erro: Erro) =>
-  observarColecao<Aporte>(uid, 'aportes', 'data', 200, cb, erro);
+  observarColecao<Aporte>(uid, 'aportes', 'data', limit(200), cb, erro);
 
 export const observarSnapshots = (uid: string, cb: (s: Snapshot[]) => void, erro: Erro) =>
-  observarColecao<Snapshot>(uid, 'snapshots', 'mes', 36, cb, erro);
+  observarColecao<Snapshot>(uid, 'snapshots', 'mes', limit(36), cb, erro);
 
 export const observarFechamentos = (uid: string, cb: (f: Fechamento[]) => void, erro: Erro) =>
-  observarColecao<Fechamento>(uid, 'fechamentos', 'mes', 24, cb, erro);
+  observarColecao<Fechamento>(uid, 'fechamentos', 'mes', limit(24), cb, erro);
 
 export const salvarSaldos = async (uid: string, saldos: Saldos, snapshot: Snapshot) => {
   const batch = writeBatch(db);
@@ -74,12 +86,37 @@ export const atualizarAporte = (uid: string, id: string, a: SemId<Aporte>) =>
   setDoc(doc(colecao(uid, 'aportes'), id), a);
 export const excluirAporte = (uid: string, id: string) => deleteDoc(doc(colecao(uid, 'aportes'), id));
 
-export const salvarConfig = (uid: string, config: Config) => setDoc(perfilDoc(uid, 'config'), config);
+// O Firestore rejeita campos `undefined`; a config só tem tipos JSON, então o round-trip remove esses campos.
+const semIndefinidos = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
+
+export const salvarConfig = (uid: string, config: Config) =>
+  setDoc(perfilDoc(uid, 'config'), semIndefinidos(config));
+
+/**
+ * Grava os lançamentos das recorrências e marca os meses como lançados, tudo no mesmo batch.
+ * Os ids são determinísticos: se outro dispositivo já lançou, a regra de edição (criadoEm imutável) recusa o batch
+ * inteiro e nada é duplicado.
+ */
+export const lancarRecorrentes = async (uid: string, config: Config, itens: LancamentoRecorrente[]) => {
+  if (!itens.length) return;
+  const agora = new Date().toISOString();
+  const batch = writeBatch(db);
+  for (const { recorrente: r, mes, data } of itens) {
+    const id = idLancamentoRecorrente(r.id, mes);
+    if (r.tipo === 'aporte') batch.set(doc(colecao(uid, 'aportes'), id), aporteDeRecorrente(r, data, agora));
+    else
+      batch.set(doc(colecao(uid, 'transacoes'), id), transacaoDeRecorrente(r, data, config.cartoes, agora));
+  }
+  const recorrentes = marcarLancados(config.recorrentes ?? [], itens);
+  batch.set(perfilDoc(uid, 'config'), semIndefinidos({ ...config, recorrentes }));
+  await batch.commit();
+};
 
 /** Grava config, saldos, snapshots e fechamentos de uma vez (primeiro acesso). */
 export const importarDados = async (uid: string, dados: DadosIniciais) => {
   const batch = writeBatch(db);
-  batch.set(perfilDoc(uid, 'config'), dados.config);
+  const recorrentes = dados.config.recorrentes && semRetroativo(dados.config.recorrentes, mesAtualIso());
+  batch.set(perfilDoc(uid, 'config'), semIndefinidos({ ...dados.config, recorrentes }));
   batch.set(perfilDoc(uid, 'saldos'), {
     valores: dados.saldos?.valores ?? {},
     ...(dados.saldos?.score ? { score: dados.saldos.score } : {}),

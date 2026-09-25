@@ -64,3 +64,13 @@ export const rotuloDataHora = (texto: string) => {
   const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(texto);
   return m ? `${m[3]}/${m[2]}/${m[1]} às ${m[4]}:${m[5]}` : texto;
 };
+
+/** Quantidade de dias de um "YYYY-MM". */
+export const diasNoMes = (mesIso: string) => {
+  const [a, m] = mesIso.split('-').map(Number);
+  return new Date(a ?? 0, m ?? 1, 0).getDate();
+};
+
+/** "YYYY-MM" + dia -> "YYYY-MM-DD"; em meses mais curtos usa o último dia (31 em fevereiro vira 28/29). */
+export const dataNoMes = (mesIso: string, dia: number) =>
+  `${mesIso}-${pad(Math.min(Math.max(1, dia), diasNoMes(mesIso)))}`;

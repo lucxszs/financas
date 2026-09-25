@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
+import { mesFaturaSugerido } from '../../domain/cartoes';
 import { CATEGORIAS, TIPOS, TIPOS_CREDITO, isEntrada } from '../../domain/catalogos';
 import { hojeIso, rotuloMesLongo, somarMeses } from '../../domain/datas';
 import type { Categoria, TipoTransacao, Transacao } from '../../domain/types';
@@ -25,6 +26,9 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
   const [obs, setObs] = useState(transacao?.obs ?? '');
 
   const credito = tipo !== '' && TIPOS_CREDITO.includes(tipo);
+  const cartaoSel = config.cartoes.find((c) => c.id === cartao);
+  // Mês da fatura vazio = automático: pelo melhor dia de compra do cartão, se cadastrado.
+  const sugerido = cartaoSel ? mesFaturaSugerido(cartaoSel, data || hojeIso()) : null;
   const mesBase = data.slice(0, 7);
   const proximosMeses = Array.from({ length: MESES_FATURA_A_FRENTE }, (_, i) => somarMeses(mesBase, i + 1));
   // Ao editar, mantém o mês de fatura salvo mesmo que ele não esteja mais entre os próximos meses.
@@ -53,7 +57,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
       cartao: credito ? cartao : null,
       cat,
       data: data || hojeIso(),
-      mesFatura: credito && mesFatura ? mesFatura : null,
+      mesFatura: credito ? mesFatura || sugerido : null,
       obs: obs.trim(),
       isEntrada: isEntrada(tipo),
     };
@@ -122,13 +126,22 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
             <div className="field">
               <label htmlFor="tx-fatura">Mês da fatura</label>
               <select id="tx-fatura" value={mesFatura} onChange={(e) => setMesFatura(e.target.value)}>
-                <option value="">Mesmo mês do lançamento</option>
+                <option value="">
+                  {sugerido ? `Automático: ${rotuloMesLongo(sugerido)}` : 'Mesmo mês do lançamento'}
+                </option>
                 {opcoesFatura.map((m) => (
                   <option key={m} value={m}>
                     {rotuloMesLongo(m)}
                   </option>
                 ))}
               </select>
+              {cartaoSel?.melhorDiaCompra && (
+                <div className="nota">
+                  💡 Melhor dia de compra: {String(cartaoSel.melhorDiaCompra).padStart(2, '0')}
+                  {cartaoSel.diaVencimento &&
+                    ` · vence dia ${String(cartaoSel.diaVencimento).padStart(2, '0')}`}
+                </div>
+              )}
             </div>
           </>
         )}

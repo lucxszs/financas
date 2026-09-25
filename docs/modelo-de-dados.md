@@ -16,24 +16,38 @@ users/{uid}/aportes/{id}           Aporte
 
 ## Config
 
-| Campo               | Tipo                    | Descrição                                                                 |
-| ------------------- | ----------------------- | ------------------------------------------------------------------------- |
-| `nome`              | string                  | Nome do plano (não é exibido na tela)                                     |
-| `rendaMensal`       | number                  | Renda de referência                                                       |
-| `taxaAnualEstimada` | number                  | Ex.: `0.147`; usada para estimar o rendimento mensal das caixinhas em BRL |
-| `caixinhas`         | Caixinha[]              | Onde o dinheiro está                                                      |
-| `objetivos`         | Objetivo[]              | Metas que somam uma ou mais caixinhas                                     |
-| `cartoes`           | Cartao[]                | Cartões de crédito e limites                                              |
-| `alocacaoDesde`     | `YYYY-MM`?              | Rótulo "a partir de" da alocação mensal                                   |
-| `mediasGastos`      | `{ periodo, itens[] }`? | Média histórica exibida em Gastos                                         |
+| Campo               | Tipo                       | Descrição                                                                 |
+| ------------------- | -------------------------- | ------------------------------------------------------------------------- |
+| `nome`              | string                     | Nome do plano (não é exibido na tela)                                     |
+| `rendaMensal`       | number                     | Renda de referência                                                       |
+| `taxaAnualEstimada` | number                     | Ex.: `0.147`; usada para estimar o rendimento mensal das caixinhas em BRL |
+| `caixinhas`         | Caixinha[]                 | Onde o dinheiro está                                                      |
+| `objetivos`         | Objetivo[]                 | Metas que somam uma ou mais caixinhas                                     |
+| `cartoes`           | Cartao[]                   | Cartões de crédito e limites                                              |
+| `alocacaoDesde`     | `YYYY-MM`?                 | Rótulo "a partir de" da alocação mensal                                   |
+| `mediasGastos`      | `{ periodo, itens[] }`?    | Média histórica exibida em Gastos                                         |
+| `orcamentos`        | `{ [categoria]: number }`? | Orçamento mensal por categoria, em BRL                                    |
+| `recorrentes`       | Recorrente[]?              | Lançamentos e aportes criados automaticamente todo mês                    |
 
 **Caixinha:** `id`, `nome`, `emoji?`, `moeda` (`BRL` \| `USD` \| `EUR`), `rendimento` (texto, ex.: "115% CDI"),
-`descricao?`, `cor` (`emerald` \| `amber` \| `violet` \| `coral` \| `sky`).
+`descricao?`, `cor` (`emerald` \| `amber` \| `violet` \| `coral` \| `sky`), `tipo?` (`investimento` \| `conta`;
+ausente = investimento).
 
 **Objetivo:** `id`, `nome`, `emoji?`, `descricao?`, `meta` (BRL), `caixinhas` (ids), `cor`, `aporteMensal?`,
 `previsao?` (texto), `dataInicio?` e `dataAlvo?` (`YYYY-MM-DD`; com `dataAlvo` o objetivo entra na contagem regressiva).
 
-**Cartao:** `id`, `nome`, `emoji?`, `limite`, `cor`.
+**Cartao:** `id`, `nome`, `emoji?`, `limite`, `cor`, `melhorDiaCompra?` e `diaVencimento?` (dias de 1 a 31).
+Compra antes do melhor dia cai na fatura que vence no mês; a partir dele, na do mês seguinte.
+
+**Recorrente:** `id`, `desc`, `val`, `dia` (1 a 31; em mês curto vale o último dia), `ativo`, `inicio` (`YYYY-MM`),
+`lancadoAte?` (`YYYY-MM`, último mês já lançado) e `tipo`:
+
+- `transacao`: `tipoTransacao`, `cat`, `cartao` (id ou `null`). Gera uma Transacao.
+- `aporte`: `caixinha` (id). Gera um Aporte, com `val` na moeda da caixinha.
+
+O app lança sozinho, ao abrir, cada mês em aberto até hoje (no máximo 12 para trás), com id `rec_{id}_{YYYY-MM}`, e
+atualiza `lancadoAte` no mesmo batch. Mês lançado não volta, mesmo que o lançamento seja excluído. Na importação, o
+`inicio` de recorrentes nunca lançadas vira no mínimo o mês atual.
 
 ## Saldos
 
@@ -61,16 +75,17 @@ Criado ou sobrescrito a cada "Atualizar saldos" no mês. A cotação gravada é 
 | `cat`          | string            | uma das categorias de `catalogos.ts`      |
 | `data`         | `YYYY-MM-DD`      | obrigatório                               |
 | `cartao`       | string \| null    | só para crédito/parcelado                 |
-| `mesFatura`    | `YYYY-MM` \| null | se vazio, vale o mês de `data`            |
+| `mesFatura`    | `YYYY-MM` \| null | mês do vencimento; vazio = mês de `data`  |
 | `obs`          | string            | até 200 caracteres                        |
 | `isEntrada`    | boolean           | derivado do tipo (recebi, salário)        |
 | `criadoEm`     | ISO string        | obrigatório; **não pode mudar na edição** |
 | `atualizadoEm` | ISO string?       | preenchido ao editar                      |
+| `recorrenteId` | string?           | id da recorrência que criou; até 60 chars |
 
 ## Aporte
 
 `caixinha` (id), `val` (> 0, na moeda da caixinha), `data` (`YYYY-MM-DD`), `obs` (até 200), `criadoEm` (imutável),
-`atualizadoEm?`.
+`atualizadoEm?`, `recorrenteId?`.
 
 ## Fechamento
 
