@@ -25,6 +25,8 @@ const compacto = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: 'BRL',
   notation: 'compact',
+  // Explícito: sem isso, algumas versões do ICU herdam as 2 casas da moeda e mostram "R$ 0,0".
+  minimumFractionDigits: 0,
   maximumFractionDigits: 1,
 });
 
