@@ -8,7 +8,7 @@ import type { Aporte, Fechamento } from '../../domain/types';
 import { excluirAporte } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
-export const PaginaHistorico = ({
+export const PaginaAnalises = ({
   onNovoAporte,
   onEditarAporte,
 }: {

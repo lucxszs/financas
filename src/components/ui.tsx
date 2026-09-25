@@ -108,7 +108,7 @@ export const ModalConfirmacao = ({
           onClick={() => void confirmar()}
           disabled={executando}
         >
-          {executando ? 'Excluindo...' : rotuloConfirmar}
+          {executando ? 'Aguarde...' : rotuloConfirmar}
         </button>
       </div>
       <div className="save-msg erro">{erro}</div>

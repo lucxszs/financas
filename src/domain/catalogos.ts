@@ -1,4 +1,4 @@
-import type { Categoria, TipoTransacao } from './types';
+import type { Categoria, Cor, TipoTransacao } from './types';
 
 export const TIPOS: { id: TipoTransacao; nome: string; emoji: string; entrada: boolean }[] = [
   { id: 'debito', nome: 'Débito', emoji: '💳', entrada: false },
@@ -31,3 +31,5 @@ export const CATEGORIAS: { id: Categoria; nome: string; emoji: string }[] = [
 export const tipoPorId = (id: string) => TIPOS.find((t) => t.id === id);
 export const categoriaPorId = (id: string) => CATEGORIAS.find((c) => c.id === id);
 export const isEntrada = (tipo: TipoTransacao) => tipoPorId(tipo)?.entrada ?? false;
+
+export const CORES: Cor[] = ['emerald', 'amber', 'violet', 'coral', 'sky'];

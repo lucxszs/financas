@@ -6,6 +6,15 @@
     "alocacaoDesde": "2026-01",
     "caixinhas": [
       {
+        "id": "conta",
+        "nome": "Conta corrente",
+        "emoji": "🏦",
+        "moeda": "BRL",
+        "rendimento": "sem rendimento",
+        "cor": "sky",
+        "tipo": "conta"
+      },
+      {
         "id": "reserva",
         "nome": "Reserva",
         "emoji": "🛡",
@@ -63,51 +72,192 @@
       }
     ],
     "cartoes": [
-      { "id": "cartao-a", "nome": "Cartão A", "emoji": "🟡", "limite": 4000, "cor": "amber" },
-      { "id": "cartao-b", "nome": "Cartão B", "emoji": "🔵", "limite": 2500, "cor": "sky" }
+      {
+        "id": "cartao-a",
+        "nome": "Cartão A",
+        "emoji": "🟡",
+        "limite": 4000,
+        "cor": "amber",
+        "melhorDiaCompra": 4,
+        "diaVencimento": 13
+      },
+      {
+        "id": "cartao-b",
+        "nome": "Cartão B",
+        "emoji": "🔵",
+        "limite": 2500,
+        "cor": "sky",
+        "melhorDiaCompra": 9,
+        "diaVencimento": 15
+      }
     ],
     "mediasGastos": {
       "periodo": "últimos 3 meses",
       "itens": [
-        { "nome": "Faturas cartão", "emoji": "💳", "valor": 2500, "cor": "coral" },
-        { "nome": "Fixos", "emoji": "🏠", "valor": 1800, "cor": "sky" },
-        { "nome": "Mercado", "emoji": "🛒", "valor": 700, "cor": "amber" },
-        { "nome": "Transporte", "emoji": "🚗", "valor": 300, "cor": "emerald" }
+        {
+          "nome": "Faturas cartão",
+          "emoji": "💳",
+          "valor": 2500,
+          "cor": "coral"
+        },
+        {
+          "nome": "Fixos",
+          "emoji": "🏠",
+          "valor": 1800,
+          "cor": "sky"
+        },
+        {
+          "nome": "Mercado",
+          "emoji": "🛒",
+          "valor": 700,
+          "cor": "amber"
+        },
+        {
+          "nome": "Transporte",
+          "emoji": "🚗",
+          "valor": 300,
+          "cor": "emerald"
+        }
       ]
-    }
+    },
+    "orcamentos": {
+      "alimentacao": 600,
+      "mercado": 800,
+      "transporte": 400,
+      "lazer": 300,
+      "assinaturas": 120
+    },
+    "recorrentes": [
+      {
+        "id": "aluguel",
+        "tipo": "transacao",
+        "desc": "Aluguel",
+        "val": 1500,
+        "dia": 5,
+        "ativo": true,
+        "inicio": "2026-01",
+        "tipoTransacao": "pix",
+        "cat": "moradia",
+        "cartao": null
+      },
+      {
+        "id": "streaming",
+        "tipo": "transacao",
+        "desc": "Streaming",
+        "val": 45,
+        "dia": 20,
+        "ativo": true,
+        "inicio": "2026-01",
+        "tipoTransacao": "credito",
+        "cat": "assinaturas",
+        "cartao": "cartao-a"
+      },
+      {
+        "id": "aporte-reserva",
+        "tipo": "aporte",
+        "desc": "Aporte reserva",
+        "val": 500,
+        "dia": 10,
+        "ativo": true,
+        "inicio": "2026-01",
+        "caixinha": "reserva"
+      }
+    ]
   },
   "saldos": {
-    "valores": { "reserva": 7200, "viagem": 3100, "dolar": 250, "euro": 120 }
+    "valores": {
+      "reserva": 7200,
+      "viagem": 3100,
+      "dolar": 250,
+      "euro": 120,
+      "conta": 1200
+    }
   },
   "snapshots": [
     {
       "mes": "2026-06",
-      "valores": { "reserva": 6000, "viagem": 1500, "dolar": 100 },
-      "rendimentos": { "reserva": 60 },
-      "cotacoes": { "USD": 5.4 }
+      "valores": {
+        "reserva": 6000,
+        "viagem": 1500,
+        "dolar": 100
+      },
+      "rendimentos": {
+        "reserva": 60
+      },
+      "cotacoes": {
+        "USD": 5.4
+      }
     },
     {
       "mes": "2026-07",
-      "valores": { "reserva": 6500, "viagem": 2300, "dolar": 180 },
-      "rendimentos": { "reserva": 66 },
-      "cotacoes": { "USD": 5.35 }
+      "valores": {
+        "reserva": 6500,
+        "viagem": 2300,
+        "dolar": 180
+      },
+      "rendimentos": {
+        "reserva": 66
+      },
+      "cotacoes": {
+        "USD": 5.35
+      }
     },
     {
       "mes": "2026-08",
-      "valores": { "reserva": 7200, "viagem": 3100, "dolar": 250, "euro": 120 },
-      "rendimentos": { "reserva": 72, "viagem": 30 },
-      "cotacoes": { "USD": 5.3, "EUR": 5.9 }
+      "valores": {
+        "reserva": 7200,
+        "viagem": 3100,
+        "dolar": 250,
+        "euro": 120
+      },
+      "rendimentos": {
+        "reserva": 72,
+        "viagem": 30
+      },
+      "cotacoes": {
+        "USD": 5.3,
+        "EUR": 5.9
+      }
     }
   ],
   "fechamentos": [
     {
       "mes": "2026-08",
       "itens": [
-        { "nome": "Salário", "emoji": "✅", "valor": 6000, "tipo": "entrada" },
-        { "nome": "Aluguel", "emoji": "🏠", "valor": 1800, "tipo": "saida", "pago": true },
-        { "nome": "Cartão A", "emoji": "💳", "valor": 1900, "tipo": "saida", "pago": true },
-        { "nome": "Cartão B", "emoji": "💳", "valor": 700, "tipo": "saida", "pago": false },
-        { "nome": "Aportes", "emoji": "🐷", "valor": 1300, "tipo": "saida", "pago": true }
+        {
+          "nome": "Salário",
+          "emoji": "✅",
+          "valor": 6000,
+          "tipo": "entrada"
+        },
+        {
+          "nome": "Aluguel",
+          "emoji": "🏠",
+          "valor": 1800,
+          "tipo": "saida",
+          "pago": true
+        },
+        {
+          "nome": "Cartão A",
+          "emoji": "💳",
+          "valor": 1900,
+          "tipo": "saida",
+          "pago": true
+        },
+        {
+          "nome": "Cartão B",
+          "emoji": "💳",
+          "valor": 700,
+          "tipo": "saida",
+          "pago": false
+        },
+        {
+          "nome": "Aportes",
+          "emoji": "🐷",
+          "valor": 1300,
+          "tipo": "saida",
+          "pago": true
+        }
       ],
       "notas": ["Cartão B vence dia 10"]
     }

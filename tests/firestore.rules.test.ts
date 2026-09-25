@@ -184,3 +184,23 @@ describe('edição', () => {
     await assertFails(setDoc(ref, { ...aporte, criadoEm: 'outro' }));
   });
 });
+
+describe('lançamentos de recorrências', () => {
+  const ref = () => doc(dbDe(DONO), 'users', DONO, 'transacoes', 'rec_aluguel_2026-09');
+
+  it('aceita transação com recorrenteId e id determinístico', async () => {
+    await assertSucceeds(setDoc(ref(), transacao({ recorrenteId: 'aluguel' })));
+  });
+
+  it('rejeita recorrenteId vazio ou longo', async () => {
+    await assertFails(setDoc(ref(), transacao({ recorrenteId: '' })));
+    await assertFails(setDoc(ref(), transacao({ recorrenteId: 'x'.repeat(61) })));
+  });
+
+  it('lançar de novo o mesmo mês (outro criadoEm) é recusado, sem duplicar', async () => {
+    await assertSucceeds(setDoc(ref(), transacao({ recorrenteId: 'aluguel' })));
+    await assertFails(
+      setDoc(ref(), transacao({ recorrenteId: 'aluguel', criadoEm: '2026-09-25T08:00:00.000Z' })),
+    );
+  });
+});

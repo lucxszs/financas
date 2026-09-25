@@ -30,6 +30,11 @@ service cloud.firestore {
       return v is string && v.size() <= max;
     }
 
+    // Lançamentos criados por uma recorrência guardam o id dela.
+    function recorrenteIdValido(d) {
+      return !('recorrenteId' in d) || (textoCurto(d.recorrenteId, 60) && d.recorrenteId.size() > 0);
+    }
+
     function transacaoValida(d) {
       return d.keys().hasAll(['desc', 'val', 'tipo', 'cat', 'data', 'isEntrada', 'criadoEm'])
         && textoCurto(d.desc, 120) && d.desc.size() > 0
@@ -38,7 +43,8 @@ service cloud.firestore {
         && textoCurto(d.cat, 20)
         && dataIso(d.data)
         && d.isEntrada is bool
-        && (!('obs' in d) || textoCurto(d.obs, 200));
+        && (!('obs' in d) || textoCurto(d.obs, 200))
+        && recorrenteIdValido(d);
     }
 
     function aporteValido(d) {
@@ -46,7 +52,8 @@ service cloud.firestore {
         && textoCurto(d.caixinha, 40)
         && d.val is number && d.val > 0 && d.val < 10000000
         && dataIso(d.data)
-        && (!('obs' in d) || textoCurto(d.obs, 200));
+        && (!('obs' in d) || textoCurto(d.obs, 200))
+        && recorrenteIdValido(d);
     }
 
     // Na edição, a data de criação original não pode ser alterada.

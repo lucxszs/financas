@@ -8,7 +8,7 @@ import type { Transacao } from '../../domain/types';
 import { excluirTransacao } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
-export const PaginaLancamentos = ({
+export const ListaLancamentos = ({
   onNovo,
   onEditar,
 }: {

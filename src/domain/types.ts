@@ -4,6 +4,9 @@ export type Cotacoes = Partial<Record<MoedaEstrangeira, number>>;
 
 export type Cor = 'emerald' | 'amber' | 'violet' | 'coral' | 'sky';
 
+/** `conta` = dinheiro disponível (conta corrente, carteira); `investimento` = aplicado. */
+export type TipoCaixinha = 'investimento' | 'conta';
+
 export interface Caixinha {
   id: string;
   nome: string;
@@ -13,6 +16,8 @@ export interface Caixinha {
   rendimento: string;
   descricao?: string;
   cor: Cor;
+  /** Ausente = investimento. */
+  tipo?: TipoCaixinha;
 }
 
 export interface Objetivo {
@@ -39,6 +44,10 @@ export interface Cartao {
   emoji?: string;
   limite: number;
   cor: Cor;
+  /** Dia do mês (1 a 31) a partir do qual a compra cai na fatura seguinte. */
+  melhorDiaCompra?: number;
+  /** Dia do mês (1 a 31) do vencimento da fatura. */
+  diaVencimento?: number;
 }
 
 export interface MediaGasto {
@@ -58,7 +67,34 @@ export interface Config {
   cartoes: Cartao[];
   alocacaoDesde?: string;
   mediasGastos?: { periodo: string; itens: MediaGasto[] };
+  /** Orçamento mensal por categoria, em BRL. */
+  orcamentos?: Partial<Record<Categoria, number>>;
+  /** Lançamentos e aportes criados automaticamente todo mês. */
+  recorrentes?: Recorrente[];
 }
+
+interface RecorrenteBase {
+  id: string;
+  desc: string;
+  /** Na moeda da caixinha (aporte) ou em BRL (lançamento). */
+  val: number;
+  /** Dia do mês (1 a 31); em meses mais curtos vale o último dia. */
+  dia: number;
+  ativo: boolean;
+  /** Primeiro mês a lançar, "YYYY-MM". */
+  inicio: string;
+  /** Último mês já lançado, "YYYY-MM". Evita relançar o que foi excluído à mão. */
+  lancadoAte?: string;
+}
+
+export type Recorrente =
+  | (RecorrenteBase & {
+      tipo: 'transacao';
+      tipoTransacao: TipoTransacao;
+      cat: Categoria;
+      cartao: string | null;
+    })
+  | (RecorrenteBase & { tipo: 'aporte'; caixinha: string });
 
 export type Resposta = 'sim' | 'parcial' | 'nao';
 
@@ -112,6 +148,8 @@ export interface Transacao {
   isEntrada: boolean;
   criadoEm: string;
   atualizadoEm?: string;
+  /** Preenchido quando foi criado por uma recorrência. */
+  recorrenteId?: string;
 }
 
 export interface Aporte {
@@ -122,6 +160,7 @@ export interface Aporte {
   obs: string;
   criadoEm: string;
   atualizadoEm?: string;
+  recorrenteId?: string;
 }
 
 export interface ItemFechamento {
