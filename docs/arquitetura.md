@@ -76,3 +76,5 @@ docs/              esta documentação
 | Datas `YYYY-MM-DD` como string, fuso local | Evita o bug de UTC (`toISOString`) que jogava lançamentos noturnos para o dia seguinte.          |
 | Domínio sem dependências                   | Cálculos testáveis sem mock de Firebase nem React.                                               |
 | Sem biblioteca de UI/estado                | O app é pequeno; Context + hooks bastam e mantêm o bundle leve.                                  |
+| Fonte só de bandeiras no Windows           | O Windows não desenha bandeiras emoji; `country-flag-emoji-polyfill` carrega a fonte Twemoji.    |
+| Última cotação no `localStorage`           | Se a AwesomeAPI cair, o câmbio mostra o último valor conhecido com data e hora.                  |
