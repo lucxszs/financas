@@ -117,6 +117,8 @@ export interface Snapshot {
   valores: Record<string, number>;
   rendimentos?: Record<string, number>;
   cotacoes?: Cotacoes;
+  /** Faturas de cartão em aberto (atual + futuras) no dia da foto, em BRL. */
+  dividas?: number;
 }
 
 export type TipoTransacao =

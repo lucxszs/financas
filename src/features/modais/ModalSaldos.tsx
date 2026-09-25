@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
-import { mesAtualIso } from '../../domain/datas';
+import { hojeIso, mesAtualIso } from '../../domain/datas';
+import { dividasCartoes } from '../../domain/patrimonio';
 import type { Cotacoes, Resposta, ScoreMes, Snapshot } from '../../domain/types';
 import { useEnvio } from '../../hooks/useEnvio';
 import { salvarSaldos } from '../../services/repositorio';
@@ -21,7 +22,7 @@ const PERGUNTAS: { campo: keyof ScoreMes; texto: string }[] = [
 const paraNumero = (s: string) => (s.trim() === '' ? null : Number(s));
 
 export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
-  const { uid, config, saldos, cotacoes } = useDadosConfigurados();
+  const { uid, config, saldos, cotacoes, transacoes } = useDadosConfigurados();
   const { msg, erro, salvando, avisar, enviar } = useEnvio(onFechar);
 
   const [valores, setValores] = useState<Record<string, string>>(() =>
@@ -56,6 +57,8 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
       valores: novosValores,
       ...(Object.keys(rends).length ? { rendimentos: rends } : {}),
       ...(Object.keys(cotacoesUsadas).length ? { cotacoes: cotacoesUsadas } : {}),
+      // Guardadas para o gráfico de patrimônio líquido refletir as faturas em aberto naquele mês.
+      dividas: dividasCartoes(config, transacoes, hojeIso()),
     };
 
     void enviar(() =>

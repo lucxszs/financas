@@ -1,9 +1,9 @@
 import { Barra, Secao, Vazio } from '../../components/ui';
 import { corVar } from '../../components/cor';
 import { categoriaPorId } from '../../domain/catalogos';
-import { gastosPorCategoria, transacoesDaCompetencia } from '../../domain/calculos';
 import { mesAtualIso, rotuloMesLongo } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
+import { orcamentoPorCategoria, type StatusOrcamento } from '../../domain/historico';
 import type { Transacao } from '../../domain/types';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CartoesResumo } from './CartoesResumo';
@@ -18,8 +18,10 @@ export const PaginaGastos = ({
 }) => {
   const { transacoes, config } = useDadosConfigurados();
   const mes = mesAtualIso();
-  const porCat = gastosPorCategoria(transacoesDaCompetencia(transacoes, mes));
-  const max = porCat[0]?.[1] ?? 1;
+  const linhas = orcamentoPorCategoria(transacoes, config, mes);
+  const maxReal = Math.max(1, ...linhas.map((l) => l.real));
+  const totalReal = linhas.reduce((a, l) => a + l.real, 0);
+  const totalMeta = linhas.reduce((a, l) => a + (l.meta ?? 0), 0);
 
   const medias = config.mediasGastos;
   const maxMedia = Math.max(1, ...(medias?.itens.map((i) => i.valor) ?? []));
@@ -30,24 +32,46 @@ export const PaginaGastos = ({
       <CartoesResumo />
 
       <Secao titulo={`Gastos por categoria · ${rotuloMesLongo(mes)}`}>
-        <div className="card card-pad">
-          {porCat.length === 0 ? (
-            <Vazio>Nenhum lançamento este mês ainda.</Vazio>
+        <div className="card">
+          {linhas.length === 0 ? (
+            <Vazio>Nenhum gasto este mês ainda.</Vazio>
           ) : (
-            porCat.map(([cat, val]) => {
-              const c = categoriaPorId(cat);
+            linhas.map((l) => {
+              const c = categoriaPorId(l.cat);
+              const st = l.status ? STATUS[l.status] : null;
               return (
-                <LinhaGrafico
-                  key={cat}
-                  rotulo={`${c?.emoji ?? '🔧'} ${c?.nome ?? cat}`}
-                  valor={val}
-                  pct={(val / max) * 100}
-                  cor="var(--violet)"
-                />
+                <div key={l.cat} className="orc-row">
+                  <div className="linha-entre">
+                    <span>
+                      {c?.emoji ?? '🔧'} {c?.nome ?? l.cat}
+                    </span>
+                    <span className="mono">
+                      {fmt(l.real)}
+                      {l.meta !== null && <span className="muted"> / {fmt(l.meta)}</span>}
+                    </span>
+                  </div>
+                  <Barra pct={l.pct ?? (l.real / maxReal) * 100} cor={st?.cor ?? 'var(--sky)'} altura={6} />
+                  {st && (
+                    <div className="mono mini muted mt-4">
+                      {st.icone} {st.rotulo} · {l.pct!.toFixed(0)}% do orçamento
+                    </div>
+                  )}
+                </div>
               );
             })
           )}
+          {totalMeta > 0 && (
+            <div className="brow total">
+              <span className="bname">Total</span>
+              <span className="bval">
+                {fmt(totalReal)} <span className="muted">/ {fmt(totalMeta)} orçado</span>
+              </span>
+            </div>
+          )}
         </div>
+        {totalMeta === 0 && (
+          <div className="nota">Defina um orçamento por categoria em ⚙️ Configurações.</div>
+        )}
       </Secao>
 
       {medias && medias.itens.length > 0 && (
@@ -67,6 +91,13 @@ export const PaginaGastos = ({
       )}
     </>
   );
+};
+
+// Status usa as cores reservadas (verde/amarelo/vermelho) sempre com ícone e texto, nunca só a cor.
+const STATUS: Record<StatusOrcamento, { icone: string; rotulo: string; cor: string }> = {
+  ok: { icone: '🟢', rotulo: 'dentro', cor: 'var(--emerald)' },
+  atencao: { icone: '🟡', rotulo: 'no limite', cor: 'var(--amber)' },
+  estourou: { icone: '🔴', rotulo: 'estourou', cor: 'var(--coral)' },
 };
 
 const LinhaGrafico = ({

@@ -7,6 +7,7 @@ import { fmt, formatarMoeda } from '../../domain/formatadores';
 import type { Aporte, Fechamento } from '../../domain/types';
 import { excluirAporte } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
+import { HistoricoMensal } from './HistoricoMensal';
 
 export const PaginaAnalises = ({
   onNovoAporte,
@@ -22,6 +23,8 @@ export const PaginaAnalises = ({
 
   return (
     <>
+      <HistoricoMensal />
+
       <Secao titulo="Aportes lançados">
         <div className="card">
           <div className="tx-header">
