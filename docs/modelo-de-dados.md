@@ -60,10 +60,10 @@ Valores na moeda da própria caixinha. Respostas do score: `sim` \| `parcial` \|
 ## Snapshot (evolução mensal)
 
 ```ts
-{ mes: 'YYYY-MM', valores: {...}, rendimentos?: {...}, cotacoes?: { USD?: number, EUR?: number } }
+{ mes: 'YYYY-MM', valores: {...}, rendimentos?: {...}, cotacoes?: { USD?: number, EUR?: number }, dividas?: number }
 ```
 
-Criado ou sobrescrito a cada "Atualizar saldos" no mês. A cotação gravada é usada para calcular o total daquele mês.
+Criado ou sobrescrito a cada "Atualizar saldos" no mês. A cotação gravada é usada para calcular o total daquele mês; `dividas` (faturas em aberto no dia, em BRL) entra no patrimônio líquido. Fotos antigas sem `dividas` contam dívida 0.
 
 ## Transacao
 

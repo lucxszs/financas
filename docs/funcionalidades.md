@@ -20,10 +20,10 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 | Aba              | O que tem                                                                                     |
 | ---------------- | --------------------------------------------------------------------------------------------- |
 | 🏠 Dashboard     | Resumo do mês e quanto ainda dá para gastar                                                   |
-| 💳 Gastos        | Lançamentos do mês, cartões, gastos por categoria e média histórica                           |
-| 📈 Patrimônio    | Total investido, rendimento estimado, caixinhas e câmbio                                      |
+| 💳 Gastos        | Lançamentos do mês, cartões, gastos por categoria × orçamento e média histórica               |
+| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, caixinhas e câmbio                              |
 | 🎯 Metas         | Contagem regressiva (com câmbio quando a meta usa moeda estrangeira), metas e alocação mensal |
-| 📊 Análises      | Aportes, evolução dos investimentos, fechamentos mensais e score do mês                       |
+| 📊 Análises      | Histórico mensal com gráficos, aportes, evolução dos investimentos, fechamentos e score       |
 | ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                 |
 
 Se a cotação não carregar, o app usa a última conhecida e mostra a data e a hora dela.
@@ -47,6 +47,24 @@ Se a cotação não carregar, o app usa a última conhecida e mostra a data e a 
   - 🔴 Cuidado: o mês já está negativo ou, no ritmo atual, termina negativo.
 
 Compras no cartão contam no mês da fatura, em todo o app.
+
+## Gastos por categoria
+
+Gasto real do mês em cada categoria. Com orçamento definido em Configurações, mostra real ÷ meta e o status:
+🟢 dentro (até 100%), 🟡 no limite (até 110%), 🔴 estourou.
+
+## Patrimônio líquido
+
+- Ativos (investimentos + contas) − dívidas = patrimônio líquido.
+- Dívidas: faturas do cartão ainda não vencidas, incluindo as futuras. Depois do dia do vencimento, a fatura do mês
+  deixa de contar.
+- Evolução dos últimos 6 meses: meses anteriores pela foto do "Atualizar saldos" (que passa a gravar as dívidas do
+  dia); mês atual pelo valor de agora.
+
+## Histórico mensal
+
+Em Análises: renda, gastos, investimentos, saldo, taxa de poupança e patrimônio dos últimos 6 meses, em tabela e em
+gráficos (gastos, investimentos e taxa de poupança por mês). Passe o mouse ou toque numa coluna para ver o valor.
 
 ## Lançamentos
 

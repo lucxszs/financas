@@ -1,7 +1,6 @@
 import type {
   Caixinha,
   Cartao,
-  Categoria,
   Config,
   Cotacoes,
   Fechamento,
@@ -97,15 +96,6 @@ export const resumoTransacoes = (transacoes: Transacao[]) => {
   const entradas = transacoes.filter((t) => t.isEntrada).reduce((a, t) => a + t.val, 0);
   const saidas = transacoes.filter((t) => !t.isEntrada).reduce((a, t) => a + t.val, 0);
   return { entradas, saidas, saldo: entradas - saidas };
-};
-
-export const gastosPorCategoria = (transacoes: Transacao[]) => {
-  const porCat = new Map<Categoria, number>();
-  for (const t of transacoes) {
-    if (t.isEntrada) continue;
-    porCat.set(t.cat, (porCat.get(t.cat) ?? 0) + t.val);
-  }
-  return [...porCat.entries()].sort((a, b) => b[1] - a[1]);
 };
 
 export const totaisFechamento = (f: Fechamento) => {

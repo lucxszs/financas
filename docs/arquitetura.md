@@ -34,6 +34,8 @@ src/
     calculos.ts      conversão de moedas, progresso de metas, score, uso de cartão, totais
     cartoes.ts       mês da fatura pelo melhor dia de compra
     resumo.ts        resumo do mês, avisos e limite de gastos
+    historico.ts     série mensal e orçamento por categoria
+    patrimonio.ts    ativos, dívidas dos cartões e patrimônio líquido
     recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
     ids.ts           ids legíveis a partir do nome
     datas.ts         datas no fuso local, rótulos de mês
@@ -51,7 +53,7 @@ src/
     dashboard/ gastos/ patrimonio/ metas/ analises/ onboarding/
     configuracoes/   formulários de caixinhas, cartões, objetivos, orçamento e recorrentes
     modais/          formulários de saldos, transação e aporte (criar e editar)
-  components/      UI compartilhada (Modal, ModalConfirmacao, AcoesItem, Barra...)
+  components/      UI compartilhada (Modal, ModalConfirmacao, AcoesItem, Barra...) e gráficos em SVG
   lib/firebase.ts  inicialização; conecta nos emuladores quando VITE_USE_EMULATORS=true
   styles/global.css
 tests/             testes das firestore.rules (emulador)

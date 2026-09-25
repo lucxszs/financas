@@ -20,3 +20,13 @@ export const fmtSemSimbolo = (valor: number) =>
   valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export const fmtPct = (valor: number, casas = 0) => `${valor.toFixed(casas)}%`;
+
+const compacto = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
+
+/** Para eixos de gráfico: "R$ 5,4 mil". */
+export const fmtCompacto = (valor: number) => compacto.format(valor);

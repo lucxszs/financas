@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fmt, formatarMoeda } from './formatadores';
+import { fmt, fmtCompacto, formatarMoeda } from './formatadores';
 
 // Intl usa espaço não separável entre símbolo e número.
 const normalizar = (s: string) => s.replace(/\s/g, ' ');
@@ -16,5 +16,12 @@ describe('formatarMoeda', () => {
   it('formata moedas estrangeiras', () => {
     expect(normalizar(formatarMoeda(19.19, 'USD'))).toBe('$19.19');
     expect(normalizar(formatarMoeda(10, 'EUR'))).toContain('10,00');
+  });
+});
+
+describe('fmtCompacto', () => {
+  it('abrevia milhares para eixos de gráfico', () => {
+    expect(normalizar(fmtCompacto(5400))).toBe('R$ 5,4 mil');
+    expect(normalizar(fmtCompacto(0))).toBe('R$ 0');
   });
 });
