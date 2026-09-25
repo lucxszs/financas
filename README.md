@@ -2,22 +2,20 @@
 
 [![Pipeline](https://github.com/lucxszs/financas/actions/workflows/pipeline.yml/badge.svg)](https://github.com/lucxszs/financas/actions/workflows/pipeline.yml)
 
-Dashboard pessoal de finanças: caixinhas de investimento em BRL, USD e EUR, metas com contagem regressiva,
-lançamentos, cartões, aportes e histórico mensal. Funciona no computador e no celular.
+Dashboard pessoal de finanças: investimentos em BRL, USD e EUR, metas, lançamentos, cartões e histórico mensal.
 
 **Stack:** React 19 · TypeScript · Vite · Firebase (Auth, Firestore, Hosting) · Vitest · GitHub Actions
 
 ## Funcionalidades
 
-- 🔐 Login com Google e acesso restrito por allowlist
-- 📊 Visão geral: total investido, rendimento estimado, score do mês, uso dos cartões e metas
-- 🎯 Contagem regressiva para objetivos com data (financeiro e temporal)
-- 💱 Câmbio USD e EUR ao vivo ([AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) e última cotação guardada), com 2 casas decimais
-- 📝 Lançamentos e aportes com CRUD completo (criar, listar, editar e excluir com confirmação)
-- 📈 Evolução mensal dos saldos, com a cotação de cada mês
+- 🔐 Login com Google, só para contas liberadas
+- 📊 Visão geral: investimentos, cartões, metas e score do mês
+- 🎯 Contagem regressiva para objetivos com data
+- 💱 Cotação de USD e EUR e quanto valem as caixinhas em moeda estrangeira
+- 📝 Lançamentos e aportes: criar, editar e excluir
+- 📈 Evolução mensal dos saldos
 - 🧾 Fechamentos mensais com pendências e notas
-- 📱 Layout responsivo, com menu fixo, formulários em bottom sheet e alvos de toque grandes
-- 🏳️ Bandeiras emoji inclusive no Windows
+- 📱 Funciona no computador e no celular
 
 Detalhes em [docs/funcionalidades.md](docs/funcionalidades.md).
 
