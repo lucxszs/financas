@@ -12,7 +12,7 @@ lançamentos, cartões, aportes e histórico mensal. Funciona no computador e no
 - 🔐 Login com Google e acesso restrito por allowlist
 - 📊 Visão geral: total investido, rendimento estimado, score do mês, uso dos cartões e metas
 - 🎯 Contagem regressiva para objetivos com data (financeiro e temporal)
-- 💱 Câmbio USD e EUR ao vivo ([AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas)), com 2 casas decimais
+- 💱 Câmbio USD e EUR ao vivo ([AwesomeAPI](https://docs.awesomeapi.com.br/api-de-moedas) e última cotação guardada), com 2 casas decimais
 - 📝 Lançamentos e aportes com CRUD completo (criar, listar, editar e excluir com confirmação)
 - 📈 Evolução mensal dos saldos, com a cotação de cada mês
 - 🧾 Fechamentos mensais com pendências e notas

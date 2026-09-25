@@ -39,7 +39,7 @@ src/
     *.test.ts        testes unitários
   services/        acesso a dados externos
     repositorio.ts   leitura/escrita no Firestore (CRUD e listeners em tempo real)
-    cotacao.ts       AwesomeAPI
+    cotacao.ts       AwesomeAPI + última cotação guardada
   hooks/           useCotacoes (polling de 5 min), useEnvio (estado de formulários)
   features/        telas, uma pasta por funcionalidade
     auth/            AuthProvider, login, allowlist

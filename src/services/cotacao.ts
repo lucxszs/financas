@@ -11,8 +11,24 @@ interface ParAwesome {
 
 export interface ResultadoCotacao {
   cotacoes: Cotacoes;
+  /** Data/hora da cotação informada pela AwesomeAPI, ex.: "2026-09-24 13:53:12". */
   atualizadoEm: string | null;
 }
+
+export const lerAwesome = (json: unknown, moedas: MoedaEstrangeira[]): ResultadoCotacao => {
+  const dados = (json ?? {}) as Record<string, ParAwesome | undefined>;
+  const cotacoes: Cotacoes = {};
+  let atualizadoEm: string | null = null;
+  for (const m of moedas) {
+    const par = dados[`${m}BRL`];
+    const valor = par ? Number(par.bid) : NaN;
+    if (Number.isFinite(valor) && valor > 0) {
+      cotacoes[m] = valor;
+      atualizadoEm = par?.create_date ?? atualizadoEm;
+    }
+  }
+  return { cotacoes, atualizadoEm };
+};
 
 export const buscarCotacoes = async (
   moedas: MoedaEstrangeira[],
@@ -24,19 +40,31 @@ export const buscarCotacoes = async (
   const resp = await fetch(URL_BASE + pares, { signal });
   if (!resp.ok) throw new Error(`AwesomeAPI respondeu ${resp.status}`);
 
-  const json = (await resp.json()) as Record<string, ParAwesome | undefined>;
-  const cotacoes: Cotacoes = {};
-  let atualizadoEm: string | null = null;
+  const r = lerAwesome(await resp.json(), moedas);
+  if (!Object.keys(r.cotacoes).length) throw new Error('Resposta sem cotações válidas');
+  return r;
+};
 
-  for (const m of moedas) {
-    const par = json[`${m}BRL`];
-    const valor = par ? Number(par.bid) : NaN;
-    if (Number.isFinite(valor) && valor > 0) {
-      cotacoes[m] = valor;
-      atualizadoEm = par?.create_date ?? atualizadoEm;
-    }
+// Última cotação boa, para o câmbio não sumir quando a API cai.
+// localStorage pode não existir ou lançar (aba anônima, dados bloqueados): tudo em try/catch.
+const CHAVE_CACHE = 'financas:ultima-cotacao';
+
+export const guardarCotacao = (r: ResultadoCotacao) => {
+  try {
+    localStorage.setItem(CHAVE_CACHE, JSON.stringify(r));
+  } catch {
+    // sem armazenamento: segue sem cache
   }
+};
 
-  if (!Object.keys(cotacoes).length) throw new Error('Resposta sem cotações válidas');
-  return { cotacoes, atualizadoEm };
+export const lerCotacaoGuardada = (): ResultadoCotacao | null => {
+  try {
+    const bruto = localStorage.getItem(CHAVE_CACHE);
+    if (!bruto) return null;
+    const r = JSON.parse(bruto) as Partial<ResultadoCotacao>;
+    if (!r.cotacoes || !Object.keys(r.cotacoes).length) return null;
+    return { cotacoes: r.cotacoes, atualizadoEm: r.atualizadoEm ?? null };
+  } catch {
+    return null;
+  }
 };

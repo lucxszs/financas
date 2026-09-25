@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { fmt } from './domain/formatadores';
 import type { Aporte, Transacao } from './domain/types';
 import { AuthProvider } from './features/auth/AuthProvider';
 import { TelaLogin } from './features/auth/TelaLogin';
@@ -62,11 +61,8 @@ const Principal = () => {
     <div className="wrap">
       <header className="header">
         <div className="header-left">
-          <div className="eyebrow">Plano financeiro pessoal</div>
-          <h1>{config.nome}</h1>
-          <div className="header-sub">
-            {atualizado} · Renda {fmt(config.rendaMensal)}
-          </div>
+          <h1>Plano financeiro</h1>
+          <div className="header-sub">{atualizado}</div>
         </div>
         <div className="header-actions">
           <button className="btn" onClick={() => setModal({ tipo: 'aporte' })}>

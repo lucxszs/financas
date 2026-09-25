@@ -24,12 +24,19 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 | Bloco               | O que mostra                                                                                                              |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Contagem regressiva | Para cada objetivo com `dataAlvo`: meses e dias restantes, valor guardado, quanto falta e progresso financeiro e temporal |
-| Câmbio              | USD e EUR ao vivo (AwesomeAPI, atualiza a cada 5 min) e quanto valem as caixinhas em moeda estrangeira                    |
+| Câmbio              | USD e EUR ao vivo (atualiza a cada 5 min), data e hora da cotação e quanto valem as caixinhas em moeda estrangeira        |
 | Score do mês        | 🟢 / 🟡 / 🔴 a partir das respostas "pagou as contas", "fechou positivo" e "fez o aporte"                                 |
 | Investimentos       | Total em BRL, rendimento mensal estimado e um card por caixinha com progresso no objetivo                                 |
 | Cartões de crédito  | Limite, utilizado e disponível na fatura do mês (usa o "mês da fatura" dos lançamentos)                                   |
 | Metas               | Progresso de cada objetivo, previsão e quanto falta                                                                       |
 | Alocação mensal     | Aporte mensal planejado por objetivo e o total                                                                            |
+
+### Câmbio: quando a cotação falha
+
+1. Se a AwesomeAPI falhar, tenta de novo mais 2 vezes (espera de 2s e 4s).
+2. Ainda sem resposta: usa a última cotação boa guardada no navegador e mostra "⚠️ Última cotação disponível: dd/mm/aaaa
+   às hh:mm", com o botão "Tentar novamente".
+3. Só mostra erro se nunca houve cotação guardada naquele navegador.
 
 ## Lançamentos (CRUD)
 

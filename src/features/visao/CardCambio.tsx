@@ -10,8 +10,10 @@ const MOEDAS: MoedaEstrangeira[] = ['USD', 'EUR'];
 export const CardCambio = () => {
   const { config, saldos, cotacoes, statusCotacao, cotacaoAtualizadaEm, recarregarCotacao } =
     useDadosConfigurados();
+  const antiga = statusCotacao === 'antiga';
 
-  if (statusCotacao === 'erro') {
+  // Só mostra erro quando não há nem a última cotação guardada.
+  if (statusCotacao === 'erro' && !Object.keys(cotacoes).length) {
     return (
       <div className="cambio-card erro">
         <div className="cambio-flag">⚠️</div>
@@ -37,6 +39,22 @@ export const CardCambio = () => {
 
   return (
     <div className="cambio-grid">
+      {antiga && (
+        <div className="cambio-card erro">
+          <div className="flex-1">
+            <div className="mono pequeno coral">
+              ⚠️ Última cotação disponível
+              {cotacaoAtualizadaEm && `: ${rotuloDataHora(cotacaoAtualizadaEm)}`}
+            </div>
+            <div className="mono pequeno muted">
+              AwesomeAPI indisponível; valores podem estar desatualizados.
+            </div>
+          </div>
+          <button className="btn-perigo" onClick={recarregarCotacao}>
+            Tentar novamente
+          </button>
+        </div>
+      )}
       {MOEDAS.map((m) => {
         const taxa = cotacoes[m];
         if (!taxa) return null;
@@ -46,7 +64,12 @@ export const CardCambio = () => {
             <div className="cambio-flag">{BANDEIRA[m]}</div>
             <div className="flex-1">
               <div className="mono pequeno muted">
-                {m} → BRL · <span className="verde">ao vivo</span>
+                {m} → BRL ·{' '}
+                {antiga ? (
+                  <span className="coral">última conhecida</span>
+                ) : (
+                  <span className="verde">ao vivo</span>
+                )}
               </div>
               <div className="cambio-taxa">{fmt(taxa)}</div>
             </div>
