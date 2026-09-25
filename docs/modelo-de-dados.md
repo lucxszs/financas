@@ -18,7 +18,7 @@ users/{uid}/aportes/{id}           Aporte
 
 | Campo               | Tipo                    | Descrição                                                                 |
 | ------------------- | ----------------------- | ------------------------------------------------------------------------- |
-| `nome`              | string                  | Nome exibido no cabeçalho                                                 |
+| `nome`              | string                  | Nome do plano (não é exibido na tela)                                     |
 | `rendaMensal`       | number                  | Renda de referência                                                       |
 | `taxaAnualEstimada` | number                  | Ex.: `0.147`; usada para estimar o rendimento mensal das caixinhas em BRL |
 | `caixinhas`         | Caixinha[]              | Onde o dinheiro está                                                      |
