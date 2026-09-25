@@ -1019,6 +1019,80 @@ code {
   background: rgb(0 214 143 / 0.08);
 }
 
+/* dashboard */
+.violeta {
+  color: var(--violet);
+}
+.resumo-taxas {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px 8px;
+}
+.resumo-taxa {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+}
+.resumo-barra {
+  padding: 0 18px 16px;
+}
+.insight {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.insight:last-child {
+  border-bottom: none;
+}
+.insight-icone {
+  flex-shrink: 0;
+}
+.insight.bom {
+  color: var(--emerald);
+}
+.insight.alerta {
+  color: var(--amber);
+}
+.limite-topo {
+  padding: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.limite-valor {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--emerald);
+  margin: 2px 0;
+}
+.limite-valor.coral {
+  color: var(--coral);
+}
+.status-limite {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  margin-top: 8px;
+  border-radius: var(--r);
+  border: 1px solid;
+}
+.status-limite.verde {
+  background: rgb(0 214 143 / 0.08);
+  border-color: rgb(0 214 143 / 0.2);
+}
+.status-limite.amarelo {
+  background: rgb(255 181 71 / 0.08);
+  border-color: rgb(255 181 71 / 0.2);
+}
+.status-limite.vermelho {
+  background: rgb(255 107 107 / 0.08);
+  border-color: rgb(255 107 107 / 0.2);
+}
+
 /* configurações */
 .mt-8 {
   margin-top: 8px;

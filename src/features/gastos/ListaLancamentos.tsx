@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { AcoesItem, ModalConfirmacao, Secao } from '../../components/ui';
 import { categoriaPorId, tipoPorId } from '../../domain/catalogos';
-import { resumoTransacoes, transacoesDoMes } from '../../domain/calculos';
-import { mesAtualIso, rotuloDiaMes, rotuloMesLongo, somarMeses } from '../../domain/datas';
+import { mesCompetencia, resumoTransacoes, transacoesDaCompetencia } from '../../domain/calculos';
+import { mesAtualIso, rotuloDiaMes, rotuloMesCurto, rotuloMesLongo, somarMeses } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import type { Transacao } from '../../domain/types';
 import { excluirTransacao } from '../../services/repositorio';
@@ -19,7 +19,8 @@ export const ListaLancamentos = ({
   const [mes, setMes] = useState(mesAtualIso());
   const [aExcluir, setAExcluir] = useState<Transacao | null>(null);
 
-  const doMes = transacoesDoMes(transacoes, mes);
+  // Compras no cartão aparecem no mês da fatura.
+  const doMes = transacoesDaCompetencia(transacoes, mes);
   const { entradas, saidas, saldo } = resumoTransacoes(doMes);
   const nomeCartao = (id: string | null) => config.cartoes.find((c) => c.id === id)?.nome;
 
@@ -62,6 +63,7 @@ export const ListaLancamentos = ({
               `${tipo?.emoji ?? ''} ${tipo?.nome ?? t.tipo}`,
               nomeCartao(t.cartao),
               rotuloDiaMes(t.data),
+              mesCompetencia(t) !== t.data.slice(0, 7) && `fatura ${rotuloMesCurto(mesCompetencia(t))}`,
               t.obs,
             ].filter(Boolean);
             return (

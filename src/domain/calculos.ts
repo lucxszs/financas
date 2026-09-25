@@ -84,8 +84,14 @@ export const usoCartao = (cartao: Cartao, transacoes: Transacao[], mes: string) 
   return { utilizado, disponivel: cartao.limite - utilizado, pct: pct(utilizado, cartao.limite) };
 };
 
-export const transacoesDoMes = (transacoes: Transacao[], mes: string) =>
-  transacoes.filter((t) => t.data.startsWith(mes));
+/**
+ * Mês em que a transação pesa no orçamento: compra no cartão conta no mês da fatura (quando se paga),
+ * o resto no mês da data.
+ */
+export const mesCompetencia = (t: Transacao) => t.mesFatura ?? t.data.slice(0, 7);
+
+export const transacoesDaCompetencia = (transacoes: Transacao[], mes: string) =>
+  transacoes.filter((t) => mesCompetencia(t) === mes);
 
 export const resumoTransacoes = (transacoes: Transacao[]) => {
   const entradas = transacoes.filter((t) => t.isEntrada).reduce((a, t) => a + t.val, 0);

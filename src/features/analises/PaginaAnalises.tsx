@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import { AcoesItem, ModalConfirmacao, Secao, Vazio } from '../../components/ui';
 import { corVar } from '../../components/cor';
-import { totaisFechamento, totalSnapshot } from '../../domain/calculos';
+import { calcularScore, totaisFechamento, totalSnapshot } from '../../domain/calculos';
 import { rotuloDiaMes, rotuloMesCurto } from '../../domain/datas';
 import { fmt, formatarMoeda } from '../../domain/formatadores';
 import type { Aporte, Fechamento } from '../../domain/types';
@@ -112,7 +112,32 @@ export const PaginaAnalises = ({
       </Secao>
 
       {fechamentos.length > 0 && <Fechamentos fechamentos={fechamentos} />}
+
+      <ScoreMes />
     </>
+  );
+};
+
+const ROTULO_RESPOSTA = { sim: 'sim', parcial: 'parcial', nao: 'não' } as const;
+
+const ScoreMes = () => {
+  const { saldos } = useDadosConfigurados();
+  const score = calcularScore(saldos.score);
+  return (
+    <Secao titulo="Score do mês">
+      <div className="score-card">
+        <div className="score-icon">{score.icon}</div>
+        <div className="score-info">
+          <div className="score-title">{score.label}</div>
+          <div className="score-sub">
+            {saldos.score?.pagou
+              ? `Contas: ${ROTULO_RESPOSTA[saldos.score.pagou]} · Positivo: ${ROTULO_RESPOSTA[saldos.score.positivo ?? 'nao']} · Aporte: ${ROTULO_RESPOSTA[saldos.score.aporte ?? 'nao']}`
+              : 'Atualize os saldos para registrar o mês'}
+          </div>
+        </div>
+        <div className={`score-badge ${score.cls}`}>{score.pts}/3</div>
+      </div>
+    </Secao>
   );
 };
 

@@ -1,7 +1,7 @@
 import { Barra, Secao, Vazio } from '../../components/ui';
 import { corVar } from '../../components/cor';
 import { categoriaPorId } from '../../domain/catalogos';
-import { gastosPorCategoria, transacoesDoMes } from '../../domain/calculos';
+import { gastosPorCategoria, transacoesDaCompetencia } from '../../domain/calculos';
 import { mesAtualIso, rotuloMesLongo } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import type { Transacao } from '../../domain/types';
@@ -18,7 +18,7 @@ export const PaginaGastos = ({
 }) => {
   const { transacoes, config } = useDadosConfigurados();
   const mes = mesAtualIso();
-  const porCat = gastosPorCategoria(transacoesDoMes(transacoes, mes));
+  const porCat = gastosPorCategoria(transacoesDaCompetencia(transacoes, mes));
   const max = porCat[0]?.[1] ?? 1;
 
   const medias = config.mediasGastos;
