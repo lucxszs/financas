@@ -33,6 +33,7 @@ src/
     types.ts         tipos do modelo de dados
     calculos.ts      conversão de moedas, progresso de metas, score, uso de cartão, totais
     cartoes.ts       mês da fatura pelo melhor dia de compra
+    resumo.ts        resumo do mês, avisos e limite de gastos
     recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
     ids.ts           ids legíveis a partir do nome
     datas.ts         datas no fuso local, rótulos de mês
