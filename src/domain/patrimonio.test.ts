@@ -84,3 +84,11 @@ describe('liquidoSnapshot', () => {
     expect(liquidoSnapshot({ mes: '2026-06', valores: { nubank: 4200 } }, config, {})).toBe(4200);
   });
 });
+
+describe('dividasCartoes com limite informado', () => {
+  it('a dívida do cartão é o limite em uso informado pelo banco', () => {
+    // Itaú: limite 5.000, disponível 1.200 no banco. Inter: sem informação, vale o lançado (500 em setembro).
+    const informados = { itau: { disponivel: 1200, em: '2026-09-28T12:00:00.000Z' } };
+    expect(dividasCartoes(config, transacoes, '2026-09-10', informados)).toBe(3800 + 500);
+  });
+});

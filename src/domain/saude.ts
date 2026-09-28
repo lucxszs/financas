@@ -1,9 +1,9 @@
-import { resumoCartao } from './cartoes';
+import { limiteComprometido } from './cartoes';
 import { progressoObjetivo } from './calculos';
 import { fmt } from './formatadores';
 import { ritmoObjetivo } from './metas';
 import { aportePlanejado, mediaGastos, type LimiteGastos, type ResumoMes } from './resumo';
-import type { Aporte, Config, Cotacoes, Objetivo, Transacao } from './types';
+import type { Aporte, Config, Cotacoes, LimiteInformado, Objetivo, Transacao } from './types';
 
 export type Sinal = 'verde' | 'amarelo' | 'vermelho';
 
@@ -30,6 +30,8 @@ export interface EntradaSaude {
   resumo: ResumoMes;
   limite: LimiteGastos;
   hoje: string;
+  /** Limites informados no "Atualizar saldos", por cartão. */
+  limitesInformados?: Record<string, LimiteInformado>;
 }
 
 /**
@@ -65,10 +67,8 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
     });
   }
 
-  if (config.cartoes.length) {
-    const resumos = config.cartoes.map((c) => resumoCartao(c, e.transacoes, hoje));
-    const limiteTotal = resumos.reduce((a, r) => a + r.cartao.limite, 0);
-    const p = limiteTotal > 0 ? (resumos.reduce((a, r) => a + r.emAberto, 0) / limiteTotal) * 100 : 0;
+  const p = limiteComprometido(config.cartoes, e.transacoes, hoje, e.limitesInformados);
+  if (p !== null) {
     itens.push({
       id: 'cartoes',
       nome: 'Cartões',

@@ -1,21 +1,17 @@
-import { mesDaFatura, somarEmBRL, totalSnapshot } from './calculos';
-import { primeiraFaturaAberta } from './cartoes';
-import type { Config, Cotacoes, Snapshot, Transacao } from './types';
+import { somarEmBRL, totalSnapshot } from './calculos';
+import { resumoCartao } from './cartoes';
+import type { Config, Cotacoes, LimiteInformado, Snapshot, Transacao } from './types';
 
 /**
- * Faturas de cartão ainda não pagas: a do mês (até o dia do vencimento) e as futuras.
- * Cartão sem dia de vencimento cadastrado: a fatura do mês conta como aberta até o fim do mês.
+ * Dívida nos cartões: o limite em uso de cada um (faturas não pagas, incluindo parcelas futuras). Usa o limite
+ * informado do banco quando existe; senão, os lançamentos em aberto.
  */
-export const dividasCartoes = (config: Config, transacoes: Transacao[], hoje: string) => {
-  let total = 0;
-  for (const c of config.cartoes) {
-    const primeiroAberto = primeiraFaturaAberta(c, hoje);
-    total += transacoes
-      .filter((t) => t.cartao === c.id && !t.isEntrada && mesDaFatura(t) >= primeiroAberto)
-      .reduce((a, t) => a + t.val, 0);
-  }
-  return total;
-};
+export const dividasCartoes = (
+  config: Config,
+  transacoes: Transacao[],
+  hoje: string,
+  informados: Record<string, LimiteInformado> = {},
+) => config.cartoes.reduce((a, c) => a + resumoCartao(c, transacoes, hoje, informados[c.id]).emAberto, 0);
 
 export interface Patrimonio {
   investimentos: number;
@@ -33,6 +29,7 @@ export const patrimonioAtual = (
   cotacoes: Cotacoes,
   transacoes: Transacao[],
   hoje: string,
+  informados: Record<string, LimiteInformado> = {},
 ): Patrimonio => {
   const inv = somarEmBRL(
     config.caixinhas.filter((c) => c.tipo !== 'conta'),
@@ -44,7 +41,7 @@ export const patrimonioAtual = (
     valores,
     cotacoes,
   );
-  const dividas = dividasCartoes(config, transacoes, hoje);
+  const dividas = dividasCartoes(config, transacoes, hoje, informados);
   const ativos = inv.total + contas.total;
   return {
     investimentos: inv.total,

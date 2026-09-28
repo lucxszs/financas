@@ -60,7 +60,7 @@ export const PaginaDashboard = () => {
 
   const resumo = resumoMes(transacoes, aportes, config, cotacoes, mes);
   const limite = limiteGastos(resumo, transacoes, config, cotacoes, hoje);
-  const insights = insightsMes(resumo, transacoes, config, saldos.valores, cotacoes);
+  const insights = insightsMes(resumo, transacoes, config, saldos.valores, cotacoes, hoje, saldos.cartoes);
   const status = STATUS[limite.status];
   const corGastos =
     resumo.gastosSobreRenda > 90

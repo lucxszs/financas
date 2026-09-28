@@ -25,7 +25,8 @@ export const CardFechamento = () => {
     fechamentos: fechamentosMes,
     config,
     cotacoes,
-    patrimonioAgora: patrimonioAtual(config, saldos.valores, cotacoes, transacoes, hoje).liquido,
+    patrimonioAgora: patrimonioAtual(config, saldos.valores, cotacoes, transacoes, hoje, saldos.cartoes)
+      .liquido,
     hoje,
   };
   const previa = montarFechamento(mes, dados, '');

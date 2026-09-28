@@ -111,9 +111,18 @@ export interface ScoreMes {
   aporte?: Resposta;
 }
 
+/** Limite disponível que o app do banco mostra, informado no "Atualizar saldos". */
+export interface LimiteInformado {
+  disponivel: number;
+  /** Momento (ISO) em que foi informado. */
+  em: string;
+}
+
 export interface Saldos {
   /** Saldo por caixinha, na moeda da própria caixinha. */
   valores: Record<string, number>;
+  /** Limite disponível por cartão (id do cartão). */
+  cartoes?: Record<string, LimiteInformado>;
   score?: ScoreMes;
   updatedAt: string | null;
 }
