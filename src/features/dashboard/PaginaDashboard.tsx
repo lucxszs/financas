@@ -1,22 +1,50 @@
 import { Barra, Secao } from '../../components/ui';
 import { hojeIso, rotuloDiaMes, rotuloMesLongo } from '../../domain/datas';
-import { fmt } from '../../domain/formatadores';
-import { insightsMes, limiteGastos, resumoMes, type StatusLimite } from '../../domain/resumo';
+import { fmt, fmtPct } from '../../domain/formatadores';
+import {
+  Banknote,
+  CreditCard,
+  OctagonAlert,
+  ShieldCheck,
+  Target,
+  TrendingUp,
+  TriangleAlert,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react';
+import { Icone } from '../../components/icones';
+import { EmojiItem } from '../../components/marcas';
+import type { Sinal } from '../../components/ui';
+import {
+  insightsMes,
+  limiteGastos,
+  resumoMes,
+  type IconeInsight,
+  type StatusLimite,
+} from '../../domain/resumo';
+
+const ICONE_INSIGHT: Record<IconeInsight, LucideIcon> = {
+  gastos: Banknote,
+  alerta: TriangleAlert,
+  investimentos: TrendingUp,
+  cartoes: CreditCard,
+  meta: Target,
+};
 import { ProximosDias } from '../calendario/Calendario';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CardFechamento } from './CardFechamento';
 import { SaudeFinanceira } from './SaudeFinanceira';
 
-const STATUS: Record<StatusLimite, { icone: string; titulo: string; texto: string; cls: string }> = {
-  seguro: { icone: '🟢', titulo: 'Seguro', texto: 'Você está dentro do orçamento.', cls: 'verde' },
+const STATUS: Record<StatusLimite, { icone: LucideIcon; titulo: string; texto: string; cls: Sinal }> = {
+  seguro: { icone: ShieldCheck, titulo: 'Seguro', texto: 'Você está dentro do orçamento.', cls: 'verde' },
   atencao: {
-    icone: '🟡',
+    icone: TriangleAlert,
     titulo: 'Atenção',
     texto: 'Você está gastando acima do planejado.',
     cls: 'amarelo',
   },
   cuidado: {
-    icone: '🔴',
+    icone: OctagonAlert,
     titulo: 'Cuidado',
     texto: 'Se continuar nesse ritmo, termina o mês negativo.',
     cls: 'vermelho',
@@ -66,11 +94,11 @@ export const PaginaDashboard = () => {
           <div className="resumo-taxas">
             <div>
               <div className="tc-label">Taxa de poupança</div>
-              <div className="resumo-taxa">{resumo.taxaPoupanca.toFixed(1)}%</div>
+              <div className="resumo-taxa">{fmtPct(resumo.taxaPoupanca, 1)}</div>
             </div>
             <div className="texto-direita">
               <div className="tc-label">Gastos / renda</div>
-              <div className="resumo-taxa">{resumo.gastosSobreRenda.toFixed(1)}%</div>
+              <div className="resumo-taxa">{fmtPct(resumo.gastosSobreRenda, 1)}</div>
             </div>
           </div>
           <div className="resumo-barra">
@@ -82,7 +110,13 @@ export const PaginaDashboard = () => {
           <div className="card mt-8">
             {insights.map((i) => (
               <div key={i.texto} className={`insight ${i.tom}`}>
-                <span className="insight-icone">{i.icone}</span>
+                <span className="insight-icone">
+                  {i.icone === 'meta' && i.emoji ? (
+                    <EmojiItem emoji={i.emoji} tamanho={14} />
+                  ) : (
+                    <Icone icone={ICONE_INSIGHT[i.icone]} />
+                  )}
+                </span>
                 <span>{i.texto}</span>
               </div>
             ))}
@@ -94,7 +128,7 @@ export const PaginaDashboard = () => {
 
       <ProximosDias />
 
-      <Secao titulo="💳 Limite de gastos">
+      <Secao titulo="Limite de gastos" icone={Wallet}>
         <div className="card">
           <div className="limite-topo">
             <div className="tc-label">Disponível para gastar este mês</div>
@@ -128,7 +162,9 @@ export const PaginaDashboard = () => {
           </div>
         </div>
         <div className={`status-limite ${status.cls}`}>
-          <span className="score-icon">{status.icone}</span>
+          <span className="score-icon">
+            <Icone icone={status.icone} tamanho={26} />
+          </span>
           <div>
             <div className="score-title">{status.titulo}</div>
             <div className="score-sub">{status.texto}</div>

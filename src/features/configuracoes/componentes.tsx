@@ -1,7 +1,9 @@
 import { useState, type ReactNode } from 'react';
 import { AcoesItem, GradeOpcoes, ModalConfirmacao, Secao, Vazio } from '../../components/ui';
 import { corVar } from '../../components/cor';
+import { LogoInstituicao } from '../../components/logos';
 import { CORES } from '../../domain/catalogos';
+import { LISTA_INSTITUICOES, type Instituicao } from '../../domain/instituicoes';
 import type { Cor } from '../../domain/types';
 
 export const SeletorCor = ({ valor, onChange }: { valor: Cor; onChange: (c: Cor) => void }) => (
@@ -13,6 +15,32 @@ export const SeletorCor = ({ valor, onChange }: { valor: Cor; onChange: (c: Cor)
     }))}
     valor={valor}
     onChange={onChange}
+  />
+);
+
+/** Banco da caixinha ou do cartão (cor e logo). "" = outro, sem logo. */
+export const SeletorInstituicao = ({
+  valor,
+  onChange,
+}: {
+  valor: Instituicao | '';
+  onChange: (i: Instituicao | '') => void;
+}) => (
+  <GradeOpcoes<Instituicao | 'outro'>
+    colunas={3}
+    opcoes={[
+      ...LISTA_INSTITUICOES.map((i) => ({
+        id: i.id,
+        rotulo: (
+          <span className="icone-texto">
+            <LogoInstituicao id={i.id} tamanho={16} /> {i.nome}
+          </span>
+        ),
+      })),
+      { id: 'outro' as const, rotulo: 'Outro' },
+    ]}
+    valor={valor === '' ? 'outro' : valor}
+    onChange={(v) => onChange(v === 'outro' ? '' : v)}
   />
 );
 

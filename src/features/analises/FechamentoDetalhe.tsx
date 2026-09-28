@@ -1,5 +1,7 @@
 import { categoriaPorId } from '../../domain/catalogos';
-import { fmt } from '../../domain/formatadores';
+import { IconeCategoria } from '../../components/icones';
+import { EmojiItem } from '../../components/marcas';
+import { fmt, fmtPct } from '../../domain/formatadores';
 import type { FechamentoMes } from '../../domain/types';
 
 const sinal = (v: number) => `${v < 0 ? '− ' : '+ '}${fmt(Math.abs(v))}`;
@@ -27,12 +29,15 @@ export const FechamentoDetalhe = ({ f }: { f: FechamentoMes }) => {
       </div>
       <div className="brow">
         <span className="bname">Taxa de poupança</span>
-        <span className="bval">{f.taxaPoupanca.toFixed(1)}%</span>
+        <span className="bval">{fmtPct(f.taxaPoupanca, 1)}</span>
       </div>
       {f.maiorCategoria && (
         <div className="brow">
           <span className="bname">
-            Maior categoria: {cat?.emoji} {cat?.nome ?? f.maiorCategoria.cat}
+            <span className="icone-texto">
+              Maior categoria: <IconeCategoria cat={f.maiorCategoria.cat} tamanho={14} />{' '}
+              {cat?.nome ?? f.maiorCategoria.cat}
+            </span>
           </span>
           <span className="bval">{fmt(f.maiorCategoria.valor)}</span>
         </div>
@@ -46,13 +51,15 @@ export const FechamentoDetalhe = ({ f }: { f: FechamentoMes }) => {
       {f.aportesPorMeta.map((m) => (
         <div key={m.objetivoId} className="brow">
           <span className="bname">
-            Meta: {m.emoji ?? '🎯'} {m.nome}
+            <span className="icone-texto">
+              Meta: <EmojiItem emoji={m.emoji} tamanho={14} /> {m.nome}
+            </span>
           </span>
           <span className="bval verde">+ {fmt(m.valor)}</span>
         </div>
       ))}
       <div className="brow">
-        <span className="bname">📈 Patrimônio</span>
+        <span className="bname">Patrimônio</span>
         <span className="bval">
           {f.patrimonio === null ? 'sem foto dos saldos' : fmt(f.patrimonio)}
           {f.variacaoPatrimonio !== null && (

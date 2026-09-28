@@ -1,8 +1,10 @@
+import { CreditCard } from 'lucide-react';
+import { NomeCaixinha } from '../../components/marcas';
 import { Barra, Secao } from '../../components/ui';
 import { corVar } from '../../components/cor';
 import { comprometimentoFuturo, resumoCartao, type ResumoCartao } from '../../domain/cartoes';
 import { hojeIso, rotuloMesCurto, somarMeses } from '../../domain/datas';
-import { fmt } from '../../domain/formatadores';
+import { fmt, fmtPct } from '../../domain/formatadores';
 import { useDadosConfigurados } from '../dados/useDados';
 
 const dia = (n: number) => String(n).padStart(2, '0');
@@ -11,7 +13,7 @@ const rotuloMelhorDia = (r: ResumoCartao) => {
   const { melhorDiaCompra } = r.cartao;
   if (!melhorDiaCompra || r.diasMelhorDia === null) return null;
   const quando =
-    r.diasMelhorDia === 0 ? '✨ hoje' : r.diasMelhorDia === 1 ? 'amanhã' : `em ${r.diasMelhorDia} dias`;
+    r.diasMelhorDia === 0 ? 'hoje' : r.diasMelhorDia === 1 ? 'amanhã' : `em ${r.diasMelhorDia} dias`;
   return `melhor dia ${dia(melhorDiaCompra)} (${quando})`;
 };
 
@@ -28,7 +30,7 @@ export const CartoesResumo = () => {
 
   return (
     <>
-      <Secao titulo="💳 Cartões">
+      <Secao titulo="Cartões" icone={CreditCard}>
         {resumos.map((r) => {
           const cor = r.pct > 80 ? 'var(--coral)' : r.pct > 60 ? 'var(--amber)' : corVar(r.cartao.cor);
           const datas = [
@@ -40,7 +42,7 @@ export const CartoesResumo = () => {
               <div className="cartao-topo">
                 <div className="linha-entre">
                   <span className="negrito">
-                    {r.cartao.emoji} {r.cartao.nome}
+                    <NomeCaixinha caixinha={r.cartao} tamanho={20} />
                   </span>
                   <span className="mono muted pequeno">limite {fmt(r.cartao.limite)}</span>
                 </div>
@@ -67,7 +69,7 @@ export const CartoesResumo = () => {
               </div>
               <div className="cartao-uso">
                 <Barra pct={r.pct} cor={cor} altura={5} />
-                <div className="mono mini muted mt-4">{r.pct.toFixed(0)}% do limite comprometido</div>
+                <div className="mono mini muted mt-4">{fmtPct(r.pct)} do limite comprometido</div>
               </div>
             </div>
           );

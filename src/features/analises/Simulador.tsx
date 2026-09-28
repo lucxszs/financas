@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { Briefcase, Calculator, Scissors, TrendingUp } from 'lucide-react';
+import { Icone } from '../../components/icones';
 import { GradeOpcoes, Secao } from '../../components/ui';
 import { hojeIso, rotuloMesCurto } from '../../domain/datas';
-import { fmt } from '../../domain/formatadores';
+import { fmt, fmtPct } from '../../domain/formatadores';
 import { ritmoObjetivo } from '../../domain/metas';
 import { aportePlanejado } from '../../domain/resumo';
 import { impactoNaMeta, valorFuturo } from '../../domain/simulacao';
@@ -9,10 +11,31 @@ import { useDadosConfigurados } from '../dados/useDados';
 
 type Cenario = 'renda' | 'gastar' | 'aporte';
 
-const CENARIOS: { id: Cenario; rotulo: string }[] = [
-  { id: 'renda', rotulo: '💼 Ganhar mais' },
-  { id: 'gastar', rotulo: '✂️ Gastar menos' },
-  { id: 'aporte', rotulo: '📈 Aportar mais' },
+const CENARIOS: { id: Cenario; rotulo: ReactNode }[] = [
+  {
+    id: 'renda',
+    rotulo: (
+      <span className="icone-texto">
+        <Icone icone={Briefcase} tamanho={14} /> Ganhar mais
+      </span>
+    ),
+  },
+  {
+    id: 'gastar',
+    rotulo: (
+      <span className="icone-texto">
+        <Icone icone={Scissors} tamanho={14} /> Gastar menos
+      </span>
+    ),
+  },
+  {
+    id: 'aporte',
+    rotulo: (
+      <span className="icone-texto">
+        <Icone icone={TrendingUp} tamanho={14} /> Aportar mais
+      </span>
+    ),
+  },
 ];
 
 const meses = (n: number) => `${n} ${n === 1 ? 'mês' : 'meses'}`;
@@ -51,7 +74,7 @@ export const Simulador = () => {
     meta && extra > 0 ? impactoNaMeta(meta.r.faltam, meta.r.atualMes, extra, hoje.slice(0, 7)) : null;
 
   return (
-    <Secao titulo="🧮 Simulações: e se...">
+    <Secao titulo="Simulações: e se..." icone={Calculator}>
       <div className="card card-pad">
         <div className="field">
           <GradeOpcoes opcoes={CENARIOS} valor={cenario} onChange={setCenario} />
@@ -124,7 +147,7 @@ export const Simulador = () => {
       </div>
       <div className="nota">
         &quot;Investindo&quot; usa o rendimento estimado das Configurações (
-        {(config.taxaAnualEstimada * 100).toFixed(1)}% ao ano). O prazo das metas usa o ritmo atual de aportes
+        {fmtPct(config.taxaAnualEstimada * 100, 1)} ao ano). O prazo das metas usa o ritmo atual de aportes
         mais o extra, sem rendimento.
       </div>
     </Secao>

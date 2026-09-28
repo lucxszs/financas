@@ -45,6 +45,7 @@ src/
     calendario.ts    entradas e saídas previstas por dia
     recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
     ids.ts           ids legíveis a partir do nome
+    instituicoes.ts  bancos: cor oficial, iniciais e detecção pelo nome
     datas.ts         datas no fuso local, rótulos de mês
     formatadores.ts  moeda (BRL/USD/EUR) com Intl
     catalogos.ts     tipos de transação e categorias
@@ -61,7 +62,8 @@ src/
     dashboard/ gastos/ patrimonio/ metas/ analises/ onboarding/
     configuracoes/   formulários de caixinhas, cartões, objetivos, orçamento e recorrentes
     modais/          formulários de saldos, transação e aporte (criar e editar)
-  components/      UI compartilhada (Modal, ModalConfirmacao, AcoesItem, Barra...) e gráficos em SVG
+  components/      UI compartilhada (Modal, ModalConfirmacao, AcoesItem, Barra...), gráficos em SVG,
+                   ícones (lucide), logos dos bancos e bandeiras em SVG
   lib/firebase.ts  inicialização; conecta nos emuladores quando VITE_USE_EMULATORS=true
   styles/global.css
 tests/             testes das firestore.rules (emulador)
@@ -93,4 +95,5 @@ docs/              esta documentação
 | Domínio sem dependências                   | Cálculos testáveis sem mock de Firebase nem React.                                               |
 | Sem biblioteca de UI/estado                | O app é pequeno; Context + hooks bastam e mantêm o bundle leve.                                  |
 | Fonte só de bandeiras no Windows           | O Windows não desenha bandeiras emoji; `country-flag-emoji-polyfill` carrega a fonte Twemoji.    |
+| Ícones e bandeiras em SVG                  | `lucide-react` na interface, `country-flag-icons` nas bandeiras e logos do Simple Icons (CC0).   |
 | Última cotação no `localStorage`           | Se a AwesomeAPI cair, o câmbio mostra o último valor conhecido com data e hora.                  |

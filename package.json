@@ -19,7 +19,9 @@
   },
   "dependencies": {
     "country-flag-emoji-polyfill": "^0.1.10",
+    "country-flag-icons": "^1.6.20",
     "firebase": "^12.19.0",
+    "lucide-react": "^1.48.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },

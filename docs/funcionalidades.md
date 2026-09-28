@@ -3,7 +3,7 @@
 ## Acesso
 
 - Login com Google. Só contas liberadas entram; as outras veem "Acesso não liberado" com o próprio `uid`.
-- **Sair** fica no cabeçalho.
+- **Sair** e **Configurações** são os ícones no canto superior direito.
 
 ## Primeiro acesso
 
@@ -15,16 +15,28 @@ Sem configuração, o app abre **Configurar plano**:
 
 Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação).
 
-## Menu
+## Navegação
 
-| Aba              | O que tem                                                                                                             |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------- |
-| 🏠 Dashboard     | Fechamento do mês (quando há um para fechar), resumo, saúde financeira, próximos 7 dias e quanto ainda dá para gastar |
-| 💳 Gastos        | Lançamentos, calendário do mês, cartões, gastos por categoria × orçamento e média histórica                           |
-| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, rentabilidade × CDI e IPCA, e câmbio                                    |
-| 🎯 Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação      |
-| 📊 Análises      | Histórico mensal com gráficos, meses fechados, simulações, aportes, evolução dos investimentos e fechamentos manuais  |
-| ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                                         |
+- **Cabeçalho**: título à esquerda; à direita, "Lançar gasto" (botão principal), "Lançar aporte", "Atualizar saldos"
+  e os ícones de Configurações e Sair.
+- **Abas**: Início, Gastos, Patrimônio, Metas e Análises. No celular, as abas ficam numa barra fixa embaixo e as três
+  ações ficam no botão "+" flutuante.
+
+| Aba           | O que tem                                                                                                             |
+| ------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Início        | Fechamento do mês (quando há um para fechar), resumo, saúde financeira, próximos 7 dias e quanto ainda dá para gastar |
+| Gastos        | Lançamentos, calendário do mês, cartões e gastos por categoria × orçamento                                            |
+| Patrimônio    | Patrimônio líquido e evolução, investimentos, rentabilidade × CDI e IPCA, e câmbio                                    |
+| Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação      |
+| Análises      | Histórico mensal com gráficos, meses fechados, simulações, aportes e evolução dos investimentos                       |
+| Configurações | Renda, caixinhas, cartões, objetivos, orçamento, recorrentes e limpeza dos dados antigos da v1                        |
+
+**Ícones e marcas**: a interface usa ícones em SVG. Caixinhas e cartões mostram o logo do banco na cor oficial
+(Nubank, Mercado Pago e Wise com logo; Itaú e Inter com as iniciais). Bandeiras (ex.: 🇦🇷 no emoji de um objetivo)
+são desenhadas em SVG, inclusive no Windows.
+
+**Nomes**: caixinhas e cartões aparecem pelo nome atual em todas as abas; renomear em Configurações vale no app
+inteiro. Nomes e descrições de objetivos e recorrências são texto livre: se citarem uma caixinha, edite lá também.
 
 Se a cotação não carregar, o app usa a última conhecida e mostra a data e a hora dela.
 
@@ -98,7 +110,7 @@ Na contagem regressiva de cada meta com data:
 
 - **Próximos 7 dias** (Dashboard): recorrências que ainda vão cair e vencimentos de fatura, com o saldo previsto
   (entradas − contas, aportes e faturas).
-- **Calendário do mês** (Gastos): tudo o que entra e sai no mês, por dia; ✓ = recorrência já lançada, fatura já
+- **Calendário do mês** (Gastos): tudo o que entra e sai no mês, por dia; marcado = recorrência já lançada, fatura já
   vencida aparece apagada.
 - Recorrências no cartão não aparecem sozinhas: já estão dentro da fatura.
 
@@ -107,15 +119,15 @@ Na contagem regressiva de cada meta com data:
 Em Patrimônio:
 
 - Por caixinha de investimento: saldo, participação no total, rentabilidade e quanto rendeu.
-- Investido = saldo na primeira foto do "Atualizar saldos" + aportes lançados depois. Saques não são registrados e
-  reduzem o rendimento.
-- Total com a rentabilidade desde a primeira foto, comparada com o CDI e o IPCA do período (séries mensais do Banco
-  Central, compostas mês a mês). A comparação é aproximada: os aportes entram ao longo do período.
+- Rendimentos = soma do "rendimento do mês" informado no "Atualizar saldos" (mês sem rendimento informado conta
+  zero). Investido = saldo atual − rendimentos. Depósitos não lançados como aporte não viram rendimento.
+- Total com a rentabilidade desde o primeiro rendimento informado, comparada com o CDI e o IPCA do período (séries mensais do Banco
+  Central, compostas mês a mês). A comparação é aproximada: os depósitos entram ao longo do período.
 - CDI e IPCA ficam guardados no navegador por 24h; se o Banco Central cair, usa os últimos guardados.
 
 ## Simulações
 
-Em Análises, "🧮 Simulações: e se...":
+Em Análises, "Simulações: e se...":
 
 - **Ganhar mais**: nova renda mensal. **Gastar menos**: quanto a menos por mês. **Aportar mais**: novo aporte mensal.
 - Mostra o extra por mês, quanto ele vira em 1 e 3 anos (guardado e investindo, com o rendimento estimado das
@@ -141,7 +153,7 @@ gráficos (gastos, investimentos e taxa de poupança por mês). Passe o mouse ou
 
 ## Lançamentos
 
-- **Criar**: "+ Lançar gasto" no cabeçalho ou "+ Novo" na lista.
+- **Criar**: "Lançar gasto" no cabeçalho (no celular, no botão "+") ou "+ Novo" na lista.
 - **Crédito**: pede o cartão. O mês da fatura vem automático pelo melhor dia de compra do cartão; dá para trocar.
 - **Parcelado**: valor total + número de parcelas (2 a 48). O app cria uma parcela por mês de fatura, a partir da
   fatura escolhida, e mostra a prévia ("10x de R$ 150,00 · Out/26 a Jul/27"). Centavos que sobram da divisão vão
@@ -173,4 +185,10 @@ Em Análises: criar (🐷 Novo aporte), editar e excluir. O valor é na moeda da
 
 ## Atualizar saldos
 
-"✏️ Atualizar saldos" grava o saldo de cada caixinha e o rendimento do mês (opcional), e atualiza a evolução do mês.
+"Atualizar saldos" grava o saldo de cada caixinha e o rendimento do mês (opcional), e atualiza a evolução do mês.
+Os campos já vêm com o que foi salvo naquele mês.
+
+- **Mês atual**: atualiza os saldos de agora e a foto do mês.
+- **Mês passado** (até 12 meses): grava só a foto daquele mês, para preencher buracos no histórico e no gráfico de
+  patrimônio. Pede também a cotação do dólar/euro no fim do mês (se houver caixinha nessas moedas) e as faturas em
+  aberto (opcional). Os saldos de hoje não mudam.

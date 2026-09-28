@@ -87,8 +87,11 @@ export const aportePlanejado = (config: Config, cotacoes: Cotacoes) => {
 };
 
 export type Tom = 'bom' | 'alerta' | 'neutro';
+export type IconeInsight = 'gastos' | 'alerta' | 'investimentos' | 'cartoes' | 'meta';
 export interface Insight {
-  icone: string;
+  icone: IconeInsight;
+  /** Emoji do objetivo (avisos de meta). */
+  emoji?: string;
   texto: string;
   tom: Tom;
 }
@@ -108,11 +111,15 @@ export const insightsMes = (
     itens.push(
       dif >= 0
         ? {
-            icone: '💰',
+            icone: 'gastos',
             texto: `Até agora, ${fmt(dif)} abaixo da sua média de gastos (${fmt(media)})`,
             tom: 'bom',
           }
-        : { icone: '⚠️', texto: `Já gastou ${fmt(-dif)} acima da sua média (${fmt(media)})`, tom: 'alerta' },
+        : {
+            icone: 'alerta',
+            texto: `Já gastou ${fmt(-dif)} acima da sua média (${fmt(media)})`,
+            tom: 'alerta',
+          },
     );
   }
 
@@ -122,12 +129,12 @@ export const insightsMes = (
     itens.push(
       dif >= 0
         ? {
-            icone: '📈',
+            icone: 'investimentos',
             texto: dif > 0 ? `Investiu ${fmt(dif)} acima da meta` : 'Meta de investimento do mês batida',
             tom: 'bom',
           }
         : {
-            icone: '📈',
+            icone: 'investimentos',
             texto: `Investiu ${fmt(resumo.investimentos)} de ${fmt(planejado)} planejados`,
             tom: 'neutro',
           },
@@ -139,7 +146,7 @@ export const insightsMes = (
     const usado = soma(config.cartoes.map((c) => usoCartao(c, transacoes, resumo.mes).utilizado));
     const p = pct(usado, limite);
     itens.push({
-      icone: p > 60 ? '⚠️' : '💳',
+      icone: p > 60 ? 'alerta' : 'cartoes',
       texto: `Cartões ${p.toFixed(0)}% comprometidos na fatura do mês`,
       tom: p > 60 ? 'alerta' : 'neutro',
     });
@@ -148,7 +155,8 @@ export const insightsMes = (
   for (const o of config.objetivos.filter((x) => x.dataAlvo)) {
     const p = progressoObjetivo(o, config, valores, cotacoes);
     itens.push({
-      icone: o.emoji ?? '🎯',
+      icone: 'meta',
+      emoji: o.emoji,
       texto: `${o.nome} está ${p.pct.toFixed(0)}% concluído`,
       tom: 'neutro',
     });

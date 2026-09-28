@@ -23,7 +23,7 @@ export const TelaLogin = () => {
     return (
       <div className="tela-centro">
         <div className="card card-pad tela-login">
-          <h1>🔒 Acesso não liberado</h1>
+          <h1>Acesso não liberado</h1>
           <p className="muted">
             A conta <strong>{estado.user.email}</strong> ainda não tem permissão.
           </p>
@@ -54,7 +54,7 @@ export const TelaLogin = () => {
               void tentar(() => signInWithEmailAndPassword(auth, USUARIO_TESTE.email, USUARIO_TESTE.senha))
             }
           >
-            🧪 Entrar como usuário de teste (emulador)
+            Entrar como usuário de teste (emulador)
           </button>
         )}
         {erro && <div className="save-msg erro">{erro}</div>}

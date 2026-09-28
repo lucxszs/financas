@@ -1,10 +1,13 @@
+import { ArrowLeftRight, TriangleAlert } from 'lucide-react';
+import { Icone } from '../../components/icones';
+import { EmojiItem } from '../../components/marcas';
 import { paraBRL } from '../../domain/calculos';
 import { rotuloDataHora } from '../../domain/datas';
 import { fmt, formatarMoeda } from '../../domain/formatadores';
 import type { MoedaEstrangeira } from '../../domain/types';
 import { useDadosConfigurados } from '../dados/useDados';
 
-const BANDEIRA: Record<MoedaEstrangeira, string> = { USD: '🇺🇸', EUR: '🇪🇺' };
+const BANDEIRA: Record<MoedaEstrangeira, string> = { USD: '🇺🇸', EUR: '🇪🇺' }; // desenhadas em SVG por EmojiItem
 const MOEDAS: MoedaEstrangeira[] = ['USD', 'EUR'];
 
 export const CardCambio = () => {
@@ -16,7 +19,9 @@ export const CardCambio = () => {
   if (statusCotacao === 'erro' && !Object.keys(cotacoes).length) {
     return (
       <div className="cambio-card erro">
-        <div className="cambio-flag">⚠️</div>
+        <div className="cambio-flag coral">
+          <Icone icone={TriangleAlert} tamanho={22} />
+        </div>
         <div className="flex-1">
           <div className="mono pequeno coral">Erro ao buscar cotação</div>
           <div className="mono pequeno muted">AwesomeAPI indisponível</div>
@@ -31,7 +36,9 @@ export const CardCambio = () => {
   if (statusCotacao === 'loading' && !Object.keys(cotacoes).length) {
     return (
       <div className="cambio-card">
-        <div className="cambio-flag">💱</div>
+        <div className="cambio-flag muted">
+          <Icone icone={ArrowLeftRight} tamanho={22} />
+        </div>
         <div className="mono pequeno muted">Buscando cotação...</div>
       </div>
     );
@@ -43,7 +50,7 @@ export const CardCambio = () => {
         <div className="cambio-card erro">
           <div className="flex-1">
             <div className="mono pequeno coral">
-              ⚠️ Última cotação disponível
+              Última cotação disponível
               {cotacaoAtualizadaEm && `: ${rotuloDataHora(cotacaoAtualizadaEm)}`}
             </div>
             <div className="mono pequeno muted">
@@ -61,7 +68,9 @@ export const CardCambio = () => {
         const caixinhas = config.caixinhas.filter((c) => c.moeda === m);
         return (
           <div key={m} className="cambio-card">
-            <div className="cambio-flag">{BANDEIRA[m]}</div>
+            <div className="cambio-flag">
+              <EmojiItem emoji={BANDEIRA[m]} tamanho={20} />
+            </div>
             <div className="flex-1">
               <div className="mono pequeno muted">
                 {m} → BRL ·{' '}

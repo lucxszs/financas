@@ -1,10 +1,11 @@
 import type { CSSProperties } from 'react';
 import { GraficoLinha } from '../../components/graficos';
+import { NomeCaixinha } from '../../components/marcas';
 import { Barra, Secao } from '../../components/ui';
 import { corVar } from '../../components/cor';
 import { paraBRL, pct, rendimentoMensalEstimado, somarEmBRL } from '../../domain/calculos';
 import { hojeIso, rotuloMesCurto, somarMeses } from '../../domain/datas';
-import { fmt, fmtCompacto, formatarMoeda } from '../../domain/formatadores';
+import { fmt, fmtCompacto, fmtPct, formatarMoeda } from '../../domain/formatadores';
 import { liquidoSnapshot, patrimonioAtual } from '../../domain/patrimonio';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CardCambio } from './CardCambio';
@@ -58,9 +59,7 @@ export const PaginaPatrimonio = () => {
             </span>
           </div>
         </div>
-        {!patrimonio.completo && (
-          <div className="nota">⚠️ Sem cotação: moedas estrangeiras fora do total.</div>
-        )}
+        {!patrimonio.completo && <div className="nota">Sem cotação: moedas estrangeiras fora do total.</div>}
         <div className="card card-pad mt-8">
           <div className="grafico-titulo">Evolução</div>
           <GraficoLinha
@@ -83,9 +82,7 @@ export const PaginaPatrimonio = () => {
           <div>
             <div className="tc-label">Total investido</div>
             <div className="tc-val">{fmt(total.total)}</div>
-            {!total.completo && (
-              <div className="tc-rend">⚠️ sem cotação: moedas estrangeiras fora do total</div>
-            )}
+            {!total.completo && <div className="tc-rend">sem cotação: moedas estrangeiras fora do total</div>}
           </div>
           <div className="tc-right">
             <div className="tc-label">Rendendo/mês</div>
@@ -103,7 +100,7 @@ export const PaginaPatrimonio = () => {
             return (
               <div key={c.id} className="invest-card" style={{ '--cor': corVar(c.cor) } as CSSProperties}>
                 <div className="ic-label">
-                  {c.nome} {c.emoji}
+                  <NomeCaixinha caixinha={c} tamanho={16} />
                 </div>
                 <div className="ic-val">{formatarMoeda(valor, c.moeda)}</div>
                 <div className="ic-rend">
@@ -115,7 +112,7 @@ export const PaginaPatrimonio = () => {
                   <div className="prog-wrap">
                     <div className="prog-label">
                       <span>{obj.nome}</span>
-                      <span>{progresso === null ? '⚠️ sem cotação' : `${progresso.toFixed(1)}%`}</span>
+                      <span>{progresso === null ? 'sem cotação' : fmtPct(progresso, 1)}</span>
                     </div>
                     <Barra pct={progresso ?? 0} cor={corVar(c.cor)} />
                   </div>

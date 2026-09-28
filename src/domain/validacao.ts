@@ -1,4 +1,5 @@
 import { CATEGORIAS, CORES, TIPOS } from './catalogos';
+import { INSTITUICOES } from './instituicoes';
 import type { DadosIniciais } from './types';
 
 // Validação estrutural do JSON importado no onboarding. Mantida sem dependências;
@@ -16,6 +17,7 @@ const isDia = (v: unknown) => Number.isInteger(v) && (v as number) >= 1 && (v as
 const CATS: string[] = CATEGORIAS.map((c) => c.id);
 const TIPOS_TX: string[] = TIPOS.map((t) => t.id);
 const cores: string[] = CORES;
+const INSTS: string[] = Object.keys(INSTITUICOES);
 
 export const validarDadosIniciais = (
   entrada: unknown,
@@ -41,6 +43,8 @@ export const validarDadosIniciais = (
     exigir(isStr(cx.nome), `caixinhas[${i}].nome obrigatório`);
     exigir(MOEDAS.includes(cx.moeda as string), `caixinhas[${i}].moeda deve ser ${MOEDAS.join('/')}`);
     exigir(cores.includes(cx.cor as string), `caixinhas[${i}].cor deve ser ${CORES.join('/')}`);
+    if (cx.instituicao !== undefined)
+      exigir(INSTS.includes(cx.instituicao as string), `caixinhas[${i}].instituicao desconhecida`);
     if (cx.tipo !== undefined)
       exigir(
         cx.tipo === 'investimento' || cx.tipo === 'conta',
@@ -68,6 +72,8 @@ export const validarDadosIniciais = (
   (Array.isArray(c.cartoes) ? c.cartoes : []).forEach((k: unknown, i) => {
     if (!isObj(k)) return erros.push(`cartoes[${i}] inválido`);
     exigir(isStr(k.id) && isNum(k.limite), `cartoes[${i}] precisa de id e limite`);
+    if (k.instituicao !== undefined)
+      exigir(INSTS.includes(k.instituicao as string), `cartoes[${i}].instituicao desconhecida`);
     if (k.melhorDiaCompra !== undefined)
       exigir(isDia(k.melhorDiaCompra), `cartoes[${i}].melhorDiaCompra deve ser um dia de 1 a 31`);
     if (k.diaVencimento !== undefined)

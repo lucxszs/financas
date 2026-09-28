@@ -139,13 +139,6 @@ code {
   padding-left: 18px;
 }
 
-.nav {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-}
-.nav-btn,
 .mes-tab {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -161,27 +154,119 @@ code {
   padding: 6px 12px;
   border-radius: 8px;
 }
-.nav-btn:hover,
 .mes-tab:hover {
   border-color: var(--dim);
   color: var(--text);
 }
-.nav-btn.active,
 .mes-tab.active {
   background: var(--surface2);
   border-color: var(--emerald);
   color: var(--emerald);
 }
 
-.header {
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+/* cabeçalho */
+.topo {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.topo-marca {
+  flex: 1;
+  min-width: 0;
+}
+.topo-marca h1 {
+  font-size: clamp(20px, 4vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.topo-acoes {
+  display: flex;
+  gap: 8px;
+}
+.topo-icones {
+  display: flex;
+  gap: 4px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+}
+.btn-topo {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-topo:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+.btn-topo.ativo {
+  color: var(--emerald);
+  border-color: var(--emerald);
+  background: var(--surface2);
+}
+
+/* abas (desktop: no topo, sublinhadas) */
+.abas {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.aba {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.aba:hover {
+  color: var(--text);
+}
+.aba.ativa {
+  color: var(--emerald);
+  border-bottom-color: var(--emerald);
+  font-weight: 600;
+}
+
+/* ações rápidas no celular */
+.fab {
+  display: none;
+}
+.menu-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.menu-acao {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+  text-align: left;
+}
+.menu-acao:first-child {
+  border-color: var(--emerald);
+  color: var(--emerald);
 }
 .eyebrow {
   font-family: var(--mono);
@@ -191,34 +276,36 @@ code {
   color: var(--muted);
   margin-bottom: 8px;
 }
-.header-left h1 {
-  font-size: clamp(20px, 5vw, 28px);
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
 .header-sub {
   font-family: var(--mono);
   font-size: 11px;
   color: var(--muted);
   margin-top: 4px;
 }
-.header-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--muted);
-  font-family: var(--mono);
-  font-size: 11px;
+  font-size: 13px;
   padding: 8px 14px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
+}
+.btn-primario {
+  background: var(--emerald);
+  border-color: var(--emerald);
+  color: #0d0f14;
+  font-weight: 600;
+}
+.btn-primario:hover {
+  color: #0d0f14;
+  opacity: 0.9;
 }
 .btn:hover {
   border-color: var(--emerald);
@@ -271,6 +358,9 @@ code {
   margin-bottom: 32px;
 }
 .section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 3px;
@@ -1249,6 +1339,97 @@ code {
   white-space: nowrap;
 }
 
+/* ícones, marcas e status */
+.status-ponto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.status-ponto.verde {
+  color: var(--emerald);
+  fill: var(--emerald);
+}
+.status-ponto.amarelo {
+  color: var(--amber);
+  fill: var(--amber);
+}
+.status-ponto.vermelho {
+  color: var(--coral);
+  fill: var(--coral);
+}
+.bandeira {
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.logo-instituicao {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.nome-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.icone-texto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ícones dentro de componentes existentes */
+.tx-icon {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+.insight-icone {
+  display: inline-flex;
+  padding-top: 2px;
+}
+.evo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.caixinhas-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.ic-label .nome-marca {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  color: var(--text);
+}
+.cd-flag,
+.cambio-flag {
+  display: grid;
+  place-items: center;
+}
+.status-limite.verde .score-icon {
+  color: var(--emerald);
+}
+.status-limite.amarelo .score-icon {
+  color: var(--amber);
+}
+.status-limite.vermelho .score-icon {
+  color: var(--coral);
+}
+.saude-nome {
+  color: var(--text);
+}
+
 /* configurações */
 .largura-total {
   width: 100%;
@@ -1316,40 +1497,66 @@ code {
     padding-right: max(12px, env(safe-area-inset-right));
   }
 
-  .header {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 12px;
-    padding-bottom: 16px;
+  body {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
-  .header-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .topo {
+    gap: 8px;
   }
-  .header-actions .btn {
-    min-height: 42px;
-    white-space: normal;
-  }
-
-  /* Menu fixo no topo, rolando na horizontal. */
-  .nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin: 0 -12px 20px;
-    padding: 10px 12px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav::-webkit-scrollbar {
+  .topo-acoes {
     display: none;
   }
-  .nav-btn {
-    flex-shrink: 0;
-    min-height: 38px;
+  .topo-icones {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  /* Abas viram barra fixa embaixo, com ícone sobre o texto. */
+  .abas {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+  }
+  .aba {
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 2px;
+    font-size: 10px;
+    border-bottom: none;
+    margin: 0;
+    min-height: 48px;
+    justify-content: center;
+  }
+  .aba.ativa {
+    border-bottom: none;
+  }
+
+  .fab {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    z-index: 61;
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    border: none;
+    background: var(--emerald);
+    color: #0d0f14;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
+    cursor: pointer;
   }
 
   .section {

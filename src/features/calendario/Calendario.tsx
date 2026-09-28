@@ -1,3 +1,5 @@
+import { CalendarDays, Check, CreditCard, PiggyBank, Receipt, Wallet, type LucideIcon } from 'lucide-react';
+import { Icone } from '../../components/icones';
 import { Secao, Vazio } from '../../components/ui';
 import {
   eventosDoPeriodo,
@@ -9,15 +11,20 @@ import { dataNoMes, diasNoMes, hojeIso, rotuloDiaMes, rotuloMesLongo, somarDias 
 import { fmt } from '../../domain/formatadores';
 import { useDadosConfigurados } from '../dados/useDados';
 
-const ICONE: Record<TipoEvento, string> = { entrada: '💰', saida: '🧾', aporte: '🐷', fatura: '💳' };
+const ICONE: Record<TipoEvento, LucideIcon> = {
+  entrada: Wallet,
+  saida: Receipt,
+  aporte: PiggyBank,
+  fatura: CreditCard,
+};
 const DIAS = 7;
 
 const Linha = ({ e, hoje }: { e: EventoCalendario; hoje: string }) => (
   <div className={`evento${e.feito ? ' feito' : ''}`}>
     <span className="evento-dia">{e.data === hoje ? 'hoje' : rotuloDiaMes(e.data)}</span>
-    <span className="evento-desc">
-      {ICONE[e.tipo]} {e.desc}
-      {e.feito && ' ✓'}
+    <span className="evento-desc icone-texto">
+      <Icone icone={ICONE[e.tipo]} /> {e.desc}
+      {e.feito && <Icone icone={Check} tamanho={14} aria-label="feito" />}
     </span>
     <span className={`evento-valor ${e.tipo === 'entrada' ? 'verde' : ''}`}>
       {e.tipo === 'entrada' ? '+ ' : '− '}
@@ -41,10 +48,10 @@ export const ProximosDias = () => {
   const saldo = saldoPrevisto(eventos);
 
   return (
-    <Secao titulo={`📅 Próximos ${DIAS} dias`}>
+    <Secao titulo={`Próximos ${DIAS} dias`} icone={CalendarDays}>
       <div className="card">
         {eventos.length === 0 ? (
-          <Vazio>Nada previsto. Cadastre contas fixas e salário em ⚙️ Configurações &gt; Recorrentes.</Vazio>
+          <Vazio>Nada previsto. Cadastre contas fixas e salário em Configurações &gt; Recorrentes.</Vazio>
         ) : (
           <>
             {eventos.map((e) => (
@@ -79,7 +86,7 @@ export const CalendarioMes = () => {
   );
 
   return (
-    <Secao titulo={`📅 Calendário · ${rotuloMesLongo(mes)}`}>
+    <Secao titulo={`Calendário · ${rotuloMesLongo(mes)}`} icone={CalendarDays}>
       <div className="card">
         {eventos.length === 0 ? (
           <Vazio>Sem recorrências nem faturas com vencimento neste mês.</Vazio>
@@ -88,8 +95,8 @@ export const CalendarioMes = () => {
         )}
       </div>
       <div className="nota">
-        Recorrências (✓ = já lançada) e vencimentos das faturas. Recorrências no cartão aparecem dentro da
-        fatura.
+        Recorrências (marcadas = já lançadas) e vencimentos das faturas. Recorrências no cartão aparecem
+        dentro da fatura.
       </div>
     </Secao>
   );

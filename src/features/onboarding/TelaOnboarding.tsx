@@ -43,7 +43,7 @@ export const TelaOnboarding = () => {
           <code>seed/exemplo.json</code> e no README.
         </p>
         <label className="btn-save centro">
-          {salvando ? 'Importando...' : '📂 Importar JSON'}
+          {salvando ? 'Importando...' : 'Importar JSON'}
           <input
             type="file"
             accept="application/json"

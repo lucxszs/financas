@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Lock } from 'lucide-react';
 import { ModalConfirmacao, Secao } from '../../components/ui';
 import { rotuloMesCurto, rotuloMesLongo } from '../../domain/datas';
 import { reabrirMes } from '../../services/repositorio';
@@ -14,7 +15,7 @@ export const MesesFechados = () => {
   if (!atual) return null;
 
   return (
-    <Secao titulo="🔒 Meses fechados">
+    <Secao titulo="Meses fechados" icone={Lock}>
       <div className="mes-tabs" role="tablist">
         {ordenados.map((f) => (
           <button

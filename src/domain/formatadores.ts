@@ -19,7 +19,8 @@ export const fmt = (valor: number) => formatarMoeda(valor, 'BRL');
 export const fmtSemSimbolo = (valor: number) =>
   valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export const fmtPct = (valor: number, casas = 0) => `${valor.toFixed(casas)}%`;
+/** Percentual com vírgula: 13,2%. */
+export const fmtPct = (valor: number, casas = 0) => `${valor.toFixed(casas).replace('.', ',')}%`;
 
 const compacto = new Intl.NumberFormat('pt-BR', {
   style: 'currency',

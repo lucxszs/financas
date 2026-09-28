@@ -1,10 +1,43 @@
 import { useEffect, useId, useState, type CSSProperties, type ReactNode } from 'react';
+import { Pencil, Trash2, X, type LucideIcon } from 'lucide-react';
+import { Icone } from './icones';
 
-export const Secao = ({ titulo, children }: { titulo: ReactNode; children: ReactNode }) => (
+export const Secao = ({
+  titulo,
+  icone,
+  children,
+}: {
+  titulo: ReactNode;
+  icone?: LucideIcon;
+  children: ReactNode;
+}) => (
   <section className="section">
-    <div className="section-label">{titulo}</div>
+    <div className="section-label">
+      {icone && <Icone icone={icone} tamanho={13} />}
+      {titulo}
+    </div>
     {children}
   </section>
+);
+
+export type Sinal = 'verde' | 'amarelo' | 'vermelho';
+
+/** Status sempre com cor + texto (nunca só a cor). */
+export const StatusPonto = ({
+  sinal,
+  rotulo,
+  mostrarRotulo = false,
+}: {
+  sinal: Sinal;
+  rotulo: string;
+  mostrarRotulo?: boolean;
+}) => (
+  <span className={`status-ponto ${sinal}`} title={rotulo}>
+    <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+      <circle cx="5" cy="5" r="5" />
+    </svg>
+    <span className={mostrarRotulo ? undefined : 'sr-only'}>{rotulo}</span>
+  </span>
 );
 
 export const Barra = ({
@@ -57,7 +90,7 @@ export const Modal = ({
         <div className="modal-topo">
           <h2 id={idTitulo}>{titulo}</h2>
           <button type="button" className="btn-icone" onClick={onFechar} aria-label="Fechar">
-            ✕
+            <Icone icone={X} tamanho={18} />
           </button>
         </div>
         {children}
@@ -93,7 +126,7 @@ export const ModalConfirmacao = ({
       await acao();
       onFechar();
     } catch (e) {
-      setErro(`❌ Erro: ${e instanceof Error ? e.message : String(e)}`);
+      setErro(`Erro: ${e instanceof Error ? e.message : String(e)}`);
       setExecutando(false);
     }
   };
@@ -198,7 +231,7 @@ export const AcoesItem = ({
       title="Editar"
       aria-label={`Editar ${descricao}`}
     >
-      ✏️
+      <Icone icone={Pencil} tamanho={16} />
     </button>
     <button
       type="button"
@@ -207,7 +240,7 @@ export const AcoesItem = ({
       title="Excluir"
       aria-label={`Excluir ${descricao}`}
     >
-      🗑
+      <Icone icone={Trash2} tamanho={16} />
     </button>
   </div>
 );

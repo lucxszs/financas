@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react';
+import { CalendarDays, CircleCheck, Coins, Target } from 'lucide-react';
+import { Icone } from '../../components/icones';
+import { EmojiItem, NomeCaixinha } from '../../components/marcas';
 import { Barra, Secao } from '../../components/ui';
 import { corVar } from '../../components/cor';
 import { progressoObjetivo } from '../../domain/calculos';
@@ -10,7 +13,7 @@ import {
   progressoTemporal,
   rotuloMesCurto,
 } from '../../domain/datas';
-import { fmt, fmtSemSimbolo } from '../../domain/formatadores';
+import { fmt, fmtPct, fmtSemSimbolo } from '../../domain/formatadores';
 import { ritmoObjetivo, type RitmoObjetivo } from '../../domain/metas';
 import type { Objetivo } from '../../domain/types';
 import { useDadosConfigurados } from '../dados/useDados';
@@ -44,9 +47,10 @@ export const PaginaMetas = () => {
               <div key={o.id} className="meta-row">
                 <div className="meta-dot" style={{ background: corVar(o.cor) }} />
                 <div className="meta-info">
-                  <div className="meta-name">
-                    {o.nome} {o.emoji}
+                  <div className="meta-name nome-marca">
+                    {o.nome} <EmojiItem emoji={o.emoji} tamanho={14} />
                   </div>
+                  <CaixinhasDaMeta objetivo={o} />
                   <div className="meta-sub">
                     {[
                       o.descricao,
@@ -59,7 +63,7 @@ export const PaginaMetas = () => {
                 </div>
                 <div className="meta-right">
                   <div className="mr-val" style={{ color: corVar(o.cor) }}>
-                    {p.concluido ? '✅ Completa' : (o.previsao ?? `${p.pct.toFixed(0)}%`)}
+                    {p.concluido ? 'Completa' : (o.previsao ?? fmtPct(p.pct))}
                   </div>
                   <div className="mr-prazo">{p.concluido ? fmt(p.guardado) : `faltam ${fmt(p.faltam)}`}</div>
                 </div>
@@ -107,7 +111,9 @@ export const Contagem = ({ objetivo: o, children }: { objetivo: Objetivo; childr
     <Secao titulo="Contagem regressiva">
       <div className="countdown-card">
         <div className="cd-header">
-          <div className="cd-flag">{o.emoji ?? '🎯'}</div>
+          <div className="cd-flag">
+            {o.emoji ? <EmojiItem emoji={o.emoji} tamanho={26} /> : <Icone icone={Target} tamanho={28} />}
+          </div>
           <div>
             <div className="cd-title">
               {o.nome} · {rotuloMesCurto(o.dataAlvo!.slice(0, 7))}
@@ -115,6 +121,7 @@ export const Contagem = ({ objetivo: o, children }: { objetivo: Objetivo; childr
             <div className="cd-sub">
               {o.descricao ? `${o.descricao} · ` : ''}meta {fmt(o.meta)}
             </div>
+            <CaixinhasDaMeta objetivo={o} />
           </div>
         </div>
         <div className="cd-grid">
@@ -126,7 +133,9 @@ export const Contagem = ({ objetivo: o, children }: { objetivo: Objetivo; childr
         <div className="cd-bars">
           <div>
             <div className="cd-bar-label">
-              <span>💰 Financeiro ({p.pct.toFixed(0)}%)</span>
+              <span className="icone-texto">
+                <Icone icone={Coins} tamanho={13} /> Financeiro ({fmtPct(p.pct)})
+              </span>
               <span>
                 {fmt(p.guardado)} de {fmt(o.meta)}
               </span>
@@ -136,7 +145,9 @@ export const Contagem = ({ objetivo: o, children }: { objetivo: Objetivo; childr
           {pctTempo !== null && (
             <div>
               <div className="cd-bar-label">
-                <span>📅 Temporal ({pctTempo.toFixed(0)}%)</span>
+                <span className="icone-texto">
+                  <Icone icone={CalendarDays} tamanho={13} /> Temporal ({fmtPct(pctTempo)})
+                </span>
                 <span>{meses} meses restantes</span>
               </div>
               <Barra pct={pctTempo} cor="var(--amber)" altura={6} />
@@ -159,7 +170,12 @@ const Stat = ({ n, l }: { n: string | number; l: string }) => (
 
 /** Necessário × atual por mês, com o aviso de quanto falta para o ritmo e a previsão de conclusão. */
 const Ritmo = ({ r }: { r: RitmoObjetivo }) => {
-  if (r.concluido) return <div className="cd-ritmo verde">✅ Meta atingida</div>;
+  if (r.concluido)
+    return (
+      <div className="cd-ritmo verde icone-texto">
+        <Icone icone={CircleCheck} tamanho={14} /> Meta atingida
+      </div>
+    );
   return (
     <div className="cd-ritmo">
       {r.necessarioMes !== null && (
@@ -175,10 +191,10 @@ const Ritmo = ({ r }: { r: RitmoObjetivo }) => {
       {r.diferenca !== null && (
         <div className={`negrito ${r.diferenca < 0 ? 'amarelo' : 'verde'}`}>
           {r.diferenca < 0
-            ? `⚠️ faltam ${fmt(-r.diferenca)}/mês para chegar na data`
+            ? `faltam ${fmt(-r.diferenca)}/mês para chegar na data`
             : r.diferenca > 0
-              ? `✅ no ritmo, com ${fmt(r.diferenca)}/mês de folga`
-              : '✅ exatamente no ritmo'}
+              ? `no ritmo, com ${fmt(r.diferenca)}/mês de folga`
+              : 'exatamente no ritmo'}
         </div>
       )}
       <div className="muted">
@@ -186,6 +202,20 @@ const Ritmo = ({ r }: { r: RitmoObjetivo }) => {
           ? `No ritmo atual, conclui em ${rotuloMesCurto(r.previsao)}`
           : 'Sem aportes: sem previsão'}
       </div>
+    </div>
+  );
+};
+
+/** Caixinhas que contam para a meta, com o nome atual (renomear em Configurações reflete aqui). */
+const CaixinhasDaMeta = ({ objetivo }: { objetivo: Objetivo }) => {
+  const { config } = useDadosConfigurados();
+  const caixinhas = config.caixinhas.filter((c) => objetivo.caixinhas.includes(c.id));
+  if (!caixinhas.length) return null;
+  return (
+    <div className="caixinhas-meta">
+      {caixinhas.map((c) => (
+        <NomeCaixinha key={c.id} caixinha={c} tamanho={14} />
+      ))}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
-import { CATEGORIAS, TIPOS, TIPOS_CREDITO } from '../../domain/catalogos';
+import { opcoesMarcas, opcoesTipos } from '../../components/opcoes';
+import { CATEGORIAS, TIPOS_CREDITO } from '../../domain/catalogos';
 import { dataNoMes, hojeIso, rotuloDiaMes, rotuloMesCurto, somarMeses } from '../../domain/datas';
 import { gerarId } from '../../domain/ids';
 import type { Categoria, Recorrente, TipoTransacao } from '../../domain/types';
@@ -11,8 +12,8 @@ import { diaValido, numeroOuNulo, useSalvarConfig } from './configuracao';
 type Tipo = Recorrente['tipo'];
 
 const TIPOS_RECORRENTE: { id: Tipo; rotulo: string }[] = [
-  { id: 'transacao', rotulo: '🧾 Conta ou entrada' },
-  { id: 'aporte', rotulo: '🐷 Aporte' },
+  { id: 'transacao', rotulo: 'Conta ou entrada' },
+  { id: 'aporte', rotulo: 'Aporte' },
 ];
 
 export const ModalRecorrente = ({
@@ -50,12 +51,12 @@ export const ModalRecorrente = ({
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const valor = numeroOuNulo(val);
-    if (!desc.trim()) return avisar('⚠️ Informe a descrição');
-    if (valor === null || !Number.isFinite(valor) || valor <= 0) return avisar('⚠️ Informe o valor');
-    if (!diaValido(diaNum)) return avisar('⚠️ Dia deve ser de 1 a 31');
-    if (tipo === 'transacao' && !tipoTransacao) return avisar('⚠️ Selecione o tipo do lançamento');
-    if (tipo === 'transacao' && credito && !cartao) return avisar('⚠️ Selecione o cartão');
-    if (tipo === 'aporte' && !caixinha) return avisar('⚠️ Selecione a caixinha');
+    if (!desc.trim()) return avisar('Informe a descrição');
+    if (valor === null || !Number.isFinite(valor) || valor <= 0) return avisar('Informe o valor');
+    if (!diaValido(diaNum)) return avisar('Dia deve ser de 1 a 31');
+    if (tipo === 'transacao' && !tipoTransacao) return avisar('Selecione o tipo do lançamento');
+    if (tipo === 'transacao' && credito && !cartao) return avisar('Selecione o cartão');
+    if (tipo === 'aporte' && !caixinha) return avisar('Selecione a caixinha');
 
     const inicio = recorrente?.inicio ?? (!jaPassou || comecarEsteMes ? mesAtual : somarMeses(mesAtual, 1));
     // Ao reativar, os meses da pausa não são lançados: retoma a partir deste mês.
@@ -101,7 +102,7 @@ export const ModalRecorrente = ({
               : [...atuais, nova],
           };
         }),
-      '✅ Recorrência salva!',
+      'Recorrência salva!',
     );
   };
 
@@ -154,18 +155,14 @@ export const ModalRecorrente = ({
           <>
             <div className="field">
               <label>Tipo do lançamento</label>
-              <GradeOpcoes
-                opcoes={TIPOS.map((t) => ({ id: t.id, rotulo: `${t.emoji} ${t.nome}` }))}
-                valor={tipoTransacao}
-                onChange={setTipoTransacao}
-              />
+              <GradeOpcoes opcoes={opcoesTipos()} valor={tipoTransacao} onChange={setTipoTransacao} />
             </div>
             {credito && (
               <div className="field">
                 <label>Cartão</label>
                 <GradeOpcoes
                   colunas={2}
-                  opcoes={config.cartoes.map((c) => ({ id: c.id, rotulo: `${c.emoji ?? '💳'} ${c.nome}` }))}
+                  opcoes={opcoesMarcas(config.cartoes)}
                   valor={cartao}
                   onChange={setCartao}
                 />
@@ -176,7 +173,7 @@ export const ModalRecorrente = ({
               <select id="rc-cat" value={cat} onChange={(e) => setCat(e.target.value as Categoria)}>
                 {CATEGORIAS.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.emoji} {c.nome}
+                    {c.nome}
                   </option>
                 ))}
               </select>

@@ -1,3 +1,5 @@
+import type { Instituicao } from './instituicoes';
+
 export type Moeda = 'BRL' | 'USD' | 'EUR';
 export type MoedaEstrangeira = Exclude<Moeda, 'BRL'>;
 export type Cotacoes = Partial<Record<MoedaEstrangeira, number>>;
@@ -17,7 +19,8 @@ export interface Caixinha {
   descricao?: string;
   cor: Cor;
   /** Ausente = investimento. */
-  tipo?: TipoCaixinha;
+  tipo?: TipoCaixinha; /** Banco (cor e logo). Ausente = deduzido do nome. */
+  instituicao?: Instituicao;
 }
 
 export interface Objetivo {
@@ -49,7 +52,8 @@ export interface Cartao {
   /** Dia do mês (1 a 31) a partir do qual a compra cai na fatura seguinte. */
   melhorDiaCompra?: number;
   /** Dia do mês (1 a 31) do vencimento da fatura. */
-  diaVencimento?: number;
+  diaVencimento?: number; /** Banco (cor e logo). Ausente = deduzido do nome. */
+  instituicao?: Instituicao;
 }
 
 export interface MediaGasto {

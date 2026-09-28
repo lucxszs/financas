@@ -1,8 +1,8 @@
-import { Barra, Secao, Vazio } from '../../components/ui';
-import { corVar } from '../../components/cor';
+import { IconeCategoria } from '../../components/icones';
+import { Barra, Secao, StatusPonto, Vazio, type Sinal } from '../../components/ui';
 import { categoriaPorId } from '../../domain/catalogos';
 import { mesAtualIso, rotuloMesLongo } from '../../domain/datas';
-import { fmt } from '../../domain/formatadores';
+import { fmt, fmtPct } from '../../domain/formatadores';
 import { orcamentoPorCategoria, type StatusOrcamento } from '../../domain/historico';
 import type { Transacao } from '../../domain/types';
 import { CalendarioMes } from '../calendario/Calendario';
@@ -24,9 +24,6 @@ export const PaginaGastos = ({
   const totalReal = linhas.reduce((a, l) => a + l.real, 0);
   const totalMeta = linhas.reduce((a, l) => a + (l.meta ?? 0), 0);
 
-  const medias = config.mediasGastos;
-  const maxMedia = Math.max(1, ...(medias?.itens.map((i) => i.valor) ?? []));
-
   return (
     <>
       <ListaLancamentos onNovo={onNovo} onEditar={onEditar} />
@@ -44,8 +41,8 @@ export const PaginaGastos = ({
               return (
                 <div key={l.cat} className="orc-row">
                   <div className="linha-entre">
-                    <span>
-                      {c?.emoji ?? '🔧'} {c?.nome ?? l.cat}
+                    <span className="icone-texto">
+                      <IconeCategoria cat={l.cat} tamanho={16} /> {c?.nome ?? l.cat}
                     </span>
                     <span className="mono">
                       {fmt(l.real)}
@@ -54,8 +51,9 @@ export const PaginaGastos = ({
                   </div>
                   <Barra pct={l.pct ?? (l.real / maxReal) * 100} cor={st?.cor ?? 'var(--sky)'} altura={6} />
                   {st && (
-                    <div className="mono mini muted mt-4">
-                      {st.icone} {st.rotulo} · {l.pct!.toFixed(0)}% do orçamento
+                    <div className="mono mini muted mt-4 icone-texto">
+                      <StatusPonto sinal={st.sinal} rotulo={st.rotulo} mostrarRotulo /> · {fmtPct(l.pct!)} do
+                      orçamento
                     </div>
                   )}
                 </div>
@@ -71,55 +69,15 @@ export const PaginaGastos = ({
             </div>
           )}
         </div>
-        {totalMeta === 0 && (
-          <div className="nota">Defina um orçamento por categoria em ⚙️ Configurações.</div>
-        )}
+        {totalMeta === 0 && <div className="nota">Defina um orçamento por categoria em Configurações.</div>}
       </Secao>
-
-      {medias && medias.itens.length > 0 && (
-        <Secao titulo={`Média histórica · ${medias.periodo}`}>
-          <div className="card card-pad">
-            {medias.itens.map((i) => (
-              <LinhaGrafico
-                key={i.nome}
-                rotulo={`${i.emoji ?? ''} ${i.nome}`.trim()}
-                valor={i.valor}
-                pct={(i.valor / maxMedia) * 100}
-                cor={corVar(i.cor)}
-              />
-            ))}
-          </div>
-        </Secao>
-      )}
     </>
   );
 };
 
-// Status usa as cores reservadas (verde/amarelo/vermelho) sempre com ícone e texto, nunca só a cor.
-const STATUS: Record<StatusOrcamento, { icone: string; rotulo: string; cor: string }> = {
-  ok: { icone: '🟢', rotulo: 'dentro', cor: 'var(--emerald)' },
-  atencao: { icone: '🟡', rotulo: 'no limite', cor: 'var(--amber)' },
-  estourou: { icone: '🔴', rotulo: 'estourou', cor: 'var(--coral)' },
+// Status usa as cores reservadas (verde/amarelo/vermelho) sempre com texto, nunca só a cor.
+const STATUS: Record<StatusOrcamento, { sinal: Sinal; rotulo: string; cor: string }> = {
+  ok: { sinal: 'verde', rotulo: 'dentro', cor: 'var(--emerald)' },
+  atencao: { sinal: 'amarelo', rotulo: 'no limite', cor: 'var(--amber)' },
+  estourou: { sinal: 'vermelho', rotulo: 'estourou', cor: 'var(--coral)' },
 };
-
-const LinhaGrafico = ({
-  rotulo,
-  valor,
-  pct,
-  cor,
-}: {
-  rotulo: string;
-  valor: number;
-  pct: number;
-  cor: string;
-}) => (
-  <div className="chart-row">
-    <span className="chart-label" title={rotulo}>
-      {rotulo}
-    </span>
-    <div className="chart-bar-wrap">
-      <Barra pct={pct} cor={cor} altura={7} />
-    </div>
-    <span className="chart-val">{fmt(valor)}</span>
-  </div>
-);

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Lock } from 'lucide-react';
+import { Icone } from '../../components/icones';
 import { ModalConfirmacao, Secao } from '../../components/ui';
 import { hojeIso, rotuloMesLongo } from '../../domain/datas';
 import { mesParaFechar, montarFechamento } from '../../domain/fechamento';
@@ -30,12 +32,12 @@ export const CardFechamento = () => {
   const nome = rotuloMesLongo(mes);
 
   return (
-    <Secao titulo={`🔒 Fechamento de ${nome}`}>
+    <Secao titulo={`Fechamento de ${nome}`} icone={Lock}>
       <div className="card">
         <FechamentoDetalhe f={previa} />
         <div className="card-rodape">
           <button className="btn-save largura-total" onClick={() => setConfirmando(true)}>
-            🔒 Fechar {nome}
+            <Icone icone={Lock} tamanho={15} /> Fechar {nome}
           </button>
         </div>
       </div>
@@ -46,7 +48,7 @@ export const CardFechamento = () => {
       {confirmando && (
         <ModalConfirmacao
           titulo={`Fechar ${nome}?`}
-          rotuloConfirmar="🔒 Fechar mês"
+          rotuloConfirmar="Fechar mês"
           mensagem={
             <>
               Os valores acima ficam gravados como estão.

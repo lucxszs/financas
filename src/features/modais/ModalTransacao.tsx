@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
 import { MAX_PARCELAS, mesFaturaSugerido, montarParcelas, valoresParcelas } from '../../domain/cartoes';
-import { CATEGORIAS, TIPOS, TIPOS_CREDITO, isEntrada } from '../../domain/catalogos';
+import { opcoesMarcas, opcoesTipos } from '../../components/opcoes';
+import { CATEGORIAS, TIPOS_CREDITO, isEntrada } from '../../domain/catalogos';
 import { hojeIso, rotuloMesCurto, rotuloMesLongo, somarMeses } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import type { Categoria, TipoTransacao, Transacao } from '../../domain/types';
@@ -62,11 +63,11 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!tipo) return avisar('⚠️ Selecione o tipo');
+    if (!tipo) return avisar('Selecione o tipo');
     const valor = Number(val);
-    if (!desc.trim() || !Number.isFinite(valor) || valor <= 0) return avisar('⚠️ Preencha descrição e valor');
-    if (credito && !cartao) return avisar('⚠️ Selecione o cartão');
-    if (parcelando && numParcelas && !nValido) return avisar(`⚠️ Parcelas: de 2 a ${MAX_PARCELAS}`);
+    if (!desc.trim() || !Number.isFinite(valor) || valor <= 0) return avisar('Preencha descrição e valor');
+    if (credito && !cartao) return avisar('Selecione o cartão');
+    if (parcelando && numParcelas && !nValido) return avisar(`Parcelas: de 2 a ${MAX_PARCELAS}`);
 
     const dados = {
       desc: desc.trim(),
@@ -91,11 +92,10 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
         primeiroMes ?? dataCompra.slice(0, 7),
         crypto.randomUUID(),
       );
-      return void enviar(() => criarParcelas(uid, parcelas), `✅ ${n} parcelas lançadas!`);
+      return void enviar(() => criarParcelas(uid, parcelas), `${n} parcelas lançadas!`);
     }
 
-    if (!transacao)
-      return void enviar(() => criarTransacao(uid, { ...dados, criadoEm: agora }), '✅ Lançado!');
+    if (!transacao) return void enviar(() => criarTransacao(uid, { ...dados, criadoEm: agora }), 'Lançado!');
 
     // Mantém os vínculos que o formulário não mostra (recorrência e parcelas).
     const vinculos = {
@@ -116,7 +116,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
           irmas.map((t) => t.id),
           { desc: dados.desc, cat, cartao: dados.cartao, atualizadoEm: agora },
         );
-    }, '✅ Atualizado!');
+    }, 'Atualizado!');
   };
 
   return (
@@ -148,11 +148,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
         </div>
         <div className="field">
           <label>Tipo</label>
-          <GradeOpcoes
-            opcoes={TIPOS.map((t) => ({ id: t.id, rotulo: `${t.emoji} ${t.nome}` }))}
-            valor={tipo}
-            onChange={selecionarTipo}
-          />
+          <GradeOpcoes opcoes={opcoesTipos()} valor={tipo} onChange={selecionarTipo} />
         </div>
 
         {credito && (
@@ -161,7 +157,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
               <label>Cartão</label>
               <GradeOpcoes
                 colunas={2}
-                opcoes={config.cartoes.map((c) => ({ id: c.id, rotulo: `${c.emoji ?? '💳'} ${c.nome}` }))}
+                opcoes={opcoesMarcas(config.cartoes)}
                 valor={cartao}
                 onChange={setCartao}
               />
@@ -180,7 +176,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
               </select>
               {cartaoSel?.melhorDiaCompra && (
                 <div className="nota">
-                  💡 Melhor dia de compra: {String(cartaoSel.melhorDiaCompra).padStart(2, '0')}
+                  Melhor dia de compra: {String(cartaoSel.melhorDiaCompra).padStart(2, '0')}
                   {cartaoSel.diaVencimento &&
                     ` · vence dia ${String(cartaoSel.diaVencimento).padStart(2, '0')}`}
                 </div>
@@ -232,7 +228,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
             <select id="tx-cat" value={cat} onChange={(e) => setCat(e.target.value as Categoria)}>
               {CATEGORIAS.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.emoji} {c.nome}
+                  {c.nome}
                 </option>
               ))}
             </select>
