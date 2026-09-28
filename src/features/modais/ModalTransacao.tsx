@@ -1,18 +1,24 @@
 import { useState, type FormEvent } from 'react';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
-import { mesFaturaSugerido } from '../../domain/cartoes';
+import { MAX_PARCELAS, mesFaturaSugerido, montarParcelas, valoresParcelas } from '../../domain/cartoes';
 import { CATEGORIAS, TIPOS, TIPOS_CREDITO, isEntrada } from '../../domain/catalogos';
-import { hojeIso, rotuloMesLongo, somarMeses } from '../../domain/datas';
+import { hojeIso, rotuloMesCurto, rotuloMesLongo, somarMeses } from '../../domain/datas';
+import { fmt } from '../../domain/formatadores';
 import type { Categoria, TipoTransacao, Transacao } from '../../domain/types';
 import { useEnvio } from '../../hooks/useEnvio';
-import { atualizarTransacao, criarTransacao } from '../../services/repositorio';
+import {
+  atualizarTransacao,
+  atualizarTransacoes,
+  criarParcelas,
+  criarTransacao,
+} from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
 const MESES_FATURA_A_FRENTE = 6;
 
 /** Sem `transacao`: cria um lançamento. Com `transacao`: edita o existente. */
 export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao; onFechar: () => void }) => {
-  const { uid, config } = useDadosConfigurados();
+  const { uid, config, transacoes } = useDadosConfigurados();
   const { msg, erro, salvando, avisar, enviar } = useEnvio(onFechar);
   const editando = Boolean(transacao);
 
@@ -24,8 +30,19 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
   const [data, setData] = useState(transacao?.data ?? hojeIso());
   const [mesFatura, setMesFatura] = useState(transacao?.mesFatura ?? '');
   const [obs, setObs] = useState(transacao?.obs ?? '');
+  const [numParcelas, setNumParcelas] = useState('');
+  const [aplicarNoGrupo, setAplicarNoGrupo] = useState(true);
+
+  // Outras parcelas da mesma compra (edição de uma parcela).
+  const irmas = transacao?.grupoId
+    ? transacoes.filter((t) => t.grupoId === transacao.grupoId && t.id !== transacao.id)
+    : [];
 
   const credito = tipo !== '' && TIPOS_CREDITO.includes(tipo);
+  // Parcelas só na criação; editar muda uma parcela por vez.
+  const parcelando = !editando && tipo === 'parcelado';
+  const n = Number(numParcelas);
+  const nValido = Number.isInteger(n) && n >= 2 && n <= MAX_PARCELAS;
   const cartaoSel = config.cartoes.find((c) => c.id === cartao);
   // Mês da fatura vazio = automático: pelo melhor dia de compra do cartão, se cadastrado.
   const sugerido = cartaoSel ? mesFaturaSugerido(cartaoSel, data || hojeIso()) : null;
@@ -49,6 +66,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
     const valor = Number(val);
     if (!desc.trim() || !Number.isFinite(valor) || valor <= 0) return avisar('⚠️ Preencha descrição e valor');
     if (credito && !cartao) return avisar('⚠️ Selecione o cartão');
+    if (parcelando && numParcelas && !nValido) return avisar(`⚠️ Parcelas: de 2 a ${MAX_PARCELAS}`);
 
     const dados = {
       desc: desc.trim(),
@@ -63,17 +81,42 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
     };
     const agora = new Date().toISOString();
 
-    void enviar(
-      () =>
-        transacao
-          ? atualizarTransacao(uid, transacao.id, {
-              ...dados,
-              criadoEm: transacao.criadoEm,
-              atualizadoEm: agora,
-            })
-          : criarTransacao(uid, { ...dados, criadoEm: agora }),
-      editando ? '✅ Atualizado!' : '✅ Lançado!',
-    );
+    if (parcelando && nValido) {
+      const { val: _total, data: dataCompra, mesFatura: primeiroMes, ...base } = dados;
+      const parcelas = montarParcelas(
+        { ...base, criadoEm: agora },
+        valor,
+        n,
+        dataCompra,
+        primeiroMes ?? dataCompra.slice(0, 7),
+        crypto.randomUUID(),
+      );
+      return void enviar(() => criarParcelas(uid, parcelas), `✅ ${n} parcelas lançadas!`);
+    }
+
+    if (!transacao)
+      return void enviar(() => criarTransacao(uid, { ...dados, criadoEm: agora }), '✅ Lançado!');
+
+    // Mantém os vínculos que o formulário não mostra (recorrência e parcelas).
+    const vinculos = {
+      ...(transacao.recorrenteId && { recorrenteId: transacao.recorrenteId }),
+      ...(transacao.grupoId && { grupoId: transacao.grupoId }),
+      ...(transacao.parcela && { parcela: transacao.parcela }),
+    };
+    void enviar(async () => {
+      await atualizarTransacao(uid, transacao.id, {
+        ...dados,
+        ...vinculos,
+        criadoEm: transacao.criadoEm,
+        atualizadoEm: agora,
+      });
+      if (irmas.length && aplicarNoGrupo)
+        await atualizarTransacoes(
+          uid,
+          irmas.map((t) => t.id),
+          { desc: dados.desc, cat, cartao: dados.cartao, atualizadoEm: agora },
+        );
+    }, '✅ Atualizado!');
   };
 
   return (
@@ -91,7 +134,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
           />
         </div>
         <div className="field">
-          <label htmlFor="tx-val">Valor (R$)</label>
+          <label htmlFor="tx-val">{parcelando ? 'Valor total (R$)' : 'Valor (R$)'}</label>
           <input
             id="tx-val"
             type="number"
@@ -124,7 +167,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
               />
             </div>
             <div className="field">
-              <label htmlFor="tx-fatura">Mês da fatura</label>
+              <label htmlFor="tx-fatura">{parcelando ? 'Fatura da 1ª parcela' : 'Mês da fatura'}</label>
               <select id="tx-fatura" value={mesFatura} onChange={(e) => setMesFatura(e.target.value)}>
                 <option value="">
                   {sugerido ? `Automático: ${rotuloMesLongo(sugerido)}` : 'Mesmo mês do lançamento'}
@@ -143,7 +186,44 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
                 </div>
               )}
             </div>
+            {parcelando && (
+              <div className="field">
+                <label htmlFor="tx-parcelas">Número de parcelas</label>
+                <input
+                  id="tx-parcelas"
+                  type="number"
+                  min="2"
+                  max={MAX_PARCELAS}
+                  inputMode="numeric"
+                  placeholder="Ex: 10"
+                  value={numParcelas}
+                  onChange={(e) => setNumParcelas(e.target.value)}
+                />
+                <PreviaParcelas
+                  total={Number(val)}
+                  n={nValido ? n : null}
+                  primeiroMes={mesFatura || sugerido || data.slice(0, 7)}
+                />
+              </div>
+            )}
           </>
+        )}
+
+        {transacao?.parcela && (
+          <div className="nota mb-12">
+            Parcela {transacao.parcela.atual}/{transacao.parcela.total}. Valor, data e fatura mudam só nesta
+            parcela.
+          </div>
+        )}
+        {irmas.length > 0 && (
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={aplicarNoGrupo}
+              onChange={(e) => setAplicarNoGrupo(e.target.checked)}
+            />
+            Aplicar descrição, categoria e cartão às outras {irmas.length} parcelas
+          </label>
         )}
 
         <div className="field-row">
@@ -168,7 +248,7 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
             id="tx-obs"
             type="text"
             maxLength={200}
-            placeholder="Ex: parcela 2/5..."
+            placeholder="Ex: presente de aniversário"
             value={obs}
             onChange={(e) => setObs(e.target.value)}
           />
@@ -178,5 +258,27 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
         <div className={`save-msg${erro ? ' erro' : ''}`}>{msg}</div>
       </form>
     </Modal>
+  );
+};
+
+const PreviaParcelas = ({
+  total,
+  n,
+  primeiroMes,
+}: {
+  total: number;
+  n: number | null;
+  primeiroMes: string;
+}) => {
+  if (!n) return <div className="nota">Vazio = compra à vista na fatura escolhida.</div>;
+  if (!Number.isFinite(total) || total <= 0) return <div className="nota">Informe o valor total.</div>;
+  const valores = valoresParcelas(total, n);
+  const iguais = valores.every((v) => v === valores[0]);
+  return (
+    <div className="nota">
+      {n}x de {fmt(valores.at(-1)!)}
+      {!iguais && ` (1ª de ${fmt(valores[0]!)})`} · {rotuloMesCurto(primeiroMes)} a{' '}
+      {rotuloMesCurto(somarMeses(primeiroMes, n - 1))}
+    </div>
   );
 };

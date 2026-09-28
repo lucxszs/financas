@@ -32,7 +32,7 @@ src/
   domain/          regras de negócio puras, sem React nem Firebase
     types.ts         tipos do modelo de dados
     calculos.ts      conversão de moedas, progresso de metas, score, uso de cartão, totais
-    cartoes.ts       mês da fatura pelo melhor dia de compra
+    cartoes.ts       mês da fatura, parcelas, resumo de cada cartão e comprometimento futuro
     resumo.ts        resumo do mês, avisos e limite de gastos
     historico.ts     série mensal e orçamento por categoria
     patrimonio.ts    ativos, dívidas dos cartões e patrimônio líquido

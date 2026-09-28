@@ -1221,6 +1221,19 @@ code {
 }
 
 /* configurações */
+.largura-total {
+  width: 100%;
+}
+.mb-8 {
+  margin-bottom: 8px;
+}
+.cartao-topo {
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.cartao-uso {
+  padding: 10px 18px 14px;
+}
 .mt-4 {
   margin-top: 4px;
 }

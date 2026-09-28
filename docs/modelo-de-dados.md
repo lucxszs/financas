@@ -67,20 +67,22 @@ Criado ou sobrescrito a cada "Atualizar saldos" no mês. A cotação gravada é 
 
 ## Transacao
 
-| Campo          | Tipo              | Regras (firestore.rules)                  |
-| -------------- | ----------------- | ----------------------------------------- |
-| `desc`         | string            | obrigatório, 1 a 120 caracteres           |
-| `val`          | number            | > 0 e < 10.000.000                        |
-| `tipo`         | string            | um dos tipos de `catalogos.ts`            |
-| `cat`          | string            | uma das categorias de `catalogos.ts`      |
-| `data`         | `YYYY-MM-DD`      | obrigatório                               |
-| `cartao`       | string \| null    | só para crédito/parcelado                 |
-| `mesFatura`    | `YYYY-MM` \| null | mês do vencimento; vazio = mês de `data`  |
-| `obs`          | string            | até 200 caracteres                        |
-| `isEntrada`    | boolean           | derivado do tipo (recebi, salário)        |
-| `criadoEm`     | ISO string        | obrigatório; **não pode mudar na edição** |
-| `atualizadoEm` | ISO string?       | preenchido ao editar                      |
-| `recorrenteId` | string?           | id da recorrência que criou; até 60 chars |
+| Campo          | Tipo                | Regras (firestore.rules)                  |
+| -------------- | ------------------- | ----------------------------------------- |
+| `desc`         | string              | obrigatório, 1 a 120 caracteres           |
+| `val`          | number              | > 0 e < 10.000.000                        |
+| `tipo`         | string              | um dos tipos de `catalogos.ts`            |
+| `cat`          | string              | uma das categorias de `catalogos.ts`      |
+| `data`         | `YYYY-MM-DD`        | obrigatório                               |
+| `cartao`       | string \| null      | só para crédito/parcelado                 |
+| `mesFatura`    | `YYYY-MM` \| null   | mês do vencimento; vazio = mês de `data`  |
+| `obs`          | string              | até 200 caracteres                        |
+| `isEntrada`    | boolean             | derivado do tipo (recebi, salário)        |
+| `criadoEm`     | ISO string          | obrigatório; **não pode mudar na edição** |
+| `atualizadoEm` | ISO string?         | preenchido ao editar                      |
+| `recorrenteId` | string?             | id da recorrência que criou; até 60 chars |
+| `grupoId`      | string?             | liga as parcelas da mesma compra          |
+| `parcela`      | `{ atual, total }`? | inteiros, 1 ≤ atual ≤ total ≤ 48          |
 
 ## Aporte
 

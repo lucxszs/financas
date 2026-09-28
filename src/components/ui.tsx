@@ -72,22 +72,25 @@ export const ModalConfirmacao = ({
   mensagem,
   rotuloConfirmar = 'Excluir',
   onConfirmar,
+  acaoExtra,
   onFechar,
 }: {
   titulo: string;
   mensagem: ReactNode;
   rotuloConfirmar?: string;
   onConfirmar: () => Promise<unknown>;
+  /** Segunda opção destrutiva (ex.: "Todas as parcelas"). */
+  acaoExtra?: { rotulo: string; onConfirmar: () => Promise<unknown> };
   onFechar: () => void;
 }) => {
   const [executando, setExecutando] = useState(false);
   const [erro, setErro] = useState('');
 
-  const confirmar = async () => {
+  const confirmar = async (acao: () => Promise<unknown>) => {
     setExecutando(true);
     setErro('');
     try {
-      await onConfirmar();
+      await acao();
       onFechar();
     } catch (e) {
       setErro(`❌ Erro: ${e instanceof Error ? e.message : String(e)}`);
@@ -105,12 +108,22 @@ export const ModalConfirmacao = ({
         <button
           type="button"
           className="btn-save perigo"
-          onClick={() => void confirmar()}
+          onClick={() => void confirmar(onConfirmar)}
           disabled={executando}
         >
           {executando ? 'Aguarde...' : rotuloConfirmar}
         </button>
       </div>
+      {acaoExtra && (
+        <button
+          type="button"
+          className="btn-save perigo largura-total mt-8"
+          onClick={() => void confirmar(acaoExtra.onConfirmar)}
+          disabled={executando}
+        >
+          {acaoExtra.rotulo}
+        </button>
+      )}
       <div className="save-msg erro">{erro}</div>
     </Modal>
   );

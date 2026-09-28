@@ -1,5 +1,5 @@
 import { mesDaFatura, somarEmBRL, totalSnapshot } from './calculos';
-import { somarMeses } from './datas';
+import { primeiraFaturaAberta } from './cartoes';
 import type { Config, Cotacoes, Snapshot, Transacao } from './types';
 
 /**
@@ -7,12 +7,9 @@ import type { Config, Cotacoes, Snapshot, Transacao } from './types';
  * Cartão sem dia de vencimento cadastrado: a fatura do mês conta como aberta até o fim do mês.
  */
 export const dividasCartoes = (config: Config, transacoes: Transacao[], hoje: string) => {
-  const mes = hoje.slice(0, 7);
-  const diaHoje = Number(hoje.slice(8, 10));
   let total = 0;
   for (const c of config.cartoes) {
-    const venceu = c.diaVencimento !== undefined && diaHoje > c.diaVencimento;
-    const primeiroAberto = venceu ? somarMeses(mes, 1) : mes;
+    const primeiroAberto = primeiraFaturaAberta(c, hoje);
     total += transacoes
       .filter((t) => t.cartao === c.id && !t.isEntrada && mesDaFatura(t) >= primeiroAberto)
       .reduce((a, t) => a + t.val, 0);

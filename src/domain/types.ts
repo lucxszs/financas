@@ -152,6 +152,9 @@ export interface Transacao {
   atualizadoEm?: string;
   /** Preenchido quando foi criado por uma recorrência. */
   recorrenteId?: string;
+  /** Compra parcelada: todas as parcelas compartilham o mesmo grupoId. */
+  grupoId?: string;
+  parcela?: { atual: number; total: number };
 }
 
 export interface Aporte {
