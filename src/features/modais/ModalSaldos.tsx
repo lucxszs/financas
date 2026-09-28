@@ -1,23 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
+import { AcoesModal, Modal } from '../../components/ui';
 import { hojeIso, mesAtualIso } from '../../domain/datas';
 import { dividasCartoes } from '../../domain/patrimonio';
-import type { Cotacoes, Resposta, ScoreMes, Snapshot } from '../../domain/types';
+import type { Cotacoes, Snapshot } from '../../domain/types';
 import { useEnvio } from '../../hooks/useEnvio';
 import { salvarSaldos } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
-
-const RESPOSTAS = [
-  { id: 'sim' as const, rotulo: 'Sim' },
-  { id: 'parcial' as const, rotulo: 'Parcial' },
-  { id: 'nao' as const, rotulo: 'Não' },
-];
-
-const PERGUNTAS: { campo: keyof ScoreMes; texto: string }[] = [
-  { campo: 'pagou', texto: 'Pagou as contas?' },
-  { campo: 'positivo', texto: 'Mês fechou positivo?' },
-  { campo: 'aporte', texto: 'Fez o aporte?' },
-];
 
 const paraNumero = (s: string) => (s.trim() === '' ? null : Number(s));
 
@@ -29,7 +17,6 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
     Object.fromEntries(config.caixinhas.map((c) => [c.id, String(saldos.valores[c.id] ?? '')])),
   );
   const [rendimentos, setRendimentos] = useState<Record<string, string>>({});
-  const [score, setScore] = useState<ScoreMes>(saldos.score ?? {});
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -62,7 +49,7 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
     };
 
     void enviar(() =>
-      salvarSaldos(uid, { valores: novosValores, score, updatedAt: new Date().toISOString() }, snapshot),
+      salvarSaldos(uid, { valores: novosValores, updatedAt: new Date().toISOString() }, snapshot),
     );
   };
 
@@ -108,18 +95,6 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
             </div>
           ))}
         </div>
-
-        <div className="modal-section-title">Score do mês</div>
-        {PERGUNTAS.map((p) => (
-          <div className="field" key={p.campo}>
-            <label>{p.texto}</label>
-            <GradeOpcoes<Resposta>
-              opcoes={RESPOSTAS}
-              valor={score[p.campo] ?? ''}
-              onChange={(v) => setScore((s) => ({ ...s, [p.campo]: v }))}
-            />
-          </div>
-        ))}
 
         <AcoesModal onCancelar={onFechar} rotuloSalvar="Salvar" salvando={salvando} />
         <div className={`save-msg${erro ? ' erro' : ''}`}>{msg}</div>

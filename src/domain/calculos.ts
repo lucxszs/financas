@@ -6,7 +6,6 @@ import type {
   Fechamento,
   Moeda,
   Objetivo,
-  ScoreMes,
   Snapshot,
   Transacao,
 } from './types';
@@ -56,21 +55,6 @@ export const rendimentoMensalEstimado = (config: Config, valores: Record<string,
   const emReais = config.caixinhas.filter((c) => c.moeda === 'BRL');
   const { total } = somarEmBRL(emReais, valores, {});
   return Math.round((total * config.taxaAnualEstimada) / 12);
-};
-
-export type ClasseScore = 'verde' | 'amarelo' | 'vermelho';
-
-export const calcularScore = (score: ScoreMes = {}) => {
-  let pts = 0;
-  if (score.pagou === 'sim') pts += 1;
-  else if (score.pagou === 'parcial') pts += 0.5;
-  if (score.positivo === 'sim') pts += 1;
-  if (score.aporte === 'sim') pts += 1;
-  else if (score.aporte === 'parcial') pts += 0.5;
-
-  if (pts >= 2.5) return { icon: '🟢', label: 'Mês excelente', cls: 'verde' as ClasseScore, pts };
-  if (pts >= 1.5) return { icon: '🟡', label: 'Mês razoável', cls: 'amarelo' as ClasseScore, pts };
-  return { icon: '🔴', label: 'Mês difícil: não desanima', cls: 'vermelho' as ClasseScore, pts };
 };
 
 /** Mês de fatura de uma transação: o informado ou o mês da própria data. */

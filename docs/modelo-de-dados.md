@@ -35,7 +35,8 @@ users/{uid}/aportes/{id}           Aporte
 ausente = investimento).
 
 **Objetivo:** `id`, `nome`, `emoji?`, `descricao?`, `meta` (BRL), `caixinhas` (ids), `cor`, `aporteMensal?`,
-`previsao?` (texto), `dataInicio?` e `dataAlvo?` (`YYYY-MM-DD`; com `dataAlvo` o objetivo entra na contagem regressiva).
+`previsao?` (texto), `dataInicio?` e `dataAlvo?` (`YYYY-MM-DD`; com `dataAlvo` o objetivo entra na contagem regressiva),
+`reservaEmergencia?` (boolean).
 
 **Cartao:** `id`, `nome`, `emoji?`, `limite`, `cor`, `melhorDiaCompra?` e `diaVencimento?` (dias de 1 a 31).
 Compra antes do melhor dia cai na fatura que vence no mês; a partir dele, na do mês seguinte.
@@ -53,10 +54,10 @@ atualiza `lancadoAte` no mesmo batch. Mês lançado não volta, mesmo que o lan�
 ## Saldos
 
 ```ts
-{ valores: { [caixinhaId]: number }, score?: { pagou?, positivo?, aporte? }, updatedAt: string | null }
+{ valores: { [caixinhaId]: number }, updatedAt: string | null }
 ```
 
-Valores na moeda da própria caixinha. Respostas do score: `sim` \| `parcial` \| `nao`.
+Valores na moeda da própria caixinha. Dados antigos podem ter `score` (v1): é ignorado.
 
 ## Snapshot (evolução mensal)
 

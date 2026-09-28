@@ -36,6 +36,8 @@ export interface Objetivo {
   /** Objetivos com data aparecem na contagem regressiva. */
   dataInicio?: string;
   dataAlvo?: string;
+  /** Marca a reserva de emergência (usada na Saúde financeira). */
+  reservaEmergencia?: boolean;
 }
 
 export interface Cartao {
@@ -98,6 +100,7 @@ export type Recorrente =
 
 export type Resposta = 'sim' | 'parcial' | 'nao';
 
+/** Legado da v1 (score 0/3). Não é mais gravado nem exibido; mantido para ler dados antigos. */
 export interface ScoreMes {
   pagou?: Resposta;
   positivo?: Resposta;
