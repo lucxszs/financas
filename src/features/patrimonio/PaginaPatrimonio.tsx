@@ -16,7 +16,7 @@ export const PaginaPatrimonio = () => {
   const valores = saldos.valores;
   const hoje = hojeIso();
   const mesAtual = hoje.slice(0, 7);
-  const patrimonio = patrimonioAtual(config, valores, cotacoes, transacoes, hoje);
+  const patrimonio = patrimonioAtual(config, valores, cotacoes, transacoes, hoje, saldos.cartoes);
   // Meses anteriores: foto do "Atualizar saldos"; mês atual: valor de agora.
   const evolucao = Array.from({ length: 6 }, (_, i) => somarMeses(mesAtual, i - 5)).map((mes) => {
     const foto = snapshots.find((s) => s.mes === mes);

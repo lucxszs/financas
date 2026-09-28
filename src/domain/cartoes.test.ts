@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   comprometimentoFuturo,
+  limiteComprometido,
   diasAteMelhorDia,
   montarParcelas,
   mesFaturaSugerido,
@@ -162,5 +163,55 @@ describe('comprometimentoFuturo', () => {
       { mes: '2026-10', valor: 420 },
       { mes: '2026-11', valor: 380 },
     ]);
+  });
+});
+
+describe('limiteComprometido', () => {
+  it('faturas vencidas contam como pagas; soma o limite de todos os cartões', () => {
+    const inter: Cartao = { ...cartao(9, 15), id: 'inter', limite: 4500 };
+    const transacoes = [
+      compra(3000, '2026-09'),
+      compra(1000, '2026-10'),
+      compra(2000, '2026-09', { cartao: 'inter' }),
+    ];
+    // 14/09: Itaú (vence 13) já pagou setembro; Inter (vence 15) ainda não.
+    expect(limiteComprometido([itau, inter], transacoes, '2026-09-14')).toBe(30);
+    // 16/09: as duas faturas de setembro pagas, sobra só outubro do Itaú.
+    expect(limiteComprometido([itau, inter], transacoes, '2026-09-16')).toBe(10);
+  });
+
+  it('sem cartões não há percentual', () => {
+    expect(limiteComprometido([], [], '2026-09-10')).toBeNull();
+  });
+});
+
+describe('resumoCartao com limite informado', () => {
+  // Itaú: limite 5.500, vence dia 13. No app só há 1.000 lançados em aberto.
+  const antes = compra(1000, '2026-10', { criadoEm: '2026-09-20T10:00:00.000Z' });
+  const informado = { disponivel: 800, em: '2026-09-28T12:00:00.000Z' };
+
+  it('o limite do banco vale como verdade e mostra o que não está lançado', () => {
+    const r = resumoCartao(itau, [antes], '2026-09-28', informado);
+    expect(r).toMatchObject({ emAberto: 4700, disponivel: 800, naoLancado: 3700, faturaAtual: 1000 });
+    expect(r.pct).toBeCloseTo(85.45, 2);
+  });
+
+  it('compras lançadas depois da informação descontam do disponível', () => {
+    const depois = compra(150, '2026-10', { criadoEm: '2026-09-29T09:00:00.000Z' });
+    const r = resumoCartao(itau, [antes, depois], '2026-09-29', informado);
+    expect(r).toMatchObject({ emAberto: 4850, disponivel: 650, naoLancado: 3700 });
+  });
+
+  it('sem informação, continua pelos lançamentos', () => {
+    expect(resumoCartao(itau, [antes], '2026-09-28')).toMatchObject({
+      emAberto: 1000,
+      disponivel: 4500,
+      naoLancado: 0,
+      informado: null,
+    });
+  });
+
+  it('limiteComprometido usa o limite informado de cada cartão', () => {
+    expect(limiteComprometido([itau], [antes], '2026-09-28', { itau: informado })).toBeCloseTo(85.45, 2);
   });
 });

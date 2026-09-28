@@ -3,7 +3,7 @@ import { NomeCaixinha } from '../../components/marcas';
 import { AcoesModal, Modal } from '../../components/ui';
 import { hojeIso, mesAtualIso, rotuloMesLongo, somarMeses } from '../../domain/datas';
 import { dividasCartoes } from '../../domain/patrimonio';
-import type { Cotacoes, MoedaEstrangeira, Snapshot } from '../../domain/types';
+import type { Cotacoes, LimiteInformado, MoedaEstrangeira, Snapshot } from '../../domain/types';
 import { useEnvio } from '../../hooks/useEnvio';
 import { salvarSaldos, salvarSnapshot } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
@@ -38,6 +38,8 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
     };
   };
   const [campos, setCampos] = useState(() => camposDoMes(mesAtual));
+  // Limite disponível dos cartões (o que o app do banco mostra). Vazio = mantém o último informado.
+  const [limites, setLimites] = useState<Record<string, string>>({});
   const trocarMes = (m: string) => {
     setMes(m);
     setCampos(camposDoMes(m));
@@ -76,6 +78,15 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
       } else if (cotacoes[m2]) cotacoesFoto[m2] = cotacoes[m2];
     }
 
+    const novosLimites: Record<string, LimiteInformado> = { ...saldos.cartoes };
+    const agora = new Date().toISOString();
+    for (const c of config.cartoes) {
+      const n = paraNumero(limites[c.id] ?? '');
+      if (n === null) continue;
+      if (!Number.isFinite(n) || n < 0) return avisar(`Limite disponível inválido em ${c.nome}`);
+      novosLimites[c.id] = { disponivel: n, em: agora };
+    }
+
     const dividasPassado = paraNumero(campos.dividas);
     if (passado && dividasPassado !== null && (!Number.isFinite(dividasPassado) || dividasPassado < 0))
       return avisar('Faturas em aberto inválidas');
@@ -86,14 +97,22 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
       ...(Object.keys(rends).length ? { rendimentos: rends } : {}),
       ...(Object.keys(cotacoesFoto).length ? { cotacoes: cotacoesFoto } : {}),
       // Faturas em aberto no dia, para o patrimônio líquido daquele mês.
-      dividas: passado ? (dividasPassado ?? 0) : dividasCartoes(config, transacoes, hojeIso()),
+      dividas: passado ? (dividasPassado ?? 0) : dividasCartoes(config, transacoes, hojeIso(), novosLimites),
     };
 
     void enviar(
       () =>
         passado
           ? salvarSnapshot(uid, snapshot)
-          : salvarSaldos(uid, { valores: novosValores, updatedAt: new Date().toISOString() }, snapshot),
+          : salvarSaldos(
+              uid,
+              {
+                valores: novosValores,
+                ...(Object.keys(novosLimites).length ? { cartoes: novosLimites } : {}),
+                updatedAt: agora,
+              },
+              snapshot,
+            ),
       passado ? `Foto de ${rotuloMesLongo(mes)} salva!` : 'Salvo!',
     );
   };
@@ -158,6 +177,39 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
             </div>
           ))}
         </div>
+
+        {!passado && config.cartoes.length > 0 && (
+          <>
+            <div className="modal-section-title">Cartões: limite disponível no app do banco</div>
+            <div className="field-row">
+              {config.cartoes.map((c) => {
+                const ultimo = saldos.cartoes?.[c.id];
+                return (
+                  <div className="field" key={c.id}>
+                    <label htmlFor={`lim-${c.id}`}>
+                      <NomeCaixinha caixinha={c} tamanho={14} />
+                    </label>
+                    <input
+                      id={`lim-${c.id}`}
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      inputMode="decimal"
+                      placeholder={
+                        ultimo
+                          ? `último: ${ultimo.disponivel.toLocaleString('pt-BR')} em ${new Date(ultimo.em).toLocaleDateString('pt-BR')}`
+                          : 'ex.: 820.00'
+                      }
+                      value={limites[c.id] ?? ''}
+                      onChange={(e) => setLimites((l) => ({ ...l, [c.id]: e.target.value }))}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="nota mb-12">Vazio mantém o último valor informado.</div>
+          </>
+        )}
 
         {passado && (
           <>

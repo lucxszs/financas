@@ -18,11 +18,12 @@ const rotuloMelhorDia = (r: ResumoCartao) => {
 };
 
 export const CartoesResumo = () => {
-  const { config, transacoes } = useDadosConfigurados();
+  const { config, transacoes, saldos } = useDadosConfigurados();
+  const informados = saldos.cartoes ?? {};
   const hoje = hojeIso();
   if (!config.cartoes.length) return null;
 
-  const resumos = config.cartoes.map((c) => resumoCartao(c, transacoes, hoje));
+  const resumos = config.cartoes.map((c) => resumoCartao(c, transacoes, hoje, informados[c.id]));
   const futuro = comprometimentoFuturo(config.cartoes, transacoes, hoje);
   const maxFuturo = Math.max(1, ...futuro.map((f) => f.valor));
   const limiteTotal = resumos.reduce((a, r) => a + r.cartao.limite, 0);
@@ -60,6 +61,12 @@ export const CartoesResumo = () => {
                 <span className="bname">Parcelamentos futuros</span>
                 <span className="bval">{fmt(r.futuras)}</span>
               </div>
+              {r.naoLancado > 0 && (
+                <div className="brow pendente">
+                  <span className="bname">Em uso no banco, não lançado no app</span>
+                  <span className="bval">{fmt(r.naoLancado)}</span>
+                </div>
+              )}
               <div className={`brow total ${r.disponivel >= 0 ? 'positivo' : 'deficit'}`}>
                 <span className="bname">Limite disponível</span>
                 <span className="bval">
@@ -69,14 +76,20 @@ export const CartoesResumo = () => {
               </div>
               <div className="cartao-uso">
                 <Barra pct={r.pct} cor={cor} altura={5} />
-                <div className="mono mini muted mt-4">{fmtPct(r.pct)} do limite comprometido</div>
+                <div className="mono mini muted mt-4">
+                  {fmtPct(r.pct)} do limite comprometido ·{' '}
+                  {r.informado
+                    ? `informado pelo banco em ${new Date(r.informado.em).toLocaleDateString('pt-BR')}`
+                    : 'pelos lançamentos do app'}
+                </div>
               </div>
             </div>
           );
         })}
         <div className="nota">
-          Limite disponível = limite − tudo em aberto (fatura atual, próxima e parcelas futuras). Depois do
-          vencimento, a fatura do mês conta como paga. Total: {fmt(disponivelTotal)} de {fmt(limiteTotal)}.
+          Limite disponível: o informado no &quot;Atualizar saldos&quot; (o que o app do banco mostra), menos
+          as compras lançadas depois. Sem informação, é o limite menos o que está lançado em aberto. Total:{' '}
+          {fmt(disponivelTotal)} de {fmt(limiteTotal)}.
         </div>
       </Secao>
 

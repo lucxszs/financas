@@ -1,9 +1,10 @@
-import { paraBRL, pct, progressoObjetivo, transacoesDaCompetencia, usoCartao } from './calculos';
+import { paraBRL, progressoObjetivo, transacoesDaCompetencia } from './calculos';
+import { limiteComprometido } from './cartoes';
 import { isEntrada } from './catalogos';
 import { dataNoMes, diasNoMes, somarMeses } from './datas';
 import { fmt } from './formatadores';
 import { recorrentesPendentes } from './recorrentes';
-import type { Aporte, Config, Cotacoes, Transacao } from './types';
+import type { Aporte, Config, Cotacoes, Transacao, LimiteInformado } from './types';
 
 export interface ResumoMes {
   mes: string;
@@ -102,6 +103,8 @@ export const insightsMes = (
   config: Config,
   valores: Record<string, number>,
   cotacoes: Cotacoes,
+  hoje: string,
+  limitesInformados: Record<string, LimiteInformado> = {},
 ): Insight[] => {
   const itens: Insight[] = [];
 
@@ -141,14 +144,13 @@ export const insightsMes = (
     );
   }
 
-  const limite = soma(config.cartoes.map((c) => c.limite));
-  if (limite > 0) {
-    const usado = soma(config.cartoes.map((c) => usoCartao(c, transacoes, resumo.mes).utilizado));
-    const p = pct(usado, limite);
+  // Mesma conta da Saúde financeira: faturas vencidas contam como pagas.
+  const p = limiteComprometido(config.cartoes, transacoes, hoje, limitesInformados);
+  if (p !== null) {
     itens.push({
-      icone: p > 60 ? 'alerta' : 'cartoes',
-      texto: `Cartões ${p.toFixed(0)}% comprometidos na fatura do mês`,
-      tom: p > 60 ? 'alerta' : 'neutro',
+      icone: p > 50 ? 'alerta' : 'cartoes',
+      texto: `Cartões ${p.toFixed(0)}% do limite comprometido`,
+      tom: p > 50 ? 'alerta' : 'neutro',
     });
   }
 

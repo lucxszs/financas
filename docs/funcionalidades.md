@@ -46,7 +46,7 @@ Se a cotação não carregar, o app usa a última conhecida e mostra a data e a 
 
 - Renda, gastos, investimentos e saldo livre, com taxa de poupança (investido ÷ renda) e gastos ÷ renda.
 - Renda = entradas do mês. Enquanto o salário não entra, usa a renda mensal das Configurações e mostra "(prevista)".
-- Avisos: gastos comparados com a média dos 3 meses anteriores, aporte comparado com o planejado, quanto da fatura dos cartões já foi usado e o progresso das metas com data.
+- Avisos: gastos comparados com a média dos 3 meses anteriores, aporte comparado com o planejado, quanto do limite dos cartões está comprometido (faturas vencidas contam como pagas, como na Saúde financeira) e o progresso das metas com data.
 
 **Saúde financeira**: cinco sinais, cada um com o motivo, em vez de uma nota única.
 

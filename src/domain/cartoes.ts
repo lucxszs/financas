@@ -1,6 +1,6 @@
 import { mesDaFatura, pct } from './calculos';
 import { dataNoMes, parseDataIso, somarMeses } from './datas';
-import type { Cartao, Transacao } from './types';
+import type { Cartao, LimiteInformado, Transacao } from './types';
 
 /**
  * Mês ("YYYY-MM") do vencimento da fatura em que uma compra cai. `null` se o cartão não tem o melhor dia cadastrado.
@@ -70,32 +70,57 @@ export const diasAteMelhorDia = (cartao: Cartao, hoje: string) => {
 export interface ResumoCartao {
   cartao: Cartao;
   mesAtual: string;
+  /** Faturas pelos lançamentos do app. */
   faturaAtual: number;
   proximaFatura: number;
   /** Tudo que cai depois da próxima fatura (na prática, parcelas). */
   futuras: number;
+  /** Limite em uso: pelo banco (se informado) ou pelos lançamentos. */
   emAberto: number;
   disponivel: number;
   pct: number;
   diasMelhorDia: number | null;
+  /** Limite informado no "Atualizar saldos"; null = calculado só pelos lançamentos. */
+  informado: LimiteInformado | null;
+  /** Uso no banco que não está lançado no app (compras e parcelas não lançadas). */
+  naoLancado: number;
 }
 
 const gastosDoCartao = (cartao: Cartao, transacoes: Transacao[]) =>
   transacoes.filter((t) => t.cartao === cartao.id && !t.isEntrada);
 
-export const resumoCartao = (cartao: Cartao, transacoes: Transacao[], hoje: string): ResumoCartao => {
+/**
+ * Faturas e limite de um cartão.
+ *
+ * Sem limite informado, o limite em uso é a soma dos lançamentos em aberto (fatura atual, próxima e futuras).
+ * Com limite informado (o que o app do banco mostra), ele vale como verdade naquele momento, e as compras lançadas
+ * depois dele são descontadas. A diferença entre o uso no banco e o que estava lançado vira "não lançado".
+ */
+export const resumoCartao = (
+  cartao: Cartao,
+  transacoes: Transacao[],
+  hoje: string,
+  informado?: LimiteInformado,
+): ResumoCartao => {
   const mesAtual = primeiraFaturaAberta(cartao, hoje);
   const proximo = somarMeses(mesAtual, 1);
   let faturaAtual = 0;
   let proximaFatura = 0;
   let futuras = 0;
+  let lancadoAntes = 0;
+  let lancadoDepois = 0;
   for (const t of gastosDoCartao(cartao, transacoes)) {
     const m = mesDaFatura(t);
+    if (m < mesAtual) continue;
     if (m === mesAtual) faturaAtual += t.val;
     else if (m === proximo) proximaFatura += t.val;
-    else if (m > proximo) futuras += t.val;
+    else futuras += t.val;
+    if (informado && t.criadoEm > informado.em) lancadoDepois += t.val;
+    else lancadoAntes += t.val;
   }
-  const emAberto = faturaAtual + proximaFatura + futuras;
+  const lancado = faturaAtual + proximaFatura + futuras;
+  // O banco bloqueia no limite o valor total das compras em aberto, inclusive parcelas futuras.
+  const emAberto = informado ? cartao.limite - informado.disponivel + lancadoDepois : lancado;
   return {
     cartao,
     mesAtual,
@@ -103,11 +128,31 @@ export const resumoCartao = (cartao: Cartao, transacoes: Transacao[], hoje: stri
     proximaFatura,
     futuras,
     emAberto,
-    // O banco bloqueia no limite o valor total das compras em aberto, inclusive parcelas futuras.
     disponivel: cartao.limite - emAberto,
     pct: pct(emAberto, cartao.limite),
     diasMelhorDia: diasAteMelhorDia(cartao, hoje),
+    informado: informado ?? null,
+    naoLancado: informado ? Math.max(0, cartao.limite - informado.disponivel - lancadoAntes) : 0,
   };
+};
+
+/**
+ * % do limite total dos cartões em uso: pelo limite informado do banco ou, sem ele, pelas faturas em aberto
+ * lançadas (fatura já vencida conta como paga). null sem cartões com limite.
+ */
+export const limiteComprometido = (
+  cartoes: Cartao[],
+  transacoes: Transacao[],
+  hoje: string,
+  informados: Record<string, LimiteInformado> = {},
+) => {
+  const limite = cartoes.reduce((a, c) => a + c.limite, 0);
+  if (limite <= 0) return null;
+  const emAberto = cartoes.reduce(
+    (a, c) => a + resumoCartao(c, transacoes, hoje, informados[c.id]).emAberto,
+    0,
+  );
+  return (emAberto / limite) * 100;
 };
 
 /** Soma das faturas de todos os cartões nos próximos `n` meses, a partir do mês atual (só faturas em aberto). */

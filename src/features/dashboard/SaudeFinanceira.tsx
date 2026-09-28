@@ -26,6 +26,7 @@ export const SaudeFinanceira = ({
 }) => {
   const { config, saldos, cotacoes, transacoes, aportes } = useDadosConfigurados();
   const itens = saudeFinanceira({
+    limitesInformados: saldos.cartoes,
     config,
     valores: saldos.valores,
     cotacoes,

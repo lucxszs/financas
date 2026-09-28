@@ -198,14 +198,14 @@ describe('insightsMes', () => {
     const hist = [...transacoes, tx({ val: 2620, data: '2026-08-10' })];
     const resumo = resumoMes(hist, aportes, config, {}, '2026-09');
     // O Intl usa espaço não separável depois do "R$".
-    const textos = insightsMes(resumo, hist, config, { reserva: 1800 }, {}).map((i) =>
+    const textos = insightsMes(resumo, hist, config, { reserva: 1800 }, {}, '2026-09-10').map((i) =>
       `${i.icone} ${i.texto}`.replace(/\u00a0/g, ' '),
     );
-    expect(insightsMes(resumo, hist, config, { reserva: 1800 }, {}).at(-1)?.emoji).toBe('✈️');
+    expect(insightsMes(resumo, hist, config, { reserva: 1800 }, {}, '2026-09-10').at(-1)?.emoji).toBe('✈️');
     expect(textos).toEqual([
       'gastos Até agora, R$ 420,00 abaixo da sua média de gastos (R$ 2.620,00)',
       'investimentos Meta de investimento do mês batida',
-      'cartoes Cartões 20% comprometidos na fatura do mês',
+      'cartoes Cartões 50% do limite comprometido',
       'meta Bariloche está 18% concluído',
     ]);
   });
