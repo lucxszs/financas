@@ -17,28 +17,29 @@ users/{uid}/aportes/{id}           Aporte
 
 ## Config
 
-| Campo               | Tipo                       | Descrição                                                                 |
-| ------------------- | -------------------------- | ------------------------------------------------------------------------- |
-| `nome`              | string                     | Nome do plano (não é exibido na tela)                                     |
-| `rendaMensal`       | number                     | Renda de referência                                                       |
-| `taxaAnualEstimada` | number                     | Ex.: `0.147`; usada para estimar o rendimento mensal das caixinhas em BRL |
-| `caixinhas`         | Caixinha[]                 | Onde o dinheiro está                                                      |
-| `objetivos`         | Objetivo[]                 | Metas que somam uma ou mais caixinhas                                     |
-| `cartoes`           | Cartao[]                   | Cartões de crédito e limites                                              |
-| `alocacaoDesde`     | `YYYY-MM`?                 | Rótulo "a partir de" da alocação mensal                                   |
-| `mediasGastos`      | `{ periodo, itens[] }`?    | Média histórica exibida em Gastos                                         |
-| `orcamentos`        | `{ [categoria]: number }`? | Orçamento mensal por categoria, em BRL                                    |
-| `recorrentes`       | Recorrente[]?              | Lançamentos e aportes criados automaticamente todo mês                    |
+| Campo               | Tipo                       | Descrição                                                                  |
+| ------------------- | -------------------------- | -------------------------------------------------------------------------- |
+| `nome`              | string                     | Nome do plano (não é exibido na tela)                                      |
+| `rendaMensal`       | number                     | Renda de referência                                                        |
+| `taxaAnualEstimada` | number                     | Ex.: `0.147`; usada para estimar o rendimento mensal das caixinhas em BRL  |
+| `caixinhas`         | Caixinha[]                 | Onde o dinheiro está                                                       |
+| `objetivos`         | Objetivo[]                 | Metas que somam uma ou mais caixinhas                                      |
+| `cartoes`           | Cartao[]                   | Cartões de crédito e limites                                               |
+| `alocacaoDesde`     | `YYYY-MM`?                 | Rótulo "a partir de" da alocação mensal                                    |
+| `mediasGastos`      | `{ periodo, itens[] }`?    | Legado da v1 (média digitada à mão); Configurações tem o botão para apagar |
+| `orcamentos`        | `{ [categoria]: number }`? | Orçamento mensal por categoria, em BRL                                     |
+| `recorrentes`       | Recorrente[]?              | Lançamentos e aportes criados automaticamente todo mês                     |
 
 **Caixinha:** `id`, `nome`, `emoji?`, `moeda` (`BRL` \| `USD` \| `EUR`), `rendimento` (texto, ex.: "115% CDI"),
 `descricao?`, `cor` (`emerald` \| `amber` \| `violet` \| `coral` \| `sky`), `tipo?` (`investimento` \| `conta`;
-ausente = investimento).
+ausente = investimento), `instituicao?` (`nubank` \| `itau` \| `inter` \| `mercadopago` \| `wise`; ausente =
+deduzido do nome).
 
 **Objetivo:** `id`, `nome`, `emoji?`, `descricao?`, `meta` (BRL), `caixinhas` (ids), `cor`, `aporteMensal?`,
 `previsao?` (texto), `dataInicio?` e `dataAlvo?` (`YYYY-MM-DD`; com `dataAlvo` o objetivo entra na contagem regressiva),
 `reservaEmergencia?` (boolean).
 
-**Cartao:** `id`, `nome`, `emoji?`, `limite`, `cor`, `melhorDiaCompra?` e `diaVencimento?` (dias de 1 a 31).
+**Cartao:** `id`, `nome`, `emoji?`, `limite`, `cor`, `melhorDiaCompra?` e `diaVencimento?` (dias de 1 a 31), `instituicao?` (como na caixinha).
 Compra antes do melhor dia cai na fatura que vence no mês; a partir dele, na do mês seguinte.
 
 **Recorrente:** `id`, `desc`, `val`, `dia` (1 a 31; em mês curto vale o último dia), `ativo`, `inicio` (`YYYY-MM`),

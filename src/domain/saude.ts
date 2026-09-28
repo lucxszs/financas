@@ -9,7 +9,6 @@ export type Sinal = 'verde' | 'amarelo' | 'vermelho';
 
 export interface Indicador {
   id: 'gastos' | 'investimentos' | 'cartoes' | 'metas' | 'reserva';
-  icone: string;
   nome: string;
   sinal: Sinal;
   detalhe: string;
@@ -49,7 +48,6 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
   const SINAL_LIMITE = { seguro: 'verde', atencao: 'amarelo', cuidado: 'vermelho' } as const;
   itens.push({
     id: 'gastos',
-    icone: '💰',
     nome: 'Gastos',
     sinal: SINAL_LIMITE[limite.status],
     detalhe: `${pctTexto(resumo.gastosSobreRenda)} da renda · ${fmt(Math.max(0, limite.disponivel))} livres`,
@@ -61,7 +59,6 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
     const inicioDoMes = Number(hoje.slice(8, 10)) <= 15;
     itens.push({
       id: 'investimentos',
-      icone: '📈',
       nome: 'Investimentos',
       sinal: p >= 100 ? 'verde' : p > 0 || inicioDoMes ? 'amarelo' : 'vermelho',
       detalhe: `${fmt(resumo.investimentos)} de ${fmt(planejado)} (${pctTexto(p)})`,
@@ -74,7 +71,6 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
     const p = limiteTotal > 0 ? (resumos.reduce((a, r) => a + r.emAberto, 0) / limiteTotal) * 100 : 0;
     itens.push({
       id: 'cartoes',
-      icone: '💳',
       nome: 'Cartões',
       sinal: p <= 50 ? 'verde' : p <= 80 ? 'amarelo' : 'vermelho',
       detalhe: `${pctTexto(p)} do limite comprometido`,
@@ -93,7 +89,6 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
     const razao = pior ? pior.r.diferenca! / pior.r.necessarioMes! : 0;
     itens.push({
       id: 'metas',
-      icone: '🎯',
       nome: 'Metas',
       sinal: razao >= 0 ? 'verde' : razao >= -0.1 ? 'amarelo' : 'vermelho',
       detalhe:
@@ -110,7 +105,6 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
     const meses = guardado / media;
     itens.push({
       id: 'reserva',
-      icone: '💵',
       nome: 'Reserva',
       sinal: meses >= 6 ? 'verde' : meses >= 3 ? 'amarelo' : 'vermelho',
       detalhe: `cobre ${meses.toFixed(1).replace('.', ',')} ${meses >= 1 && meses < 2 ? 'mês' : 'meses'} de gastos`,

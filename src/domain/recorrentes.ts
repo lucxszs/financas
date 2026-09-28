@@ -70,7 +70,7 @@ export const transacaoDeRecorrente = (
     cat: r.cat,
     data,
     mesFatura: cartao ? mesFaturaSugerido(cartao, data) : null,
-    obs: '🔁 automático',
+    obs: '',
     isEntrada: isEntrada(r.tipoTransacao),
     criadoEm,
     recorrenteId: r.id,
@@ -85,7 +85,7 @@ export const aporteDeRecorrente = (
   caixinha: r.caixinha,
   val: r.val,
   data,
-  obs: '🔁 automático',
+  obs: '',
   criadoEm,
   recorrenteId: r.id,
 });

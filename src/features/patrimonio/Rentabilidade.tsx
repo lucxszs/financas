@@ -1,19 +1,21 @@
+import { Percent } from 'lucide-react';
+import { NomeCaixinha } from '../../components/marcas';
 import { Barra, Secao } from '../../components/ui';
 import { corVar } from '../../components/cor';
-import { mesAtualIso, rotuloMesCurto, somarMeses } from '../../domain/datas';
-import { fmt, formatarMoeda } from '../../domain/formatadores';
+import { mesAtualIso, rotuloMesCurto } from '../../domain/datas';
+import { fmt, fmtPct, formatarMoeda } from '../../domain/formatadores';
 import { acumulado, rentabilidadeCaixinhas, totalRentabilidade } from '../../domain/rentabilidade';
 import { useIndicadores } from '../../hooks/useIndicadores';
 import { useDadosConfigurados } from '../dados/useDados';
 
-const pctSinal = (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(2).replace('.', ',')}%`;
+const pctSinal = (v: number) => `${v >= 0 ? '+' : ''}${fmtPct(v, 2)}`;
 
 export const Rentabilidade = () => {
-  const { config, saldos, snapshots, aportes, cotacoes } = useDadosConfigurados();
-  const itens = rentabilidadeCaixinhas(config, saldos.valores, snapshots, aportes, cotacoes);
+  const { config, saldos, snapshots, cotacoes } = useDadosConfigurados();
+  const itens = rentabilidadeCaixinhas(config, saldos.valores, snapshots, cotacoes);
   const total = totalRentabilidade(itens, cotacoes);
-  // O rendimento começa a contar depois da primeira foto dos saldos.
-  const desde = total.inicio ? somarMeses(total.inicio, 1) : null;
+  // Período: do primeiro mês com rendimento informado até hoje.
+  const desde = total.inicio;
   const { cdi, ipca, status } = useIndicadores(desde);
   const mes = mesAtualIso();
   const cdiPeriodo = desde ? acumulado(cdi, desde, mes) : null;
@@ -22,10 +24,10 @@ export const Rentabilidade = () => {
   if (!itens.length) return null;
 
   return (
-    <Secao titulo="Rentabilidade">
+    <Secao titulo="Rentabilidade" icone={Percent}>
       <div className="card">
         <div className="brow">
-          <span className="bname">Investido (saldo inicial + aportes)</span>
+          <span className="bname">Investido (saldo − rendimentos)</span>
           <span className="bval">{fmt(total.investido)}</span>
         </div>
         <div className="brow">
@@ -39,7 +41,9 @@ export const Rentabilidade = () => {
           <span className="bname">
             Rentabilidade{total.inicio && ` desde ${rotuloMesCurto(total.inicio)}`}
           </span>
-          <span className="bval">{total.pct === null ? '·' : pctSinal(total.pct)}</span>
+          <span className="bval">
+            {total.pct === null || !total.inicio ? 'sem rendimentos informados' : pctSinal(total.pct)}
+          </span>
         </div>
         {desde && (
           <div className="brow">
@@ -62,30 +66,27 @@ export const Rentabilidade = () => {
         {itens.map((i) => (
           <div key={i.caixinha.id} className="orc-row">
             <div className="linha-entre">
-              <span>
-                {i.caixinha.emoji} {i.caixinha.nome}
-              </span>
+              <NomeCaixinha caixinha={i.caixinha} tamanho={16} />
               <span className="mono">
                 {formatarMoeda(i.atual, i.caixinha.moeda)}{' '}
-                <span className="muted">
-                  · {(total.alocacao[i.caixinha.id] ?? 0).toFixed(1).replace('.', ',')}%
-                </span>
+                <span className="muted">· {fmtPct(total.alocacao[i.caixinha.id] ?? 0, 1)}</span>
               </span>
             </div>
             <Barra pct={total.alocacao[i.caixinha.id] ?? 0} cor={corVar(i.caixinha.cor)} altura={5} />
             <div className="mono mini muted mt-4">
               {i.pct === null
-                ? 'sem valor investido registrado'
-                : `${pctSinal(i.pct)} · rendeu ${formatarMoeda(i.rendimento, i.caixinha.moeda)} sobre ${formatarMoeda(i.investido, i.caixinha.moeda)}`}
+                ? 'sem rendimento informado no "Atualizar saldos"'
+                : `${pctSinal(i.pct)} · rendeu ${formatarMoeda(i.rendimento, i.caixinha.moeda)} em ${i.meses} ${i.meses === 1 ? 'mês' : 'meses'}`}
             </div>
           </div>
         ))}
       </div>
       <div className="nota">
-        Investido = saldo na primeira foto do &quot;Atualizar saldos&quot; + aportes lançados depois. Saques
-        não são registrados e reduzem o rendimento. CDI e IPCA: Banco Central, compostos mês a mês desde o mês
-        seguinte à primeira foto; comparação aproximada, porque os aportes entram ao longo do período.
-        {status === 'antiga' && ' ⚠️ Banco Central indisponível: usando os últimos valores guardados.'}
+        Rendimentos = soma do &quot;rendimento do mês&quot; informado no &quot;Atualizar saldos&quot;; mês sem
+        rendimento informado conta zero. Investido = saldo atual − rendimentos. CDI e IPCA: Banco Central,
+        compostos mês a mês desde o primeiro rendimento informado; comparação aproximada, porque os depósitos
+        entram ao longo do período.
+        {status === 'antiga' && ' Banco Central indisponível: usando os últimos valores guardados.'}
       </div>
     </Secao>
   );

@@ -1,56 +1,51 @@
 import { paraBRL } from './calculos';
-import type { Aporte, Caixinha, Config, Cotacoes, Snapshot } from './types';
+import type { Caixinha, Config, Cotacoes, Snapshot } from './types';
 
 export interface RentabilidadeCaixinha {
   caixinha: Caixinha;
-  /** Mês ("YYYY-MM") da primeira foto dos saldos com esta caixinha; null = sem foto (base 0). */
+  /** Primeiro mês com rendimento informado; null = nenhum informado. */
   inicio: string | null;
-  /** Saldo na primeira foto, na moeda da caixinha. */
-  base: number;
-  /** Aportes depois da primeira foto, na moeda da caixinha. */
-  aportes: number;
+  /** Meses com rendimento informado. */
+  meses: number;
+  /** Saldo atual menos os rendimentos: o que foi colocado (aportes e depósitos), na moeda da caixinha. */
   investido: number;
   atual: number;
+  /** Soma dos rendimentos informados no "Atualizar saldos". */
   rendimento: number;
-  /** Rendimento ÷ investido × 100; null sem nada investido. */
+  /** Rendimento ÷ investido × 100; null sem rendimento informado. */
   pct: number | null;
   /** Saldo atual em BRL; null sem cotação. */
   atualBRL: number | null;
 }
 
 /**
- * Rendimento de cada caixinha de investimento = saldo atual − (saldo na primeira foto + aportes depois dela).
- * Aproximação: saques não são registrados (reduzem o rendimento) e a primeira foto pode já incluir aportes
- * daquele mês (por isso só contam aportes de meses seguintes).
+ * Rendimento de cada caixinha de investimento = soma dos rendimentos informados mês a mês no "Atualizar saldos".
+ * Não depende de todos os depósitos terem sido lançados como aporte (depósito não lançado não vira "rendimento").
+ * Mês sem rendimento informado conta como zero.
  */
 export const rentabilidadeCaixinhas = (
   config: Config,
   valores: Record<string, number>,
   snapshots: Snapshot[],
-  aportes: Aporte[],
   cotacoes: Cotacoes,
 ): RentabilidadeCaixinha[] =>
   config.caixinhas
     .filter((c) => c.tipo !== 'conta')
     .map((c) => {
-      const primeira = [...snapshots]
-        .filter((s) => s.valores[c.id] !== undefined)
-        .sort((a, b) => a.mes.localeCompare(b.mes))[0];
-      const base = primeira?.valores[c.id] ?? 0;
-      const somaAportes = aportes
-        .filter((a) => a.caixinha === c.id && (!primeira || a.data.slice(0, 7) > primeira.mes))
-        .reduce((acc, a) => acc + a.val, 0);
-      const investido = base + somaAportes;
+      const comRendimento = snapshots
+        .filter((s) => s.rendimentos?.[c.id] !== undefined)
+        .sort((a, b) => a.mes.localeCompare(b.mes));
+      const rendimento = comRendimento.reduce((acc, s) => acc + (s.rendimentos?.[c.id] ?? 0), 0);
       const atual = valores[c.id] ?? 0;
+      const investido = atual - rendimento;
       return {
         caixinha: c,
-        inicio: primeira?.mes ?? null,
-        base,
-        aportes: somaAportes,
+        inicio: comRendimento[0]?.mes ?? null,
+        meses: comRendimento.length,
         investido,
         atual,
-        rendimento: atual - investido,
-        pct: investido > 0 ? ((atual - investido) / investido) * 100 : null,
+        rendimento,
+        pct: comRendimento.length && investido > 0 ? (rendimento / investido) * 100 : null,
         atualBRL: paraBRL(atual, c.moeda, cotacoes),
       };
     });
@@ -60,7 +55,7 @@ export interface TotalRentabilidade {
   atual: number;
   rendimento: number;
   pct: number | null;
-  /** Primeiro mês com foto entre as caixinhas; base do período para comparar com CDI e IPCA. */
+  /** Primeiro mês com rendimento informado; início do período para comparar com CDI e IPCA. */
   inicio: string | null;
   /** Participação de cada caixinha no total (0 a 100), por id. */
   alocacao: Record<string, number>;

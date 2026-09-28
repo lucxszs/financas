@@ -1,6 +1,10 @@
 import { useState, type FormEvent } from 'react';
+import { Archive, PiggyBank, Target } from 'lucide-react';
+import { Icone, IconeCategoria } from '../../components/icones';
+import { EmojiItem, MarcaItem } from '../../components/marcas';
+import { apagarDadosV1 } from '../../services/repositorio';
 import { ModalConfirmacao, Secao } from '../../components/ui';
-import { CATEGORIAS, categoriaPorId, tipoPorId } from '../../domain/catalogos';
+import { CATEGORIAS, tipoPorId } from '../../domain/catalogos';
 import { hojeIso, rotuloMesCurto, somarMeses } from '../../domain/datas';
 import { fmt, formatarMoeda } from '../../domain/formatadores';
 import { gerarId } from '../../domain/ids';
@@ -49,7 +53,7 @@ export const PaginaConfiguracoes = () => {
         vazio="Nenhuma caixinha."
         descricao={(c) => c.nome}
         linha={(c) => ({
-          icone: c.emoji ?? (c.tipo === 'conta' ? '🏦' : '📈'),
+          icone: <MarcaItem item={c} />,
           titulo: c.nome,
           sub: [c.tipo === 'conta' ? 'Conta' : 'Investimento', c.moeda, c.rendimento]
             .filter(Boolean)
@@ -75,7 +79,7 @@ export const PaginaConfiguracoes = () => {
         vazio="Nenhum cartão."
         descricao={(c) => c.nome}
         linha={(c) => ({
-          icone: c.emoji ?? '💳',
+          icone: <MarcaItem item={c} />,
           titulo: c.nome,
           sub: [
             `limite ${fmt(c.limite)}`,
@@ -102,10 +106,11 @@ export const PaginaConfiguracoes = () => {
         vazio="Nenhum objetivo."
         descricao={(o) => o.nome}
         linha={(o) => ({
-          icone: o.emoji ?? '🎯',
+          icone: o.emoji ? <EmojiItem emoji={o.emoji} /> : <Icone icone={Target} tamanho={18} />,
           titulo: o.nome,
           sub: [
             `meta ${fmt(o.meta)}`,
+            o.caixinhas.map(nomeCaixinha).join(' + '),
             o.aporteMensal && `${fmt(o.aporteMensal)}/mês`,
             o.dataAlvo && `até ${rotuloMesCurto(o.dataAlvo.slice(0, 7))}`,
           ]
@@ -125,7 +130,8 @@ export const PaginaConfiguracoes = () => {
         vazio="Nenhuma recorrência. Cadastre contas fixas, salário e aportes para o app lançar sozinho todo mês."
         descricao={(r) => r.desc}
         linha={(r) => ({
-          icone: r.tipo === 'aporte' ? '🐷' : (categoriaPorId(r.cat)?.emoji ?? '🧾'),
+          icone:
+            r.tipo === 'aporte' ? <Icone icone={PiggyBank} tamanho={18} /> : <IconeCategoria cat={r.cat} />,
           titulo: `${r.desc}${r.ativo ? '' : ' (pausada)'}`,
           sub: [
             `dia ${dia(r.dia)}`,
@@ -144,11 +150,65 @@ export const PaginaConfiguracoes = () => {
         voltam.
       </div>
 
+      <DadosAntigos />
+
       {editando?.tipo === 'caixinha' && <ModalCaixinha caixinha={editando.item} onFechar={fechar} />}
       {editando?.tipo === 'cartao' && <ModalCartao cartao={editando.item} onFechar={fechar} />}
       {editando?.tipo === 'objetivo' && <ModalObjetivo objetivo={editando.item} onFechar={fechar} />}
       {editando?.tipo === 'recorrente' && <ModalRecorrente recorrente={editando.item} onFechar={fechar} />}
     </>
+  );
+};
+
+/** Fechamentos manuais e média histórica da v1: dados digitados à mão que não se ligam a nada no app. */
+const DadosAntigos = () => {
+  const { uid, config, fechamentos } = useDadosConfigurados();
+  const [confirmando, setConfirmando] = useState(false);
+  const temMedia = Boolean(config.mediasGastos);
+  if (!fechamentos.length && !temMedia) return null;
+
+  return (
+    <Secao titulo="Dados antigos (v1)" icone={Archive}>
+      <div className="card card-pad">
+        <div className="mono pequeno muted mb-12">
+          {[
+            fechamentos.length > 0 &&
+              `${fechamentos.length} ${fechamentos.length === 1 ? 'fechamento manual' : 'fechamentos manuais'} (${fechamentos
+                .map((f) => rotuloMesCurto(f.mes))
+                .sort()
+                .join(', ')})`,
+            temMedia && 'média histórica de gastos digitada à mão',
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+          . Hoje o app calcula isso a partir dos lançamentos.
+        </div>
+        <button className="btn-perigo" onClick={() => setConfirmando(true)}>
+          Apagar dados antigos
+        </button>
+      </div>
+      {confirmando && (
+        <ModalConfirmacao
+          titulo="Apagar dados antigos da v1?"
+          rotuloConfirmar="Apagar"
+          mensagem={
+            <>
+              Os fechamentos manuais e a média histórica somem do app e do banco de dados.
+              <br />
+              Lançamentos, aportes, saldos e meses fechados não são afetados. Essa ação não pode ser desfeita.
+            </>
+          }
+          onConfirmar={() =>
+            apagarDadosV1(
+              uid,
+              config,
+              fechamentos.map((f) => f.mes),
+            )
+          }
+          onFechar={() => setConfirmando(false)}
+        />
+      )}
+    </Secao>
   );
 };
 
@@ -163,9 +223,9 @@ const FormGeral = () => {
     e.preventDefault();
     const r = numeroOuNulo(renda);
     const t = numeroOuNulo(taxa);
-    if (r === null || !Number.isFinite(r) || r < 0) return avisar('⚠️ Renda inválida');
-    if (t === null || !Number.isFinite(t) || t < 0 || t > 100) return avisar('⚠️ Taxa deve ser de 0 a 100%');
-    void enviar(() => salvar((c) => ({ ...c, rendaMensal: r, taxaAnualEstimada: t / 100 })), '✅ Salvo!');
+    if (r === null || !Number.isFinite(r) || r < 0) return avisar('Renda inválida');
+    if (t === null || !Number.isFinite(t) || t < 0 || t > 100) return avisar('Taxa deve ser de 0 a 100%');
+    void enviar(() => salvar((c) => ({ ...c, rendaMensal: r, taxaAnualEstimada: t / 100 })), 'Salvo!');
   };
 
   return (
@@ -222,10 +282,10 @@ const FormOrcamento = () => {
     for (const c of CATEGORIAS) {
       const n = numeroOuNulo(valores[c.id] ?? '');
       if (n === null) continue;
-      if (!Number.isFinite(n) || n < 0) return avisar(`⚠️ Valor inválido em ${c.nome}`);
+      if (!Number.isFinite(n) || n < 0) return avisar(`Valor inválido em ${c.nome}`);
       orcamentos[c.id] = n;
     }
-    void enviar(() => salvar((c) => ({ ...c, orcamentos })), '✅ Orçamento salvo!');
+    void enviar(() => salvar((c) => ({ ...c, orcamentos })), 'Orçamento salvo!');
   };
 
   return (
@@ -234,8 +294,8 @@ const FormOrcamento = () => {
         <div className="grade-orcamento">
           {CATEGORIAS.map((c) => (
             <div key={c.id} className="field">
-              <label htmlFor={`orc-${c.id}`}>
-                {c.emoji} {c.nome}
+              <label htmlFor={`orc-${c.id}`} className="icone-texto">
+                <IconeCategoria cat={c.id} tamanho={13} /> {c.nome}
               </label>
               <input
                 id={`orc-${c.id}`}
@@ -301,7 +361,7 @@ const ImportarAlocacao = () => {
   return (
     <div className="card-rodape">
       <button className="btn btn-mini" onClick={() => setConfirmando(true)}>
-        🐷 Criar aportes a partir da alocação mensal
+        <Icone icone={PiggyBank} tamanho={14} /> Criar aportes a partir da alocação mensal
       </button>
       {confirmando && (
         <ModalConfirmacao

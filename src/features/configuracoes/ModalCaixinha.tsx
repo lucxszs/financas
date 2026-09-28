@@ -1,21 +1,32 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
+import { EmojiItem } from '../../components/marcas';
+import { instituicaoDe, type Instituicao } from '../../domain/instituicoes';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
 import { gerarId } from '../../domain/ids';
 import type { Caixinha, Cor, Moeda, TipoCaixinha } from '../../domain/types';
 import { useEnvio } from '../../hooks/useEnvio';
 import { useDadosConfigurados } from '../dados/useDados';
-import { SeletorCor } from './componentes';
+import { SeletorCor, SeletorInstituicao } from './componentes';
 import { useSalvarConfig } from './configuracao';
 
-const MOEDAS: { id: Moeda; rotulo: string }[] = [
-  { id: 'BRL', rotulo: '🇧🇷 BRL' },
-  { id: 'USD', rotulo: '🇺🇸 USD' },
-  { id: 'EUR', rotulo: '🇪🇺 EUR' },
-];
+const MOEDAS: { id: Moeda; rotulo: ReactNode }[] = (
+  [
+    ['BRL', '🇧🇷'],
+    ['USD', '🇺🇸'],
+    ['EUR', '🇪🇺'],
+  ] as const
+).map(([id, bandeira]) => ({
+  id,
+  rotulo: (
+    <span className="icone-texto">
+      <EmojiItem emoji={bandeira} tamanho={12} /> {id}
+    </span>
+  ),
+}));
 
 const TIPOS: { id: TipoCaixinha; rotulo: string }[] = [
-  { id: 'investimento', rotulo: '📈 Investimento' },
-  { id: 'conta', rotulo: '🏦 Conta' },
+  { id: 'investimento', rotulo: 'Investimento' },
+  { id: 'conta', rotulo: 'Conta' },
 ];
 
 export const ModalCaixinha = ({ caixinha, onFechar }: { caixinha?: Caixinha; onFechar: () => void }) => {
@@ -30,10 +41,13 @@ export const ModalCaixinha = ({ caixinha, onFechar }: { caixinha?: Caixinha; onF
   const [rendimento, setRendimento] = useState(caixinha?.rendimento ?? '');
   const [descricao, setDescricao] = useState(caixinha?.descricao ?? '');
   const [cor, setCor] = useState<Cor>(caixinha?.cor ?? 'emerald');
+  const [instituicao, setInstituicao] = useState<Instituicao | ''>(
+    caixinha ? (instituicaoDe(caixinha) ?? '') : '',
+  );
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!nome.trim()) return avisar('⚠️ Informe o nome');
+    if (!nome.trim()) return avisar('Informe o nome');
     const nova: Caixinha = {
       id:
         caixinha?.id ??
@@ -48,6 +62,7 @@ export const ModalCaixinha = ({ caixinha, onFechar }: { caixinha?: Caixinha; onF
       rendimento: rendimento.trim(),
       descricao: descricao.trim() || undefined,
       cor,
+      instituicao: instituicao || undefined,
     };
     void enviar(
       () =>
@@ -57,7 +72,7 @@ export const ModalCaixinha = ({ caixinha, onFechar }: { caixinha?: Caixinha; onF
             ? c.caixinhas.map((x) => (x.id === caixinha.id ? nova : x))
             : [...c.caixinhas, nova],
         })),
-      '✅ Caixinha salva!',
+      'Caixinha salva!',
     );
   };
 
@@ -73,6 +88,10 @@ export const ModalCaixinha = ({ caixinha, onFechar }: { caixinha?: Caixinha; onF
             <label htmlFor="cx-emoji">Emoji (opcional)</label>
             <input id="cx-emoji" maxLength={8} value={emoji} onChange={(e) => setEmoji(e.target.value)} />
           </div>
+        </div>
+        <div className="field">
+          <label>Banco</label>
+          <SeletorInstituicao valor={instituicao} onChange={setInstituicao} />
         </div>
         <div className="field">
           <label>Tipo</label>

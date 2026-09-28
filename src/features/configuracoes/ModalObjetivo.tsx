@@ -31,13 +31,12 @@ export const ModalObjetivo = ({ objetivo, onFechar }: { objetivo?: Objetivo; onF
     e.preventDefault();
     const valorMeta = numeroOuNulo(meta);
     const valorAporte = numeroOuNulo(aporte);
-    if (!nome.trim()) return avisar('⚠️ Informe o nome');
-    if (valorMeta === null || !Number.isFinite(valorMeta) || valorMeta <= 0)
-      return avisar('⚠️ Informe a meta');
-    if (!caixinhas.length) return avisar('⚠️ Escolha ao menos uma caixinha');
+    if (!nome.trim()) return avisar('Informe o nome');
+    if (valorMeta === null || !Number.isFinite(valorMeta) || valorMeta <= 0) return avisar('Informe a meta');
+    if (!caixinhas.length) return avisar('Escolha ao menos uma caixinha');
     if (valorAporte !== null && (!Number.isFinite(valorAporte) || valorAporte < 0))
-      return avisar('⚠️ Aporte mensal inválido');
-    if (dataInicio && dataAlvo && dataInicio >= dataAlvo) return avisar('⚠️ O início deve ser antes do alvo');
+      return avisar('Aporte mensal inválido');
+    if (dataInicio && dataAlvo && dataInicio >= dataAlvo) return avisar('O início deve ser antes do alvo');
 
     const novo: Objetivo = {
       id:
@@ -66,7 +65,7 @@ export const ModalObjetivo = ({ objetivo, onFechar }: { objetivo?: Objetivo; onF
             ? c.objetivos.map((x) => (x.id === objetivo.id ? novo : x))
             : [...c.objetivos, novo],
         })),
-      '✅ Objetivo salvo!',
+      'Objetivo salvo!',
     );
   };
 

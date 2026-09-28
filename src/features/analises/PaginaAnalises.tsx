@@ -1,10 +1,13 @@
 import { useState, type CSSProperties } from 'react';
+import { PiggyBank } from 'lucide-react';
+import { Icone } from '../../components/icones';
+import { MarcaItem } from '../../components/marcas';
 import { AcoesItem, ModalConfirmacao, Secao, Vazio } from '../../components/ui';
 import { corVar } from '../../components/cor';
-import { totaisFechamento, totalSnapshot } from '../../domain/calculos';
+import { totalSnapshot } from '../../domain/calculos';
 import { rotuloDiaMes, rotuloMesCurto } from '../../domain/datas';
 import { fmt, formatarMoeda } from '../../domain/formatadores';
-import type { Aporte, Fechamento } from '../../domain/types';
+import type { Aporte } from '../../domain/types';
 import { excluirAporte } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 import { HistoricoMensal } from './HistoricoMensal';
@@ -18,7 +21,7 @@ export const PaginaAnalises = ({
   onNovoAporte: () => void;
   onEditarAporte: (a: Aporte) => void;
 }) => {
-  const { uid, config, aportes, snapshots, fechamentos, cotacoes } = useDadosConfigurados();
+  const { uid, config, aportes, snapshots, cotacoes } = useDadosConfigurados();
   const [aExcluir, setAExcluir] = useState<Aporte | null>(null);
   const caixinha = (id: string) => config.caixinhas.find((c) => c.id === id);
   const valorAporte = (a: Aporte) => formatarMoeda(a.val, caixinha(a.caixinha)?.moeda ?? 'BRL');
@@ -34,7 +37,7 @@ export const PaginaAnalises = ({
           <div className="tx-header">
             <span className="tx-header-title">Histórico de aportes</span>
             <button className="btn btn-mini" onClick={onNovoAporte}>
-              🐷 Novo aporte
+              <Icone icone={PiggyBank} tamanho={14} /> Novo aporte
             </button>
           </div>
           {aportes.length === 0 ? (
@@ -45,7 +48,9 @@ export const PaginaAnalises = ({
               const nome = c?.nome ?? a.caixinha;
               return (
                 <div key={a.id} className="tx-row">
-                  <div className="tx-icon">{c?.emoji ?? '🐷'}</div>
+                  <div className="tx-icon">
+                    {c ? <MarcaItem item={c} /> : <Icone icone={PiggyBank} tamanho={18} />}
+                  </div>
                   <div className="tx-info">
                     <div className="tx-desc">{nome}</div>
                     <div className="tx-meta">{[rotuloDiaMes(a.data), a.obs].filter(Boolean).join(' · ')}</div>
@@ -104,7 +109,7 @@ export const PaginaAnalises = ({
                           className="evo-chip"
                           style={{ '--cor': corVar(c.cor) } as CSSProperties}
                         >
-                          {c.emoji} {formatarMoeda(v, c.moeda)}
+                          <MarcaItem item={c} tamanho={14} /> {formatarMoeda(v, c.moeda)}
                         </span>
                       );
                     })}
@@ -117,70 +122,6 @@ export const PaginaAnalises = ({
           )}
         </div>
       </Secao>
-
-      {fechamentos.length > 0 && <Fechamentos fechamentos={fechamentos} />}
     </>
-  );
-};
-
-const Fechamentos = ({ fechamentos }: { fechamentos: Fechamento[] }) => {
-  // Mais antigo à esquerda, mais recente selecionado por padrão.
-  const ordenados = [...fechamentos].sort((a, b) => a.mes.localeCompare(b.mes));
-  const [sel, setSel] = useState(ordenados.at(-1)?.mes ?? '');
-  const atual = ordenados.find((f) => f.mes === sel) ?? ordenados.at(-1);
-  if (!atual) return null;
-  const t = totaisFechamento(atual);
-
-  return (
-    <Secao titulo="Fechamentos manuais (v1)">
-      <div className="mes-tabs" role="tablist">
-        {ordenados.map((f) => (
-          <button
-            key={f.mes}
-            role="tab"
-            aria-selected={f.mes === atual.mes}
-            className={`mes-tab${f.mes === atual.mes ? ' active' : ''}`}
-            onClick={() => setSel(f.mes)}
-          >
-            {rotuloMesCurto(f.mes)}
-          </button>
-        ))}
-      </div>
-      <div className="card">
-        {atual.itens.map((i, idx) => (
-          <div key={idx} className={`brow ${i.tipo === 'entrada' ? 'in' : 'out'}`}>
-            <span className="bname">
-              {i.emoji} {i.nome} {i.pago === true ? '✅' : i.pago === false ? '❌' : ''}
-            </span>
-            <span className="bval">
-              {i.tipo === 'entrada' ? '+ ' : '− '}
-              {fmt(i.valor)}
-            </span>
-          </div>
-        ))}
-        <div className="brow total">
-          <span className="bname">📊 Total de saídas</span>
-          <span className="bval">{fmt(t.saidas)}</span>
-        </div>
-        <div className={`brow ${t.saldo >= 0 ? 'positivo' : 'deficit'}`}>
-          <span className="bname">{t.saldo >= 0 ? '🟢 Sobra' : '🔴 Déficit'}</span>
-          <span className="bval">
-            {t.saldo < 0 ? '− ' : '+ '}
-            {fmt(Math.abs(t.saldo))}
-          </span>
-        </div>
-        {t.pendente > 0 && (
-          <div className="brow pendente">
-            <span className="bname">⚠️ Pendente</span>
-            <span className="bval">{fmt(t.pendente)}</span>
-          </div>
-        )}
-        {atual.notas?.map((n, idx) => (
-          <div key={`n${idx}`} className="brow pendente">
-            <span className="bname">📝 {n}</span>
-          </div>
-        ))}
-      </div>
-    </Secao>
   );
 };

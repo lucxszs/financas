@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { opcoesMarcas } from '../../components/opcoes';
 import { AcoesModal, GradeOpcoes, Modal } from '../../components/ui';
 import { hojeIso } from '../../domain/datas';
 import { useEnvio } from '../../hooks/useEnvio';
@@ -21,9 +22,9 @@ export const ModalAporte = ({ aporte, onFechar }: { aporte?: Aporte; onFechar: (
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!caixinha) return avisar('⚠️ Selecione a caixinha');
+    if (!caixinha) return avisar('Selecione a caixinha');
     const valor = Number(val);
-    if (!Number.isFinite(valor) || valor <= 0) return avisar('⚠️ Informe o valor');
+    if (!Number.isFinite(valor) || valor <= 0) return avisar('Informe o valor');
 
     const dados = { caixinha, val: valor, data: data || hojeIso(), obs: obs.trim() };
     const agora = new Date().toISOString();
@@ -33,18 +34,18 @@ export const ModalAporte = ({ aporte, onFechar }: { aporte?: Aporte; onFechar: (
         aporte
           ? atualizarAporte(uid, aporte.id, { ...dados, criadoEm: aporte.criadoEm, atualizadoEm: agora })
           : criarAporte(uid, { ...dados, criadoEm: agora }),
-      editando ? '✅ Aporte atualizado!' : '✅ Aporte lançado!',
+      editando ? 'Aporte atualizado!' : 'Aporte lançado!',
     );
   };
 
   return (
-    <Modal titulo={editando ? '🐷 Editar aporte' : '🐷 Lançar aporte'} onFechar={onFechar}>
+    <Modal titulo={editando ? 'Editar aporte' : 'Lançar aporte'} onFechar={onFechar}>
       <form onSubmit={onSubmit}>
         <div className="field">
           <label>Caixinha</label>
           <GradeOpcoes
             colunas={2}
-            opcoes={config.caixinhas.map((c) => ({ id: c.id, rotulo: `${c.emoji ?? ''} ${c.nome}`.trim() }))}
+            opcoes={opcoesMarcas(config.caixinhas)}
             valor={caixinha}
             onChange={setCaixinha}
           />

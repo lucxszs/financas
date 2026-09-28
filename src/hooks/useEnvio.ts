@@ -12,7 +12,7 @@ export const useEnvio = (onSucesso: () => void, atrasoMs = 800) => {
   }, []);
 
   const enviar = useCallback(
-    async (acao: () => Promise<unknown>, sucesso = '✅ Salvo!') => {
+    async (acao: () => Promise<unknown>, sucesso = 'Salvo!') => {
       setSalvando(true);
       setErro(false);
       setMsg('');
@@ -25,7 +25,7 @@ export const useEnvio = (onSucesso: () => void, atrasoMs = 800) => {
         }, atrasoMs);
       } catch (e) {
         setErro(true);
-        setMsg(`❌ Erro: ${e instanceof Error ? e.message : String(e)}`);
+        setMsg(`Erro: ${e instanceof Error ? e.message : String(e)}`);
       } finally {
         setSalvando(false);
       }

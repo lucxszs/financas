@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { acumulado, rentabilidadeCaixinhas, totalRentabilidade } from './rentabilidade';
-import type { Aporte, Config, Snapshot } from './types';
+import type { Config, Snapshot } from './types';
 
 const config: Config = {
   nome: 'Teste',
@@ -16,51 +16,31 @@ const config: Config = {
   cartoes: [],
 };
 
-const aporte = (caixinha: string, val: number, data: string): Aporte => ({
-  id: `${caixinha}${data}`,
-  caixinha,
-  val,
-  data,
-  obs: '',
-  criadoEm: '',
-});
-
 describe('rentabilidadeCaixinhas', () => {
+  // Depósitos não lançados como aporte (ex.: MP de 0 para 1.654) não viram rendimento.
   const snapshots: Snapshot[] = [
-    { mes: '2026-07', valores: { nubank: 4000, wise: 20 } },
-    { mes: '2026-06', valores: { nubank: 3900 } },
+    { mes: '2026-05', valores: { nubank: 3429 }, rendimentos: { nubank: 57 } },
+    { mes: '2026-06', valores: { nubank: 5060, mp: 1637 }, rendimentos: { nubank: 63 } },
+    { mes: '2026-08', valores: { nubank: 5229, mp: 1654, wise: 19.19 }, rendimentos: { nubank: 80, mp: 17 } },
+    { mes: '2026-02', valores: { nubank: 2003 } },
   ];
-  const aportes = [
-    aporte('nubank', 500, '2026-06-10'), // antes/na primeira foto: já está na base
-    aporte('nubank', 1000, '2026-07-10'),
-    aporte('nubank', 266, '2026-08-10'),
-    aporte('mp', 1500, '2026-08-10'),
-  ];
-  const itens = rentabilidadeCaixinhas(config, { nubank: 5307, mp: 1684, wise: 20 }, snapshots, aportes, {
-    USD: 5,
-  });
+  const itens = rentabilidadeCaixinhas(config, { nubank: 5310, mp: 1690, wise: 19.2 }, snapshots, { USD: 5 });
 
-  it('base = primeira foto; soma só os aportes dos meses seguintes; ignora contas', () => {
+  it('soma só os rendimentos informados; ignora contas', () => {
     expect(itens.map((i) => i.caixinha.id)).toEqual(['nubank', 'mp', 'wise']);
-    expect(itens[0]).toMatchObject({
-      inicio: '2026-06',
-      base: 3900,
-      aportes: 1266,
-      investido: 5166,
-      rendimento: 141,
-    });
-    expect(itens[0]!.pct).toBeCloseTo(2.73, 2);
+    expect(itens[0]).toMatchObject({ inicio: '2026-05', meses: 3, rendimento: 200, investido: 5110 });
+    expect(itens[0]!.pct).toBeCloseTo(3.91, 2);
+    expect(itens[1]).toMatchObject({ inicio: '2026-08', rendimento: 17, investido: 1673 });
   });
 
-  it('sem foto, a base é zero e contam todos os aportes', () => {
-    expect(itens[1]).toMatchObject({ inicio: null, base: 0, investido: 1500, rendimento: 184 });
+  it('sem rendimento informado não inventa rentabilidade', () => {
+    expect(itens[2]).toMatchObject({ inicio: null, meses: 0, rendimento: 0, pct: null });
   });
 
   it('total em BRL com alocação por caixinha', () => {
     const t = totalRentabilidade(itens, { USD: 5 });
-    expect(t).toMatchObject({ investido: 6766, atual: 7091, rendimento: 325, inicio: '2026-06' });
-    expect(t.alocacao.nubank).toBeCloseTo(74.84, 2);
-    expect(t.alocacao.wise).toBeCloseTo(1.41, 2);
+    expect(t).toMatchObject({ atual: 7096, rendimento: 217, inicio: '2026-05' });
+    expect(t.alocacao.nubank).toBeCloseTo(74.83, 2);
   });
 });
 

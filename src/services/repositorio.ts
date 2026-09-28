@@ -87,6 +87,10 @@ export const fecharMes = (uid: string, f: FechamentoMes) =>
 
 export const reabrirMes = (uid: string, mes: string) => deleteDoc(doc(colecao(uid, 'fechamentosMes'), mes));
 
+/** Foto de um mês passado (preenche o histórico) sem mexer nos saldos atuais. */
+export const salvarSnapshot = (uid: string, snapshot: Snapshot) =>
+  setDoc(doc(colecao(uid, 'snapshots'), snapshot.mes), snapshot);
+
 export const salvarSaldos = async (uid: string, saldos: Saldos, snapshot: Snapshot) => {
   const batch = writeBatch(db);
   batch.set(perfilDoc(uid, 'saldos'), saldos);
@@ -147,6 +151,15 @@ export const lancarRecorrentes = async (uid: string, config: Config, itens: Lanc
   }
   const recorrentes = marcarLancados(config.recorrentes ?? [], itens);
   batch.set(perfilDoc(uid, 'config'), semIndefinidos({ ...config, recorrentes }));
+  await batch.commit();
+};
+
+/** Apaga os fechamentos manuais e a média histórica da v1, num batch. */
+export const apagarDadosV1 = async (uid: string, config: Config, mesesFechamentos: string[]) => {
+  const batch = writeBatch(db);
+  for (const mes of mesesFechamentos) batch.delete(doc(colecao(uid, 'fechamentos'), mes));
+  const { mediasGastos: _removida, ...semMedia } = config;
+  batch.set(perfilDoc(uid, 'config'), semIndefinidos(semMedia));
   await batch.commit();
 };
 

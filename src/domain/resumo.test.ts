@@ -201,11 +201,12 @@ describe('insightsMes', () => {
     const textos = insightsMes(resumo, hist, config, { reserva: 1800 }, {}).map((i) =>
       `${i.icone} ${i.texto}`.replace(/\u00a0/g, ' '),
     );
+    expect(insightsMes(resumo, hist, config, { reserva: 1800 }, {}).at(-1)?.emoji).toBe('✈️');
     expect(textos).toEqual([
-      '💰 Até agora, R$ 420,00 abaixo da sua média de gastos (R$ 2.620,00)',
-      '📈 Meta de investimento do mês batida',
-      '💳 Cartões 20% comprometidos na fatura do mês',
-      '✈️ Bariloche está 18% concluído',
+      'gastos Até agora, R$ 420,00 abaixo da sua média de gastos (R$ 2.620,00)',
+      'investimentos Meta de investimento do mês batida',
+      'cartoes Cartões 20% comprometidos na fatura do mês',
+      'meta Bariloche está 18% concluído',
     ]);
   });
 });

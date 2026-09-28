@@ -5,6 +5,8 @@ import { mesCompetencia, resumoTransacoes, transacoesDaCompetencia } from '../..
 import { mesAtualIso, rotuloDiaMes, rotuloMesCurto, rotuloMesLongo, somarMeses } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import type { Transacao } from '../../domain/types';
+import { Repeat } from 'lucide-react';
+import { Icone, IconeCategoria, IconeTipo } from '../../components/icones';
 import { excluirTransacao, excluirTransacoes } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
@@ -60,20 +62,28 @@ export const ListaLancamentos = ({
         ) : (
           doMes.map((t) => {
             const tipo = tipoPorId(t.tipo);
+            // Lançamentos antigos de recorrência guardavam "🔁 automático" na observação: o ícone já diz isso.
+            const obs = t.obs === '🔁 automático' ? '' : t.obs;
             const meta = [
-              `${tipo?.emoji ?? ''} ${tipo?.nome ?? t.tipo}`,
+              tipo?.nome ?? t.tipo,
               nomeCartao(t.cartao),
               rotuloDiaMes(t.data),
               t.parcela && `parcela ${t.parcela.atual}/${t.parcela.total}`,
               mesCompetencia(t) !== t.data.slice(0, 7) && `fatura ${rotuloMesCurto(mesCompetencia(t))}`,
-              t.obs,
+              obs,
             ].filter(Boolean);
             return (
               <div key={t.id} className="tx-row">
-                <div className="tx-icon">{categoriaPorId(t.cat)?.emoji ?? '🔧'}</div>
+                <div className="tx-icon" title={categoriaPorId(t.cat)?.nome}>
+                  <IconeCategoria cat={t.cat} />
+                </div>
                 <div className="tx-info">
                   <div className="tx-desc">{t.desc}</div>
-                  <div className="tx-meta">{meta.join(' · ')}</div>
+                  <div className="tx-meta icone-texto">
+                    <IconeTipo tipo={t.tipo} tamanho={12} />
+                    {t.recorrenteId && <Icone icone={Repeat} tamanho={12} aria-label="automático" />}
+                    {meta.join(' · ')}
+                  </div>
                 </div>
                 <div className={`tx-val ${t.isEntrada ? 'in' : 'out'}`}>
                   {t.isEntrada ? '+' : '−'}
