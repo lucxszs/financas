@@ -1,6 +1,15 @@
 import { createContext } from 'react';
 import type { StatusCotacao } from '../../hooks/useCotacoes';
-import type { Aporte, Config, Cotacoes, Fechamento, Saldos, Snapshot, Transacao } from '../../domain/types';
+import type {
+  Aporte,
+  Config,
+  Cotacoes,
+  Fechamento,
+  FechamentoMes,
+  Saldos,
+  Snapshot,
+  Transacao,
+} from '../../domain/types';
 
 export interface Dados {
   uid: string;
@@ -11,6 +20,8 @@ export interface Dados {
   aportes: Aporte[];
   snapshots: Snapshot[];
   fechamentos: Fechamento[];
+  /** Fechamentos imutáveis ("Fechar mês"). */
+  fechamentosMes: FechamentoMes[];
   cotacoes: Cotacoes;
   statusCotacao: StatusCotacao;
   cotacaoAtualizadaEm: string | null;

@@ -24,12 +24,21 @@ import {
   transacaoDeRecorrente,
   type LancamentoRecorrente,
 } from '../domain/recorrentes';
-import type { Aporte, Config, DadosIniciais, Fechamento, Saldos, Snapshot, Transacao } from '../domain/types';
+import type {
+  Aporte,
+  Config,
+  DadosIniciais,
+  Fechamento,
+  FechamentoMes,
+  Saldos,
+  Snapshot,
+  Transacao,
+} from '../domain/types';
 
 // Todos os dados ficam em /users/{uid}/..., protegidos por firestore.rules.
 const perfilDoc = (uid: string, id: 'config' | 'saldos') => doc(db, 'users', uid, 'perfil', id);
-const colecao = (uid: string, nome: 'transacoes' | 'aportes' | 'snapshots' | 'fechamentos') =>
-  collection(db, 'users', uid, nome);
+type Colecao = 'transacoes' | 'aportes' | 'snapshots' | 'fechamentos' | 'fechamentosMes';
+const colecao = (uid: string, nome: Colecao) => collection(db, 'users', uid, nome);
 
 type SemId<T> = Omit<T, 'id'>;
 type Erro = (e: Error) => void;
@@ -44,7 +53,7 @@ export const observarSaldos = (uid: string, cb: (s: Saldos | null) => void, erro
 
 const observarColecao = <T>(
   uid: string,
-  nome: 'transacoes' | 'aportes' | 'snapshots' | 'fechamentos',
+  nome: Colecao,
   campoOrdem: string,
   filtro: QueryConstraint,
   cb: (itens: T[]) => void,
@@ -68,6 +77,15 @@ export const observarSnapshots = (uid: string, cb: (s: Snapshot[]) => void, erro
 
 export const observarFechamentos = (uid: string, cb: (f: Fechamento[]) => void, erro: Erro) =>
   observarColecao<Fechamento>(uid, 'fechamentos', 'mes', limit(24), cb, erro);
+
+export const observarFechamentosMes = (uid: string, cb: (f: FechamentoMes[]) => void, erro: Erro) =>
+  observarColecao<FechamentoMes>(uid, 'fechamentosMes', 'mes', limit(36), cb, erro);
+
+/** Grava a foto do mês. As regras só permitem criar: se o mês já foi fechado, a gravação é recusada. */
+export const fecharMes = (uid: string, f: FechamentoMes) =>
+  setDoc(doc(colecao(uid, 'fechamentosMes'), f.mes), f);
+
+export const reabrirMes = (uid: string, mes: string) => deleteDoc(doc(colecao(uid, 'fechamentosMes'), mes));
 
 export const salvarSaldos = async (uid: string, saldos: Saldos, snapshot: Snapshot) => {
   const batch = writeBatch(db);

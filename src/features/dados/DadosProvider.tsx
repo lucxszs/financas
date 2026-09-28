@@ -7,11 +7,20 @@ import {
   observarAportes,
   observarConfig,
   observarFechamentos,
+  observarFechamentosMes,
   observarSaldos,
   observarSnapshots,
   observarTransacoes,
 } from '../../services/repositorio';
-import type { Aporte, Config, Fechamento, Saldos, Snapshot, Transacao } from '../../domain/types';
+import type {
+  Aporte,
+  Config,
+  Fechamento,
+  FechamentoMes,
+  Saldos,
+  Snapshot,
+  Transacao,
+} from '../../domain/types';
 import { DadosContext, type Dados } from './contexto';
 
 const SALDOS_VAZIOS: Saldos = { valores: {}, updatedAt: null };
@@ -27,6 +36,7 @@ export const DadosProvider = ({ uid, children }: { uid: string; children: ReactN
   const [aportes, setAportes] = useState<Aporte[]>([]);
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [fechamentos, setFechamentos] = useState<Fechamento[]>([]);
+  const [fechamentosMes, setFechamentosMes] = useState<FechamentoMes[]>([]);
   const [erro, setErro] = useState<string | null>(null);
   const { cotacoes, status, atualizadoEm, recarregar } = useCotacoes();
 
@@ -42,6 +52,7 @@ export const DadosProvider = ({ uid, children }: { uid: string; children: ReactN
       observarAportes(uid, setAportes, onErro),
       observarSnapshots(uid, setSnapshots, onErro),
       observarFechamentos(uid, setFechamentos, onErro),
+      observarFechamentosMes(uid, setFechamentosMes, onErro),
     ];
     return () => subs.forEach((unsub) => unsub());
   }, [uid]);
@@ -70,6 +81,7 @@ export const DadosProvider = ({ uid, children }: { uid: string; children: ReactN
       aportes,
       snapshots,
       fechamentos,
+      fechamentosMes,
       cotacoes,
       statusCotacao: status,
       cotacaoAtualizadaEm: atualizadoEm,
@@ -84,6 +96,7 @@ export const DadosProvider = ({ uid, children }: { uid: string; children: ReactN
       aportes,
       snapshots,
       fechamentos,
+      fechamentosMes,
       cotacoes,
       status,
       atualizadoEm,

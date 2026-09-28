@@ -184,6 +184,26 @@ export interface Fechamento {
   notas?: string[];
 }
 
+/** Foto imutável de um mês, gravada no "Fechar mês". Id do documento = "YYYY-MM". */
+export interface FechamentoMes {
+  mes: string;
+  /** ISO. */
+  fechadoEm: string;
+  renda: number;
+  rendaPrevista: boolean;
+  gastos: number;
+  investimentos: number;
+  saldo: number;
+  taxaPoupanca: number;
+  maiorCategoria: { cat: Categoria; valor: number } | null;
+  maiorGasto: { desc: string; valor: number } | null;
+  aportesPorMeta: { objetivoId: string; nome: string; emoji?: string; valor: number }[];
+  /** Patrimônio líquido no fechamento; null se não havia foto dos saldos daquele mês. */
+  patrimonio: number | null;
+  /** Diferença para o patrimônio do mês anterior; null se um dos dois não é conhecido. */
+  variacaoPatrimonio: number | null;
+}
+
 /** Formato do arquivo JSON importado no primeiro acesso. */
 export interface DadosIniciais {
   config: Config;

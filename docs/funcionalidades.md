@@ -17,14 +17,14 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 
 ## Menu
 
-| Aba              | O que tem                                                                                     |
-| ---------------- | --------------------------------------------------------------------------------------------- |
-| 🏠 Dashboard     | Resumo do mês e quanto ainda dá para gastar                                                   |
-| 💳 Gastos        | Lançamentos do mês, cartões, gastos por categoria × orçamento e média histórica               |
-| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, caixinhas e câmbio                              |
-| 🎯 Metas         | Contagem regressiva (com câmbio quando a meta usa moeda estrangeira), metas e alocação mensal |
-| 📊 Análises      | Histórico mensal com gráficos, aportes, evolução dos investimentos, fechamentos e score       |
-| ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                 |
+| Aba              | O que tem                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 🏠 Dashboard     | Fechamento do mês (quando há um para fechar), resumo do mês e quanto ainda dá para gastar                        |
+| 💳 Gastos        | Lançamentos do mês, cartões, gastos por categoria × orçamento e média histórica                                  |
+| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, caixinhas e câmbio                                                 |
+| 🎯 Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação |
+| 📊 Análises      | Histórico mensal com gráficos, meses fechados, aportes, evolução dos investimentos, fechamentos manuais e score  |
+| ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                                    |
 
 Se a cotação não carregar, o app usa a última conhecida e mostra a data e a hora dela.
 
@@ -60,6 +60,26 @@ Em Gastos, um card por cartão:
 **Comprometimento futuro**: soma das faturas de todos os cartões nos próximos 6 meses, com as parcelas já lançadas.
 
 Compras parceladas lançadas antes desta versão continuam como um lançamento único e não entram nas parcelas futuras.
+
+## Fechamento mensal
+
+- O Dashboard mostra "🔒 Fechamento de <mês>" quando há um mês para fechar: o anterior, se teve movimento e não foi
+  fechado, ou o atual, no último dia dele.
+- A prévia traz renda, gastos, investimentos, saldo, taxa de poupança, maior categoria, maior gasto, aporte em cada
+  meta e patrimônio com a variação sobre o mês anterior.
+- **Fechar** grava uma foto imutável do mês. O histórico mensal passa a usar essa foto (🔒 na tabela), mesmo que os
+  lançamentos mudem depois.
+- Em Análises > Meses fechados: ver cada fechamento e **Reabrir mês** (apaga a foto; os lançamentos não mudam).
+- Mês passado fechado depois: o patrimônio vem da foto do "Atualizar saldos" daquele mês, se existir.
+
+## Metas por ritmo
+
+Na contagem regressiva de cada meta com data:
+
+- **Necessário**: quanto falta ÷ meses até a data alvo.
+- **Atual**: média dos aportes nas caixinhas da meta nos 3 meses anteriores; sem aportes, o aporte mensal planejado.
+- Aviso: "⚠️ faltam R$ 25/mês para chegar na data" ou "✅ no ritmo".
+- Previsão de conclusão no ritmo atual, também exibida na lista de metas.
 
 ## Gastos por categoria
 

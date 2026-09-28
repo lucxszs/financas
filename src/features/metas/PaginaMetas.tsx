@@ -2,15 +2,24 @@ import type { ReactNode } from 'react';
 import { Barra, Secao } from '../../components/ui';
 import { corVar } from '../../components/cor';
 import { progressoObjetivo } from '../../domain/calculos';
-import { diasAte, mesesAte, parseDataIso, progressoTemporal, rotuloMesCurto } from '../../domain/datas';
+import {
+  diasAte,
+  hojeIso,
+  mesesAte,
+  parseDataIso,
+  progressoTemporal,
+  rotuloMesCurto,
+} from '../../domain/datas';
 import { fmt, fmtSemSimbolo } from '../../domain/formatadores';
+import { ritmoObjetivo, type RitmoObjetivo } from '../../domain/metas';
 import type { Objetivo } from '../../domain/types';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CardCambio } from '../patrimonio/CardCambio';
 
 export const PaginaMetas = () => {
-  const { config, saldos, cotacoes } = useDadosConfigurados();
+  const { config, saldos, cotacoes, aportes } = useDadosConfigurados();
   const valores = saldos.valores;
+  const hoje = hojeIso();
   const comData = config.objetivos.filter((o) => o.dataAlvo);
   const alocacao = config.objetivos.filter((o) => o.aporteMensal);
   const totalAlocacao = alocacao.reduce((a, o) => a + (o.aporteMensal ?? 0), 0);
@@ -30,6 +39,7 @@ export const PaginaMetas = () => {
         <div className="card">
           {config.objetivos.map((o) => {
             const p = progressoObjetivo(o, config, valores, cotacoes);
+            const r = ritmoObjetivo(o, config, valores, cotacoes, aportes, hoje);
             return (
               <div key={o.id} className="meta-row">
                 <div className="meta-dot" style={{ background: corVar(o.cor) }} />
@@ -38,7 +48,11 @@ export const PaginaMetas = () => {
                     {o.nome} {o.emoji}
                   </div>
                   <div className="meta-sub">
-                    {[o.descricao, o.aporteMensal ? `${fmt(o.aporteMensal)}/mês` : null]
+                    {[
+                      o.descricao,
+                      o.aporteMensal ? `${fmt(o.aporteMensal)}/mês` : null,
+                      !p.concluido && r.previsao ? `no ritmo atual: ${rotuloMesCurto(r.previsao)}` : null,
+                    ]
                       .filter(Boolean)
                       .join(' · ')}
                   </div>
@@ -82,8 +96,9 @@ export const PaginaMetas = () => {
 };
 
 export const Contagem = ({ objetivo: o, children }: { objetivo: Objetivo; children?: ReactNode }) => {
-  const { config, saldos, cotacoes } = useDadosConfigurados();
+  const { config, saldos, cotacoes, aportes } = useDadosConfigurados();
   const alvo = parseDataIso(o.dataAlvo!);
+  const ritmo = ritmoObjetivo(o, config, saldos.valores, cotacoes, aportes, hojeIso());
   const p = progressoObjetivo(o, config, saldos.valores, cotacoes);
   const meses = mesesAte(alvo);
   const pctTempo = o.dataInicio ? progressoTemporal(parseDataIso(o.dataInicio), alvo) : null;
@@ -128,6 +143,7 @@ export const Contagem = ({ objetivo: o, children }: { objetivo: Objetivo; childr
             </div>
           )}
         </div>
+        <Ritmo r={ritmo} />
       </div>
       {children && <div className="mt-8">{children}</div>}
     </Secao>
@@ -140,3 +156,36 @@ const Stat = ({ n, l }: { n: string | number; l: string }) => (
     <div className="l">{l}</div>
   </div>
 );
+
+/** Necessário × atual por mês, com o aviso de quanto falta para o ritmo e a previsão de conclusão. */
+const Ritmo = ({ r }: { r: RitmoObjetivo }) => {
+  if (r.concluido) return <div className="cd-ritmo verde">✅ Meta atingida</div>;
+  return (
+    <div className="cd-ritmo">
+      {r.necessarioMes !== null && (
+        <div className="linha-entre">
+          <span className="muted">Necessário</span>
+          <span>{fmt(r.necessarioMes)}/mês</span>
+        </div>
+      )}
+      <div className="linha-entre">
+        <span className="muted">Atual ({r.fonteAtual === 'aportes' ? 'média de 3 meses' : 'planejado'})</span>
+        <span>{fmt(r.atualMes)}/mês</span>
+      </div>
+      {r.diferenca !== null && (
+        <div className={`negrito ${r.diferenca < 0 ? 'amarelo' : 'verde'}`}>
+          {r.diferenca < 0
+            ? `⚠️ faltam ${fmt(-r.diferenca)}/mês para chegar na data`
+            : r.diferenca > 0
+              ? `✅ no ritmo, com ${fmt(r.diferenca)}/mês de folga`
+              : '✅ exatamente no ritmo'}
+        </div>
+      )}
+      <div className="muted">
+        {r.previsao
+          ? `No ritmo atual, conclui em ${rotuloMesCurto(r.previsao)}`
+          : 'Sem aportes: sem previsão'}
+      </div>
+    </div>
+  );
+};
