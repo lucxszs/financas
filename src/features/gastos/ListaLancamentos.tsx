@@ -5,7 +5,7 @@ import { mesCompetencia, resumoTransacoes, transacoesDaCompetencia } from '../..
 import { mesAtualIso, rotuloDiaMes, rotuloMesCurto, rotuloMesLongo, somarMeses } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import type { Transacao } from '../../domain/types';
-import { excluirTransacao } from '../../services/repositorio';
+import { excluirTransacao, excluirTransacoes } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
 export const ListaLancamentos = ({
@@ -18,6 +18,7 @@ export const ListaLancamentos = ({
   const { uid, transacoes, config } = useDadosConfigurados();
   const [mes, setMes] = useState(mesAtualIso());
   const [aExcluir, setAExcluir] = useState<Transacao | null>(null);
+  const grupo = aExcluir?.grupoId ? transacoes.filter((t) => t.grupoId === aExcluir.grupoId) : [];
 
   // Compras no cartão aparecem no mês da fatura.
   const doMes = transacoesDaCompetencia(transacoes, mes);
@@ -63,6 +64,7 @@ export const ListaLancamentos = ({
               `${tipo?.emoji ?? ''} ${tipo?.nome ?? t.tipo}`,
               nomeCartao(t.cartao),
               rotuloDiaMes(t.data),
+              t.parcela && `parcela ${t.parcela.atual}/${t.parcela.total}`,
               mesCompetencia(t) !== t.data.slice(0, 7) && `fatura ${rotuloMesCurto(mesCompetencia(t))}`,
               t.obs,
             ].filter(Boolean);
@@ -104,7 +106,20 @@ export const ListaLancamentos = ({
               Essa ação não pode ser desfeita.
             </>
           }
+          rotuloConfirmar={grupo.length > 1 ? 'Só esta parcela' : 'Excluir'}
           onConfirmar={() => excluirTransacao(uid, aExcluir.id)}
+          acaoExtra={
+            grupo.length > 1
+              ? {
+                  rotulo: `Todas as ${grupo.length} parcelas`,
+                  onConfirmar: () =>
+                    excluirTransacoes(
+                      uid,
+                      grupo.map((t) => t.id),
+                    ),
+                }
+              : undefined
+          }
           onFechar={() => setAExcluir(null)}
         />
       )}

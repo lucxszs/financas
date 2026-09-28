@@ -81,6 +81,26 @@ export const atualizarTransacao = (uid: string, id: string, t: SemId<Transacao>)
   setDoc(doc(colecao(uid, 'transacoes'), id), t);
 export const excluirTransacao = (uid: string, id: string) => deleteDoc(doc(colecao(uid, 'transacoes'), id));
 
+/** Compra parcelada: todas as parcelas em um batch (ou todas ou nenhuma). */
+export const criarParcelas = async (uid: string, parcelas: SemId<Transacao>[]) => {
+  const batch = writeBatch(db);
+  for (const p of parcelas) batch.set(doc(colecao(uid, 'transacoes')), p);
+  await batch.commit();
+};
+
+/** Aplica os mesmos campos em várias transações (ex.: descrição e categoria de todas as parcelas). */
+export const atualizarTransacoes = async (uid: string, ids: string[], campos: Partial<SemId<Transacao>>) => {
+  const batch = writeBatch(db);
+  for (const id of ids) batch.update(doc(colecao(uid, 'transacoes'), id), campos);
+  await batch.commit();
+};
+
+export const excluirTransacoes = async (uid: string, ids: string[]) => {
+  const batch = writeBatch(db);
+  for (const id of ids) batch.delete(doc(colecao(uid, 'transacoes'), id));
+  await batch.commit();
+};
+
 export const criarAporte = (uid: string, a: SemId<Aporte>) => addDoc(colecao(uid, 'aportes'), a);
 export const atualizarAporte = (uid: string, id: string, a: SemId<Aporte>) =>
   setDoc(doc(colecao(uid, 'aportes'), id), a);

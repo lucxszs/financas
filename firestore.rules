@@ -35,6 +35,17 @@ service cloud.firestore {
       return !('recorrenteId' in d) || (textoCurto(d.recorrenteId, 60) && d.recorrenteId.size() > 0);
     }
 
+    // Compra parcelada: parcelas ligadas por grupoId, com número da parcela e total (até 48x).
+    function parcelaValida(d) {
+      return (!('grupoId' in d) || (textoCurto(d.grupoId, 40) && d.grupoId.size() > 0))
+        && (!('parcela' in d) || (
+          d.parcela is map
+          && d.parcela.keys().hasOnly(['atual', 'total'])
+          && d.parcela.atual is int && d.parcela.total is int
+          && d.parcela.atual >= 1 && d.parcela.atual <= d.parcela.total && d.parcela.total <= 48
+        ));
+    }
+
     function transacaoValida(d) {
       return d.keys().hasAll(['desc', 'val', 'tipo', 'cat', 'data', 'isEntrada', 'criadoEm'])
         && textoCurto(d.desc, 120) && d.desc.size() > 0
@@ -44,7 +55,8 @@ service cloud.firestore {
         && dataIso(d.data)
         && d.isEntrada is bool
         && (!('obs' in d) || textoCurto(d.obs, 200))
-        && recorrenteIdValido(d);
+        && recorrenteIdValido(d)
+        && parcelaValida(d);
     }
 
     function aporteValido(d) {

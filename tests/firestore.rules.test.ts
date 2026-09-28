@@ -204,3 +204,27 @@ describe('lançamentos de recorrências', () => {
     );
   });
 });
+
+describe('parcelas', () => {
+  const parcela = (extra: Record<string, unknown>) =>
+    addDoc(
+      collection(dbDe(DONO), 'users', DONO, 'transacoes'),
+      transacao({ tipo: 'parcelado', cartao: 'itau', mesFatura: '2026-10', grupoId: 'g1', ...extra }),
+    );
+
+  it('aceita parcela válida', async () => {
+    await assertSucceeds(parcela({ parcela: { atual: 1, total: 10 } }));
+  });
+
+  it('rejeita parcela fora do total, acima de 48x, fracionada ou com campo extra', async () => {
+    await assertFails(parcela({ parcela: { atual: 11, total: 10 } }));
+    await assertFails(parcela({ parcela: { atual: 0, total: 10 } }));
+    await assertFails(parcela({ parcela: { atual: 1, total: 49 } }));
+    await assertFails(parcela({ parcela: { atual: 1.5, total: 10 } }));
+    await assertFails(parcela({ parcela: { atual: 1, total: 10, x: 1 } }));
+  });
+
+  it('rejeita grupoId vazio', async () => {
+    await assertFails(parcela({ grupoId: '', parcela: { atual: 1, total: 2 } }));
+  });
+});

@@ -48,6 +48,19 @@ Se a cotação não carregar, o app usa a última conhecida e mostra a data e a 
 
 Compras no cartão contam no mês da fatura, em todo o app.
 
+## Cartões
+
+Em Gastos, um card por cartão:
+
+- Melhor dia de compra (e em quantos dias ele chega) e vencimento.
+- Fatura atual, próxima fatura e parcelamentos futuros. Depois do dia do vencimento, a fatura do mês conta como paga
+  e a "atual" passa a ser a do mês seguinte.
+- Limite disponível = limite − tudo em aberto, como o banco faz com compras parceladas.
+
+**Comprometimento futuro**: soma das faturas de todos os cartões nos próximos 6 meses, com as parcelas já lançadas.
+
+Compras parceladas lançadas antes desta versão continuam como um lançamento único e não entram nas parcelas futuras.
+
 ## Gastos por categoria
 
 Gasto real do mês em cada categoria. Com orçamento definido em Configurações, mostra real ÷ meta e o status:
@@ -69,11 +82,14 @@ gráficos (gastos, investimentos e taxa de poupança por mês). Passe o mouse ou
 ## Lançamentos
 
 - **Criar**: "+ Lançar gasto" no cabeçalho ou "+ Novo" na lista.
-- **Crédito e parcelado**: pedem o cartão. O mês da fatura vem automático pelo melhor dia de compra do cartão; dá
-  para trocar.
+- **Crédito**: pede o cartão. O mês da fatura vem automático pelo melhor dia de compra do cartão; dá para trocar.
+- **Parcelado**: valor total + número de parcelas (2 a 48). O app cria uma parcela por mês de fatura, a partir da
+  fatura escolhida, e mostra a prévia ("10x de R$ 150,00 · Out/26 a Jul/27"). Centavos que sobram da divisão vão
+  na 1ª parcela. Sem número de parcelas, vira compra à vista.
 - **Navegar**: ‹ › troca o mês; o topo mostra entradas, saídas e saldo. O app carrega os últimos 12 meses. Compra no cartão aparece no mês da fatura, com o selo "fatura Out/26".
-- **Editar**: ✏️ na linha.
-- **Excluir**: 🗑 na linha, com confirmação.
+- **Editar**: ✏️ na linha. Numa parcela, valor, data e fatura mudam só nela; descrição, categoria e cartão podem ir
+  para todas as parcelas.
+- **Excluir**: 🗑 na linha, com confirmação. Numa parcela: "Só esta parcela" ou "Todas as parcelas".
 
 ## Aportes
 
