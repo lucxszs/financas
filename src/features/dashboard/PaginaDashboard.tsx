@@ -4,6 +4,7 @@ import { fmt } from '../../domain/formatadores';
 import { insightsMes, limiteGastos, resumoMes, type StatusLimite } from '../../domain/resumo';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CardFechamento } from './CardFechamento';
+import { SaudeFinanceira } from './SaudeFinanceira';
 
 const STATUS: Record<StatusLimite, { icone: string; titulo: string; texto: string; cls: string }> = {
   seguro: { icone: '🟢', titulo: 'Seguro', texto: 'Você está dentro do orçamento.', cls: 'verde' },
@@ -87,6 +88,8 @@ export const PaginaDashboard = () => {
           </div>
         )}
       </Secao>
+
+      <SaudeFinanceira resumo={resumo} limite={limite} hoje={hoje} />
 
       <Secao titulo="💳 Limite de gastos">
         <div className="card">

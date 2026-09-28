@@ -17,14 +17,14 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 
 ## Menu
 
-| Aba              | O que tem                                                                                                        |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
-| 🏠 Dashboard     | Fechamento do mês (quando há um para fechar), resumo do mês e quanto ainda dá para gastar                        |
-| 💳 Gastos        | Lançamentos do mês, cartões, gastos por categoria × orçamento e média histórica                                  |
-| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, caixinhas e câmbio                                                 |
-| 🎯 Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação |
-| 📊 Análises      | Histórico mensal com gráficos, meses fechados, aportes, evolução dos investimentos, fechamentos manuais e score  |
-| ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                                    |
+| Aba              | O que tem                                                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 🏠 Dashboard     | Fechamento do mês (quando há um para fechar), resumo do mês, saúde financeira e quanto ainda dá para gastar          |
+| 💳 Gastos        | Lançamentos do mês, cartões, gastos por categoria × orçamento e média histórica                                      |
+| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, caixinhas e câmbio                                                     |
+| 🎯 Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação     |
+| 📊 Análises      | Histórico mensal com gráficos, meses fechados, simulações, aportes, evolução dos investimentos e fechamentos manuais |
+| ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                                        |
 
 Se a cotação não carregar, o app usa a última conhecida e mostra a data e a hora dela.
 
@@ -35,6 +35,19 @@ Se a cotação não carregar, o app usa a última conhecida e mostra a data e a 
 - Renda, gastos, investimentos e saldo livre, com taxa de poupança (investido ÷ renda) e gastos ÷ renda.
 - Renda = entradas do mês. Enquanto o salário não entra, usa a renda mensal das Configurações e mostra "(prevista)".
 - Avisos: gastos comparados com a média dos 3 meses anteriores, aporte comparado com o planejado, quanto da fatura dos cartões já foi usado e o progresso das metas com data.
+
+**Saúde financeira**: cinco sinais, cada um com o motivo, em vez de uma nota única.
+
+| Sinal            | 🟢                          | 🟡                                   | 🔴                             |
+| ---------------- | --------------------------- | ------------------------------------ | ------------------------------ |
+| 💰 Gastos        | limite de gastos seguro     | gastando acima do planejado          | mês termina negativo           |
+| 📈 Investimentos | aporte do mês ≥ planejado   | aportou parte, ou ainda até o dia 15 | nada aportado depois do dia 15 |
+| 💳 Cartões       | até 50% do limite em aberto | até 80%                              | acima de 80%                   |
+| 🎯 Metas         | todas no ritmo              | a pior até 10% abaixo do necessário  | a pior mais de 10% abaixo      |
+| 💵 Reserva       | cobre 6+ meses de gastos    | 3 a 6 meses                          | menos de 3                     |
+
+A reserva é o objetivo marcado como "reserva de emergência" em Configurações (sem marcação, o que tiver
+"emergência" ou "reserva" no nome). Sinais sem dados (ex.: nenhum cartão) não aparecem.
 
 **Limite de gastos**
 
@@ -81,6 +94,14 @@ Na contagem regressiva de cada meta com data:
 - Aviso: "⚠️ faltam R$ 25/mês para chegar na data" ou "✅ no ritmo".
 - Previsão de conclusão no ritmo atual, também exibida na lista de metas.
 
+## Simulações
+
+Em Análises, "🧮 Simulações: e se...":
+
+- **Ganhar mais**: nova renda mensal. **Gastar menos**: quanto a menos por mês. **Aportar mais**: novo aporte mensal.
+- Mostra o extra por mês, quanto ele vira em 1 e 3 anos (guardado e investindo, com o rendimento estimado das
+  Configurações) e quantos meses adianta a meta escolhida.
+
 ## Gastos por categoria
 
 Gasto real do mês em cada categoria. Com orçamento definido em Configurações, mostra real ÷ meta e o status:
@@ -121,7 +142,8 @@ Em Análises: criar (🐷 Novo aporte), editar e excluir. O valor é na moeda da
 - **Caixinhas**: conta (dinheiro disponível) ou investimento, moeda, rendimento e cor. A moeda não muda depois de
   criada. Caixinha usada por objetivo ou recorrência não pode ser excluída.
 - **Cartões**: limite, melhor dia de compra e vencimento.
-- **Objetivos**: meta, caixinhas que contam, aporte mensal e datas. Com data alvo, ganha contagem regressiva.
+- **Objetivos**: meta, caixinhas que contam, aporte mensal e datas. Com data alvo, ganha contagem regressiva. Um deles
+  pode ser marcado como reserva de emergência.
 - **Orçamento**: limite mensal por categoria; vazio = sem limite.
 - **Recorrentes**: contas fixas, salário e aportes que o app lança sozinho todo mês, no dia escolhido.
   - Se o dia deste mês já passou, a recorrência começa no mês seguinte, a menos que você marque "lançar também este
@@ -132,5 +154,4 @@ Em Análises: criar (🐷 Novo aporte), editar e excluir. O valor é na moeda da
 
 ## Atualizar saldos
 
-"✏️ Atualizar saldos" grava o saldo de cada caixinha, o rendimento do mês (opcional) e o score, e atualiza a
-evolução do mês. Campo vazio mantém o saldo anterior; `0` zera.
+"✏️ Atualizar saldos" grava o saldo de cada caixinha e o rendimento do mês (opcional), e atualiza a evolução do mês.

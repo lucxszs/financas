@@ -22,6 +22,7 @@ export const ModalObjetivo = ({ objetivo, onFechar }: { objetivo?: Objetivo; onF
   const [dataInicio, setDataInicio] = useState(objetivo?.dataInicio ?? '');
   const [dataAlvo, setDataAlvo] = useState(objetivo?.dataAlvo ?? '');
   const [cor, setCor] = useState<Cor>(objetivo?.cor ?? 'violet');
+  const [reserva, setReserva] = useState(objetivo?.reservaEmergencia ?? false);
 
   const alternar = (id: string) =>
     setCaixinhas((atual) => (atual.includes(id) ? atual.filter((x) => x !== id) : [...atual, id]));
@@ -55,6 +56,7 @@ export const ModalObjetivo = ({ objetivo, onFechar }: { objetivo?: Objetivo; onF
       previsao: previsao.trim() || undefined,
       dataInicio: dataInicio || undefined,
       dataAlvo: dataAlvo || undefined,
+      reservaEmergencia: reserva || undefined,
     };
     void enviar(
       () =>
@@ -158,6 +160,10 @@ export const ModalObjetivo = ({ objetivo, onFechar }: { objetivo?: Objetivo; onF
             onChange={(e) => setPrevisao(e.target.value)}
           />
         </div>
+        <label className="check">
+          <input type="checkbox" checked={reserva} onChange={(e) => setReserva(e.target.checked)} />É a
+          reserva de emergência (usada na Saúde financeira)
+        </label>
         <div className="field">
           <label>Cor</label>
           <SeletorCor valor={cor} onChange={setCor} />

@@ -9,12 +9,12 @@ Dashboard pessoal de finanças: investimentos em BRL, USD e EUR, metas, lançame
 ## Funcionalidades
 
 - 🔐 Login com Google, só para contas liberadas
-- 📊 Visão geral: investimentos, cartões, metas e score do mês
-- 🎯 Contagem regressiva para objetivos com data
-- 💱 Cotação de USD e EUR e quanto valem as caixinhas em moeda estrangeira
-- 📝 Lançamentos e aportes: criar, editar e excluir
-- 📈 Evolução mensal dos saldos
-- 🧾 Fechamentos mensais com pendências e notas
+- 🏠 Dashboard: resumo do mês, saúde financeira, quanto ainda dá para gastar e fechamento mensal
+- 💳 Lançamentos, compras parceladas, cartões com faturas futuras e orçamento por categoria
+- 🔁 Contas fixas, salário e aportes lançados sozinhos todo mês
+- 📈 Patrimônio líquido e evolução, investimentos e câmbio
+- 🎯 Metas com contagem regressiva e ritmo necessário × atual
+- 📊 Histórico mensal com gráficos e simulações "e se..."
 - 📱 Funciona no computador e no celular
 
 Detalhes em [docs/funcionalidades.md](docs/funcionalidades.md).

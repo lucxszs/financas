@@ -31,13 +31,15 @@ são testadas no emulador a cada PR.
 src/
   domain/          regras de negócio puras, sem React nem Firebase
     types.ts         tipos do modelo de dados
-    calculos.ts      conversão de moedas, progresso de metas, score, uso de cartão, totais
+    calculos.ts      conversão de moedas, progresso de metas, uso de cartão, competência, totais
     cartoes.ts       mês da fatura, parcelas, resumo de cada cartão e comprometimento futuro
     resumo.ts        resumo do mês, avisos e limite de gastos
     historico.ts     série mensal e orçamento por categoria
     patrimonio.ts    ativos, dívidas dos cartões e patrimônio líquido
     fechamento.ts    foto do mês e qual mês sugerir fechar
     metas.ts         ritmo das metas: necessário × atual e previsão
+    saude.ts         os 5 sinais da saúde financeira
+    simulacao.ts     simulações "e se..." e valor futuro
     recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
     ids.ts           ids legíveis a partir do nome
     datas.ts         datas no fuso local, rótulos de mês

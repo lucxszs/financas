@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  calcularScore,
   paraBRL,
   progressoObjetivo,
   rendimentoMensalEstimado,
@@ -67,14 +66,6 @@ describe('progressoObjetivo', () => {
 describe('rendimentoMensalEstimado', () => {
   it('considera só caixinhas em BRL', () => {
     expect(rendimentoMensalEstimado(config, { reserva: 1200, dolar: 1000 })).toBe(12);
-  });
-});
-
-describe('calcularScore', () => {
-  it('classifica pela pontuação', () => {
-    expect(calcularScore({ pagou: 'sim', positivo: 'sim', aporte: 'parcial' }).cls).toBe('verde');
-    expect(calcularScore({ pagou: 'parcial', positivo: 'sim' }).cls).toBe('amarelo');
-    expect(calcularScore({}).cls).toBe('vermelho');
   });
 });
 
