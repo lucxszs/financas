@@ -70,7 +70,7 @@ export const observarTransacoes = (uid: string, desde: string, cb: (t: Transacao
   observarColecao<Transacao>(uid, 'transacoes', 'data', where('data', '>=', desde), cb, erro);
 
 export const observarAportes = (uid: string, cb: (a: Aporte[]) => void, erro: Erro) =>
-  observarColecao<Aporte>(uid, 'aportes', 'data', limit(200), cb, erro);
+  observarColecao<Aporte>(uid, 'aportes', 'data', limit(1000), cb, erro);
 
 export const observarSnapshots = (uid: string, cb: (s: Snapshot[]) => void, erro: Erro) =>
   observarColecao<Snapshot>(uid, 'snapshots', 'mes', limit(36), cb, erro);

@@ -2,6 +2,7 @@ import { Barra, Secao } from '../../components/ui';
 import { hojeIso, rotuloDiaMes, rotuloMesLongo } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import { insightsMes, limiteGastos, resumoMes, type StatusLimite } from '../../domain/resumo';
+import { ProximosDias } from '../calendario/Calendario';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CardFechamento } from './CardFechamento';
 import { SaudeFinanceira } from './SaudeFinanceira';
@@ -90,6 +91,8 @@ export const PaginaDashboard = () => {
       </Secao>
 
       <SaudeFinanceira resumo={resumo} limite={limite} hoje={hoje} />
+
+      <ProximosDias />
 
       <Secao titulo="💳 Limite de gastos">
         <div className="card">

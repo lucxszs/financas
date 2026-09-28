@@ -1225,6 +1225,30 @@ code {
   margin: 4px 0 8px;
 }
 
+/* calendário */
+.evento {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.evento.feito {
+  opacity: 0.5;
+}
+.evento-dia {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.evento-valor {
+  font-family: var(--mono);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 /* configurações */
 .largura-total {
   width: 100%;

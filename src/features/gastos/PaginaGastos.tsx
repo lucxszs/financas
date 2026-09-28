@@ -5,6 +5,7 @@ import { mesAtualIso, rotuloMesLongo } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import { orcamentoPorCategoria, type StatusOrcamento } from '../../domain/historico';
 import type { Transacao } from '../../domain/types';
+import { CalendarioMes } from '../calendario/Calendario';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CartoesResumo } from './CartoesResumo';
 import { ListaLancamentos } from './ListaLancamentos';
@@ -29,6 +30,7 @@ export const PaginaGastos = ({
   return (
     <>
       <ListaLancamentos onNovo={onNovo} onEditar={onEditar} />
+      <CalendarioMes />
       <CartoesResumo />
 
       <Secao titulo={`Gastos por categoria · ${rotuloMesLongo(mes)}`}>
