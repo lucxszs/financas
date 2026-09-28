@@ -359,6 +359,19 @@ code {
   flex-direction: column;
   gap: 8px;
 }
+.cd-ritmo {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.amarelo {
+  color: var(--amber);
+}
 .cd-bar-label {
   display: flex;
   justify-content: space-between;

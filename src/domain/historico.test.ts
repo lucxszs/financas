@@ -48,8 +48,32 @@ describe('serieMensal', () => {
       saldo: 2600,
       taxaPoupanca: (1000 / 9000) * 100,
       patrimonio: 6300,
+      fechado: false,
     });
     expect(serie[0]?.patrimonio).toBeNull();
+  });
+});
+
+describe('serieMensal com fechamento', () => {
+  it('mês fechado usa a foto imutável, mesmo que os lançamentos mudem depois', () => {
+    const fechamento = {
+      mes: '2026-08',
+      fechadoEm: '',
+      renda: 9000,
+      rendaPrevista: false,
+      gastos: 5000,
+      investimentos: 1191,
+      saldo: 2809,
+      taxaPoupanca: 13.2,
+      maiorCategoria: null,
+      maiorGasto: null,
+      aportesPorMeta: [],
+      patrimonio: 6890,
+      variacaoPatrimonio: null,
+    };
+    const depois = [tx({ val: 999, data: '2026-08-20' })];
+    const [ago] = serieMensal(depois, [], [], config, {}, '2026-08', 1, [fechamento]);
+    expect(ago).toMatchObject({ gastos: 5000, patrimonio: 6890, fechado: true });
   });
 });
 

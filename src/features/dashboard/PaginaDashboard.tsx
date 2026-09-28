@@ -3,6 +3,7 @@ import { hojeIso, rotuloDiaMes, rotuloMesLongo } from '../../domain/datas';
 import { fmt } from '../../domain/formatadores';
 import { insightsMes, limiteGastos, resumoMes, type StatusLimite } from '../../domain/resumo';
 import { useDadosConfigurados } from '../dados/useDados';
+import { CardFechamento } from './CardFechamento';
 
 const STATUS: Record<StatusLimite, { icone: string; titulo: string; texto: string; cls: string }> = {
   seguro: { icone: '🟢', titulo: 'Seguro', texto: 'Você está dentro do orçamento.', cls: 'verde' },
@@ -40,6 +41,8 @@ export const PaginaDashboard = () => {
 
   return (
     <>
+      <CardFechamento />
+
       <Secao titulo={`Resumo do mês · ${rotuloMesLongo(mes)}`}>
         <div className="card">
           <div className="brow">

@@ -36,6 +36,8 @@ src/
     resumo.ts        resumo do mês, avisos e limite de gastos
     historico.ts     série mensal e orçamento por categoria
     patrimonio.ts    ativos, dívidas dos cartões e patrimônio líquido
+    fechamento.ts    foto do mês e qual mês sugerir fechar
+    metas.ts         ritmo das metas: necessário × atual e previsão
     recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
     ids.ts           ids legíveis a partir do nome
     datas.ts         datas no fuso local, rótulos de mês

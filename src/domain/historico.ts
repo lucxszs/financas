@@ -2,7 +2,7 @@ import { transacoesDaCompetencia } from './calculos';
 import { somarMeses } from './datas';
 import { liquidoSnapshot } from './patrimonio';
 import { resumoMes } from './resumo';
-import type { Aporte, Categoria, Config, Cotacoes, Snapshot, Transacao } from './types';
+import type { Aporte, Categoria, Config, Cotacoes, FechamentoMes, Snapshot, Transacao } from './types';
 
 export interface LinhaHistorico {
   mes: string;
@@ -14,9 +14,14 @@ export interface LinhaHistorico {
   taxaPoupanca: number;
   /** Patrimônio líquido do mês; null se não houver foto dos saldos naquele mês. */
   patrimonio: number | null;
+  /** true = veio do fechamento imutável do mês, não do cálculo ao vivo. */
+  fechado: boolean;
 }
 
-/** Últimos `n` meses até `mesFinal`, do mais antigo para o mais recente. */
+/**
+ * Últimos `n` meses até `mesFinal`, do mais antigo para o mais recente. Mês fechado usa a foto do fechamento;
+ * os demais são calculados a partir dos lançamentos.
+ */
 export const serieMensal = (
   transacoes: Transacao[],
   aportes: Aporte[],
@@ -25,8 +30,22 @@ export const serieMensal = (
   cotacoes: Cotacoes,
   mesFinal: string,
   n = 6,
+  fechamentos: FechamentoMes[] = [],
 ): LinhaHistorico[] =>
   Array.from({ length: n }, (_, i) => somarMeses(mesFinal, i - n + 1)).map((mes) => {
+    const f = fechamentos.find((x) => x.mes === mes);
+    if (f)
+      return {
+        mes,
+        renda: f.renda,
+        rendaPrevista: f.rendaPrevista,
+        gastos: f.gastos,
+        investimentos: f.investimentos,
+        saldo: f.saldo,
+        taxaPoupanca: f.taxaPoupanca,
+        patrimonio: f.patrimonio,
+        fechado: true,
+      };
     const r = resumoMes(transacoes, aportes, config, cotacoes, mes);
     const foto = snapshots.find((s) => s.mes === mes);
     return {
@@ -38,6 +57,7 @@ export const serieMensal = (
       saldo: r.saldoLivre,
       taxaPoupanca: r.taxaPoupanca,
       patrimonio: foto ? liquidoSnapshot(foto, config, cotacoes) : null,
+      fechado: false,
     };
   });
 

@@ -10,6 +10,7 @@ users/{uid}/perfil/config          Config
 users/{uid}/perfil/saldos          Saldos
 users/{uid}/snapshots/{YYYY-MM}    Snapshot
 users/{uid}/fechamentos/{YYYY-MM}  Fechamento
+users/{uid}/fechamentosMes/{YYYY-MM} FechamentoMes (imutável)
 users/{uid}/transacoes/{id}        Transacao
 users/{uid}/aportes/{id}           Aporte
 ```
@@ -96,6 +97,18 @@ Criado ou sobrescrito a cada "Atualizar saldos" no mês. A cotação gravada é 
 ```
 
 Totais, sobra/déficit e pendências são calculados (`totaisFechamento` em `calculos.ts`), não gravados.
+
+## FechamentoMes (fechamento mensal)
+
+```ts
+{
+  mes: 'YYYY-MM', fechadoEm: string, renda, rendaPrevista, gastos, investimentos, saldo, taxaPoupanca,
+  maiorCategoria: { cat, valor } | null, maiorGasto: { desc, valor } | null,
+  aportesPorMeta: [{ objetivoId, nome, emoji?, valor }], patrimonio: number | null, variacaoPatrimonio: number | null
+}
+```
+
+Regras: só cria (id = `mes`, totais numéricos) ou apaga; nunca edita. Fechar o mesmo mês de novo é recusado.
 
 ## Arquivo de importação
 

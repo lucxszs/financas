@@ -19,9 +19,18 @@ const LINHAS: { rotulo: string; valor: (l: LinhaHistorico) => string }[] = [
 ];
 
 export const HistoricoMensal = () => {
-  const { config, transacoes, aportes, snapshots, cotacoes } = useDadosConfigurados();
+  const { config, transacoes, aportes, snapshots, fechamentosMes, cotacoes } = useDadosConfigurados();
   const mesAtual = mesAtualIso();
-  const serie = serieMensal(transacoes, aportes, snapshots, config, cotacoes, mesAtual, MESES);
+  const serie = serieMensal(
+    transacoes,
+    aportes,
+    snapshots,
+    config,
+    cotacoes,
+    mesAtual,
+    MESES,
+    fechamentosMes,
+  );
   const pontos = (valor: (l: LinhaHistorico) => number) =>
     serie.map((l) => ({ rotulo: rotuloMesCurto(l.mes), valor: valor(l) }));
 
@@ -37,6 +46,7 @@ export const HistoricoMensal = () => {
                 </th>
                 {serie.map((l) => (
                   <th key={l.mes} scope="col" className={l.mes === mesAtual ? 'atual' : undefined}>
+                    {l.fechado && '🔒 '}
                     {rotuloMesCurto(l.mes)}
                   </th>
                 ))}
@@ -57,8 +67,8 @@ export const HistoricoMensal = () => {
           </table>
         </div>
         <div className="nota">
-          * renda prevista (sem salário lançado no mês). Patrimônio: foto do &quot;Atualizar saldos&quot; do
-          mês. O mês atual ainda está em andamento.
+          🔒 mês fechado (valores da foto do fechamento). * renda prevista (sem salário lançado no mês).
+          Patrimônio: foto do &quot;Atualizar saldos&quot; do mês. O mês atual ainda está em andamento.
         </div>
       </Secao>
 

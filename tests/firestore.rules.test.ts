@@ -228,3 +228,37 @@ describe('parcelas', () => {
     await assertFails(parcela({ grupoId: '', parcela: { atual: 1, total: 2 } }));
   });
 });
+
+describe('fechamento mensal', () => {
+  const foto = (extra: Record<string, unknown> = {}) => ({
+    mes: '2026-09',
+    fechadoEm: '2026-09-30T20:00:00.000Z',
+    renda: 9000,
+    gastos: 5420,
+    investimentos: 1191,
+    saldo: 2389,
+    ...extra,
+  });
+  const ref = (mes = '2026-09', uid = DONO) => doc(dbDe(uid), 'users', DONO, 'fechamentosMes', mes);
+
+  it('dono fecha o mês uma vez e pode reabrir (apagar)', async () => {
+    await assertSucceeds(setDoc(ref(), foto()));
+    await assertSucceeds(deleteDoc(ref()));
+  });
+
+  it('fechamento é imutável: não edita nem fecha de novo por cima', async () => {
+    await assertSucceeds(setDoc(ref(), foto()));
+    await assertFails(setDoc(ref(), foto({ gastos: 1 })));
+  });
+
+  it('id do documento precisa bater com o mês e os totais precisam ser números', async () => {
+    await assertFails(setDoc(ref('2026-08'), foto()));
+    await assertFails(setDoc(ref(), foto({ renda: '9000' })));
+    await assertFails(setDoc(ref(), { mes: '2026-09' }));
+  });
+
+  it('outro usuário não fecha nem lê', async () => {
+    await assertFails(setDoc(ref('2026-09', INTRUSO), foto()));
+    await assertFails(getDoc(ref('2026-09', INTRUSO)));
+  });
+});

@@ -8,6 +8,7 @@ import type { Aporte, Fechamento } from '../../domain/types';
 import { excluirAporte } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 import { HistoricoMensal } from './HistoricoMensal';
+import { MesesFechados } from './MesesFechados';
 
 export const PaginaAnalises = ({
   onNovoAporte,
@@ -24,6 +25,7 @@ export const PaginaAnalises = ({
   return (
     <>
       <HistoricoMensal />
+      <MesesFechados />
 
       <Secao titulo="Aportes lançados">
         <div className="card">
@@ -153,7 +155,7 @@ const Fechamentos = ({ fechamentos }: { fechamentos: Fechamento[] }) => {
   const t = totaisFechamento(atual);
 
   return (
-    <Secao titulo="Gastos mensais">
+    <Secao titulo="Fechamentos manuais (v1)">
       <div className="mes-tabs" role="tablist">
         {ordenados.map((f) => (
           <button
