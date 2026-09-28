@@ -17,14 +17,14 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 
 ## Menu
 
-| Aba              | O que tem                                                                                                            |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------- |
-| 🏠 Dashboard     | Fechamento do mês (quando há um para fechar), resumo do mês, saúde financeira e quanto ainda dá para gastar          |
-| 💳 Gastos        | Lançamentos do mês, cartões, gastos por categoria × orçamento e média histórica                                      |
-| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, caixinhas e câmbio                                                     |
-| 🎯 Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação     |
-| 📊 Análises      | Histórico mensal com gráficos, meses fechados, simulações, aportes, evolução dos investimentos e fechamentos manuais |
-| ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                                        |
+| Aba              | O que tem                                                                                                             |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 🏠 Dashboard     | Fechamento do mês (quando há um para fechar), resumo, saúde financeira, próximos 7 dias e quanto ainda dá para gastar |
+| 💳 Gastos        | Lançamentos, calendário do mês, cartões, gastos por categoria × orçamento e média histórica                           |
+| 📈 Patrimônio    | Patrimônio líquido e evolução, investimentos, rentabilidade × CDI e IPCA, e câmbio                                    |
+| 🎯 Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação      |
+| 📊 Análises      | Histórico mensal com gráficos, meses fechados, simulações, aportes, evolução dos investimentos e fechamentos manuais  |
+| ⚙️ Configurações | Renda, caixinhas, cartões, objetivos, orçamento e recorrentes                                                         |
 
 Se a cotação não carregar, o app usa a última conhecida e mostra a data e a hora dela.
 
@@ -93,6 +93,25 @@ Na contagem regressiva de cada meta com data:
 - **Atual**: média dos aportes nas caixinhas da meta nos 3 meses anteriores; sem aportes, o aporte mensal planejado.
 - Aviso: "⚠️ faltam R$ 25/mês para chegar na data" ou "✅ no ritmo".
 - Previsão de conclusão no ritmo atual, também exibida na lista de metas.
+
+## Calendário financeiro
+
+- **Próximos 7 dias** (Dashboard): recorrências que ainda vão cair e vencimentos de fatura, com o saldo previsto
+  (entradas − contas, aportes e faturas).
+- **Calendário do mês** (Gastos): tudo o que entra e sai no mês, por dia; ✓ = recorrência já lançada, fatura já
+  vencida aparece apagada.
+- Recorrências no cartão não aparecem sozinhas: já estão dentro da fatura.
+
+## Rentabilidade
+
+Em Patrimônio:
+
+- Por caixinha de investimento: saldo, participação no total, rentabilidade e quanto rendeu.
+- Investido = saldo na primeira foto do "Atualizar saldos" + aportes lançados depois. Saques não são registrados e
+  reduzem o rendimento.
+- Total com a rentabilidade desde a primeira foto, comparada com o CDI e o IPCA do período (séries mensais do Banco
+  Central, compostas mês a mês). A comparação é aproximada: os aportes entram ao longo do período.
+- CDI e IPCA ficam guardados no navegador por 24h; se o Banco Central cair, usa os últimos guardados.
 
 ## Simulações
 

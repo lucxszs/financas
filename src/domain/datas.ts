@@ -74,3 +74,10 @@ export const diasNoMes = (mesIso: string) => {
 /** "YYYY-MM" + dia -> "YYYY-MM-DD"; em meses mais curtos usa o último dia (31 em fevereiro vira 28/29). */
 export const dataNoMes = (mesIso: string, dia: number) =>
   `${mesIso}-${pad(Math.min(Math.max(1, dia), diasNoMes(mesIso)))}`;
+
+/** "YYYY-MM-DD" + n dias (fuso local). */
+export const somarDias = (iso: string, n: number) => {
+  const d = parseDataIso(iso);
+  d.setDate(d.getDate() + n);
+  return hojeIso(d);
+};

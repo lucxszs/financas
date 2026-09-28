@@ -8,6 +8,7 @@ import { fmt, fmtCompacto, formatarMoeda } from '../../domain/formatadores';
 import { liquidoSnapshot, patrimonioAtual } from '../../domain/patrimonio';
 import { useDadosConfigurados } from '../dados/useDados';
 import { CardCambio } from './CardCambio';
+import { Rentabilidade } from './Rentabilidade';
 
 export const PaginaPatrimonio = () => {
   const { config, saldos, cotacoes, transacoes, snapshots } = useDadosConfigurados();
@@ -127,6 +128,8 @@ export const PaginaPatrimonio = () => {
           <div className="nota">Moedas estrangeiras convertidas pela cotação atual.</div>
         )}
       </Secao>
+
+      <Rentabilidade />
 
       <Secao titulo="Câmbio">
         <CardCambio />
