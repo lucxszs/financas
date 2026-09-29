@@ -3,7 +3,7 @@ import { limiteComprometido } from './cartoes';
 import { isEntrada } from './catalogos';
 import { dataNoMes, diasNoMes, somarMeses } from './datas';
 import { fmt } from './formatadores';
-import { recorrentesPendentes } from './recorrentes';
+import { recorrentesPendentes, valorPrevisto } from './recorrentes';
 import type { Aporte, Config, Cotacoes, Transacao, LimiteInformado } from './types';
 
 export interface ResumoMes {
@@ -206,7 +206,9 @@ export const limiteGastos = (
   const contasFixas = soma(
     recorrentesPendentes(config.recorrentes ?? [], hoje)
       .map((p) => p.recorrente)
-      .flatMap((r) => (r.tipo === 'transacao' && !isEntrada(r.tipoTransacao) ? [r.val] : [])),
+      .flatMap((r) =>
+        r.tipo === 'transacao' && !isEntrada(r.tipoTransacao) ? [valorPrevisto(r, transacoes)] : [],
+      ),
   );
   const investimentos = Math.max(aportePlanejado(config, cotacoes), resumo.investimentos);
   const disponivel = resumo.renda - resumo.gastos - investimentos - contasFixas;

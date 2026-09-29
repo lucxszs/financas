@@ -58,8 +58,8 @@ Se a cotação não carregar, o app usa a última conhecida e mostra a data e a 
 | 🎯 Metas         | todas no ritmo              | a pior até 10% abaixo do necessário  | a pior mais de 10% abaixo      |
 | 💵 Reserva       | cobre 6+ meses de gastos    | 3 a 6 meses                          | menos de 3                     |
 
-A reserva é o objetivo marcado como "reserva de emergência" em Configurações (sem marcação, o que tiver
-"emergência" ou "reserva" no nome). Sinais sem dados (ex.: nenhum cartão) não aparecem.
+A reserva soma os objetivos marcados como "reserva de emergência" em Configurações (sem marcação, todos os que
+tiverem "emergência" ou "reserva" no nome). Sinais sem dados (ex.: nenhum cartão) não aparecem.
 
 **Limite de gastos**
 
@@ -80,7 +80,10 @@ Em Gastos, um card por cartão:
 - Melhor dia de compra (e em quantos dias ele chega) e vencimento.
 - Fatura atual, próxima fatura e parcelamentos futuros. Depois do dia do vencimento, a fatura do mês conta como paga
   e a "atual" passa a ser a do mês seguinte.
-- Limite disponível = limite − tudo em aberto, como o banco faz com compras parceladas.
+- Limite disponível: o que o app do banco mostra, informado no "Atualizar saldos", menos as compras lançadas no app
+  depois disso. Sem informação, é o limite menos tudo o que está lançado em aberto (como o banco faz com parcelas).
+- Com o limite informado, o card mostra quanto está "em uso no banco, não lançado no app" (compras e parcelas que
+  faltam lançar). Atualize o limite depois de pagar a fatura, para ele voltar a subir.
 
 **Comprometimento futuro**: soma das faturas de todos os cartões nos próximos 6 meses, com as parcelas já lançadas.
 
@@ -88,8 +91,8 @@ Compras parceladas lançadas antes desta versão continuam como um lançamento �
 
 ## Fechamento mensal
 
-- O Dashboard mostra "🔒 Fechamento de <mês>" quando há um mês para fechar: o anterior, se teve movimento e não foi
-  fechado, ou o atual, no último dia dele.
+- O Início mostra "Fechamento de <mês>" quando há mês para fechar: meses passados com movimento e ainda abertos
+  (até 12 para trás, o mais antigo primeiro, com seletor quando há mais de um) e o mês atual, no último dia dele.
 - A prévia traz renda, gastos, investimentos, saldo, taxa de poupança, maior categoria, maior gasto, aporte em cada
   meta e patrimônio com a variação sobre o mês anterior.
 - **Fechar** grava uma foto imutável do mês. O histórico mensal passa a usar essa foto (🔒 na tabela), mesmo que os
@@ -175,10 +178,14 @@ Em Análises: criar (🐷 Novo aporte), editar e excluir. O valor é na moeda da
 - **Cartões**: limite, melhor dia de compra e vencimento.
 - **Objetivos**: meta, caixinhas que contam, aporte mensal e datas. Com data alvo, ganha contagem regressiva. Um deles
   pode ser marcado como reserva de emergência.
-- **Orçamento**: limite mensal por categoria; vazio = sem limite.
+- **Orçamento**: limite mensal por categoria; vazio = sem limite. Cada campo mostra a média dos últimos meses, e
+  "Preencher com a média" usa essas médias (arredondadas para cima) como ponto de partida.
 - **Recorrentes**: contas fixas, salário e aportes que o app lança sozinho todo mês, no dia escolhido.
   - Se o dia deste mês já passou, a recorrência começa no mês seguinte, a menos que você marque "lançar também este
     mês".
+  - **Valor variável** (ex.: financiamento): o lançamento automático usa o último valor confirmado, aparece com "≈"
+    e o selo "confirmar valor" até você editá-lo. Contas fixas a pagar, próximos 7 dias e calendário usam essa
+    estimativa.
   - Pausar não apaga; ao reativar, os meses da pausa não são lançados.
   - Lançamento automático excluído à mão não volta.
   - "Criar aportes a partir da alocação mensal" transforma o aporte planejado de cada objetivo em recorrência.
@@ -188,7 +195,9 @@ Em Análises: criar (🐷 Novo aporte), editar e excluir. O valor é na moeda da
 "Atualizar saldos" grava o saldo de cada caixinha e o rendimento do mês (opcional), e atualiza a evolução do mês.
 Os campos já vêm com o que foi salvo naquele mês.
 
-- **Mês atual**: atualiza os saldos de agora e a foto do mês.
+- **Mês atual**: atualiza os saldos de agora e a foto do mês. Também recebe o limite disponível de cada cartão, como
+  aparece no app do banco (vazio mantém o último informado). Também recebe o limite disponível de cada cartão, como
+  aparece no app do banco (vazio mantém o último informado).
 - **Mês passado** (até 12 meses): grava só a foto daquele mês, para preencher buracos no histórico e no gráfico de
   patrimônio. Pede também a cotação do dólar/euro no fim do mês (se houver caixinha nessas moedas) e as faturas em
   aberto (opcional). Os saldos de hoje não mudam.

@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { Archive, PiggyBank, Target } from 'lucide-react';
+import { Archive, PiggyBank, Sparkles, Target } from 'lucide-react';
 import { Icone, IconeCategoria } from '../../components/icones';
 import { EmojiItem, MarcaItem } from '../../components/marcas';
+import { orcamentoSugerido } from '../../domain/historico';
+import { valorPrevisto } from '../../domain/recorrentes';
 import { apagarDadosV1 } from '../../services/repositorio';
 import { ModalConfirmacao, Secao } from '../../components/ui';
 import { CATEGORIAS, tipoPorId } from '../../domain/catalogos';
@@ -33,7 +35,7 @@ const exigirSemUso = (usos: string[], oque: string) => {
 };
 
 export const PaginaConfiguracoes = () => {
-  const { config } = useDadosConfigurados();
+  const { config, transacoes } = useDadosConfigurados();
   const salvar = useSalvarConfig();
   const [editando, setEditando] = useState<Editando>(null);
   const fechar = () => setEditando(null);
@@ -137,7 +139,7 @@ export const PaginaConfiguracoes = () => {
             `dia ${dia(r.dia)}`,
             r.tipo === 'aporte'
               ? `${formatarMoeda(r.val, config.caixinhas.find((c) => c.id === r.caixinha)?.moeda)} em ${nomeCaixinha(r.caixinha)}`
-              : `${fmt(r.val)} · ${tipoPorId(r.tipoTransacao)?.nome ?? r.tipoTransacao}`,
+              : `${r.variavel ? '≈ ' : ''}${fmt(valorPrevisto(r, transacoes))} · ${tipoPorId(r.tipoTransacao)?.nome ?? r.tipoTransacao}${r.variavel ? ' · valor variável' : ''}`,
           ].join(' · '),
         })}
         onNovo={() => setEditando({ tipo: 'recorrente' })}
@@ -268,7 +270,8 @@ const FormGeral = () => {
 };
 
 const FormOrcamento = () => {
-  const { config } = useDadosConfigurados();
+  const { config, transacoes } = useDadosConfigurados();
+  const { sugestao, meses } = orcamentoSugerido(transacoes, hojeIso().slice(0, 7));
   const salvar = useSalvarConfig();
   const { msg, erro, salvando, avisar, enviar, limpar } = useEnvio(() => undefined, 1500);
   const [valores, setValores] = useState<Record<string, string>>(() =>
@@ -307,9 +310,25 @@ const FormOrcamento = () => {
                 value={valores[c.id] ?? ''}
                 onChange={(e) => setValores((v) => ({ ...v, [c.id]: e.target.value }))}
               />
+              {sugestao[c.id] !== undefined && <div className="nota">média: {fmt(sugestao[c.id]!)}</div>}
             </div>
           ))}
         </div>
+        {meses.length > 0 && (
+          <button
+            type="button"
+            className="btn btn-mini mb-12"
+            onClick={() =>
+              setValores(Object.fromEntries(CATEGORIAS.map((c) => [c.id, String(sugestao[c.id] ?? '')])))
+            }
+          >
+            <Icone icone={Sparkles} tamanho={14} /> Preencher com a média de{' '}
+            {meses
+              .map((m) => rotuloMesCurto(m))
+              .reverse()
+              .join(', ')}
+          </button>
+        )}
         <div className="linha-entre mono pequeno mb-12">
           <span className="muted">Total orçado</span>
           <span>{fmt(total)}</span>

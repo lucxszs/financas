@@ -33,6 +33,7 @@ export const DadosProvider = ({ uid, children }: { uid: string; children: ReactN
   const [config, setConfig] = useState<Config | null | undefined>(undefined);
   const [saldos, setSaldos] = useState<Saldos>(SALDOS_VAZIOS);
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [transacoesCarregadas, setTransacoesCarregadas] = useState(false);
   const [aportes, setAportes] = useState<Aporte[]>([]);
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [fechamentos, setFechamentos] = useState<Fechamento[]>([]);
@@ -48,7 +49,15 @@ export const DadosProvider = ({ uid, children }: { uid: string; children: ReactN
     const subs = [
       observarConfig(uid, setConfig, onErro),
       observarSaldos(uid, (s) => setSaldos(s ?? SALDOS_VAZIOS), onErro),
-      observarTransacoes(uid, inicioDoHistorico(), setTransacoes, onErro),
+      observarTransacoes(
+        uid,
+        inicioDoHistorico(),
+        (t) => {
+          setTransacoes(t);
+          setTransacoesCarregadas(true);
+        },
+        onErro,
+      ),
       observarAportes(uid, setAportes, onErro),
       observarSnapshots(uid, setSnapshots, onErro),
       observarFechamentos(uid, setFechamentos, onErro),
@@ -61,16 +70,17 @@ export const DadosProvider = ({ uid, children }: { uid: string; children: ReactN
   // Depois de gravar, a config volta pelo listener com `lancadoAte` atualizado e não há mais nada a lançar.
   const lancando = useRef(false);
   useEffect(() => {
-    if (!config?.recorrentes?.length || lancando.current) return;
+    // Espera os lançamentos: o valor de uma recorrência variável vem do último lançamento confirmado.
+    if (!config?.recorrentes?.length || !transacoesCarregadas || lancando.current) return;
     const itens = recorrentesALancar(config.recorrentes, hojeIso());
     if (!itens.length) return;
     lancando.current = true;
-    lancarRecorrentes(uid, config, itens)
+    lancarRecorrentes(uid, config, itens, transacoes)
       .catch((e: unknown) => console.error('Falha ao lançar recorrências', e))
       .finally(() => {
         lancando.current = false;
       });
-  }, [uid, config]);
+  }, [uid, config, transacoes, transacoesCarregadas]);
 
   const valor = useMemo<Dados>(
     () => ({

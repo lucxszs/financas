@@ -56,7 +56,8 @@ service cloud.firestore {
         && d.isEntrada is bool
         && (!('obs' in d) || textoCurto(d.obs, 200))
         && recorrenteIdValido(d)
-        && parcelaValida(d);
+        && parcelaValida(d)
+        && (!('aConfirmar' in d) || d.aConfirmar is bool);
     }
 
     function aporteValido(d) {

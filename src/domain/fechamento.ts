@@ -65,20 +65,24 @@ export const montarFechamento = (mes: string, d: DadosFechamento, fechadoEm: str
   };
 };
 
+/** Até quantos meses para trás o app oferece fechar (o histórico carregado é de 12 meses). */
+const MESES_PARA_TRAS = 12;
+
 /**
- * Mês que o app sugere fechar: o anterior, se teve movimento e não foi fechado; senão o atual, a partir do último
- * dia dele. null se não há nada a fechar.
+ * Meses que dá para fechar, do mais antigo ao mais recente: os meses passados com movimento e ainda abertos
+ * (até 12 para trás) e, no último dia dele, o mês atual.
  */
-export const mesParaFechar = (
+export const mesesParaFechar = (
   d: Pick<DadosFechamento, 'transacoes' | 'aportes' | 'fechamentos'>,
   hoje: string,
-) => {
+): string[] => {
   const atual = hoje.slice(0, 7);
-  const anterior = somarMeses(atual, -1);
   const fechado = (m: string) => d.fechamentos.some((f) => f.mes === m);
   const teveMovimento = (m: string) =>
     transacoesDaCompetencia(d.transacoes, m).length > 0 || d.aportes.some((a) => a.data.startsWith(m));
-  if (!fechado(anterior) && teveMovimento(anterior)) return anterior;
+  const meses = Array.from({ length: MESES_PARA_TRAS }, (_, i) =>
+    somarMeses(atual, i - MESES_PARA_TRAS),
+  ).filter((m) => !fechado(m) && teveMovimento(m));
   const ultimoDia = Number(hoje.slice(8, 10)) === diasNoMes(atual);
-  return ultimoDia && !fechado(atual) ? atual : null;
+  return ultimoDia && !fechado(atual) ? [...meses, atual] : meses;
 };

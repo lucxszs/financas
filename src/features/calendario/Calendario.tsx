@@ -28,6 +28,7 @@ const Linha = ({ e, hoje }: { e: EventoCalendario; hoje: string }) => (
     </span>
     <span className={`evento-valor ${e.tipo === 'entrada' ? 'verde' : ''}`}>
       {e.tipo === 'entrada' ? '+ ' : '− '}
+      {e.estimado && '≈ '}
       {fmt(e.valor)}
     </span>
   </div>

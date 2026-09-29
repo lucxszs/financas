@@ -83,10 +83,12 @@ export const ListaLancamentos = ({
                     <IconeTipo tipo={t.tipo} tamanho={12} />
                     {t.recorrenteId && <Icone icone={Repeat} tamanho={12} aria-label="automático" />}
                     {meta.join(' · ')}
+                    {t.aConfirmar && <span className="selo-confirmar">confirmar valor</span>}
                   </div>
                 </div>
                 <div className={`tx-val ${t.isEntrada ? 'in' : 'out'}`}>
                   {t.isEntrada ? '+' : '−'}
+                  {t.aConfirmar && '≈ '}
                   {fmt(t.val)}
                 </div>
                 <AcoesItem descricao={t.desc} onEditar={() => onEditar(t)} onExcluir={() => setAExcluir(t)} />

@@ -16,10 +16,16 @@ export interface Indicador {
 
 const pctTexto = (v: number) => `${v.toFixed(0)}%`;
 
-/** Reserva de emergência: o objetivo marcado ou, sem marcação, o que tem "emerg"/"reserva" no nome. */
-export const objetivoReserva = (config: Config): Objetivo | undefined =>
-  config.objetivos.find((o) => o.reservaEmergencia) ??
-  config.objetivos.find((o) => /emerg|reserva/i.test(`${o.id} ${o.nome}`));
+/**
+ * Objetivos que formam a reserva de emergência: os marcados em Configurações ou, sem marcação, todos com
+ * "emerg"/"reserva" no nome (ex.: Emergência pt. 1 e pt. 2).
+ */
+export const objetivosReserva = (config: Config): Objetivo[] => {
+  const marcados = config.objetivos.filter((o) => o.reservaEmergencia);
+  return marcados.length
+    ? marcados
+    : config.objetivos.filter((o) => /emerg|reserva/i.test(`${o.id} ${o.nome}`));
+};
 
 export interface EntradaSaude {
   config: Config;
@@ -41,7 +47,7 @@ export interface EntradaSaude {
  * - 📈 Investimentos: aporte do mês × planejado. Até a metade do mês, não ter aportado ainda é amarelo, não vermelho.
  * - 💳 Cartões: quanto do limite total está comprometido (até 50% verde, até 80% amarelo).
  * - 🎯 Metas: pior ritmo entre as metas com data (no ritmo verde; até 10% abaixo amarelo).
- * - 💵 Reserva: quantos meses de gastos a reserva cobre (6+ verde, 3+ amarelo).
+ * - 💵 Reserva: quantos meses de gastos a reserva (soma dos objetivos de reserva) cobre (6+ verde, 3+ amarelo).
  */
 export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
   const { config, resumo, limite, hoje } = e;
@@ -98,10 +104,13 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
     });
   }
 
-  const reserva = objetivoReserva(config);
+  const reservas = objetivosReserva(config);
   const media = mediaGastos(e.transacoes, config, resumo.mes) ?? resumo.gastos;
-  if (reserva && media > 0) {
-    const guardado = progressoObjetivo(reserva, config, e.valores, e.cotacoes).guardado;
+  if (reservas.length && media > 0) {
+    const guardado = reservas.reduce(
+      (a, o) => a + progressoObjetivo(o, config, e.valores, e.cotacoes).guardado,
+      0,
+    );
     const meses = guardado / media;
     itens.push({
       id: 'reserva',

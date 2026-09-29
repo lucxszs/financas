@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { orcamentoPorCategoria, serieMensal } from './historico';
+import { orcamentoPorCategoria, orcamentoSugerido, serieMensal } from './historico';
 import type { Config, Transacao } from './types';
 
 const config: Config = {
@@ -94,5 +94,24 @@ describe('orcamentoPorCategoria', () => {
       ['mercado', 200, null, null],
       ['vestuario', 0, 300, 'ok'],
     ]);
+  });
+});
+
+describe('orcamentoSugerido', () => {
+  it('média por categoria dos meses anteriores com lançamentos, arredondada para cima de 10 em 10', () => {
+    const transacoes = [
+      tx({ cat: 'mercado', val: 396, data: '2026-07-20' }),
+      tx({ cat: 'mercado', val: 646, data: '2026-08-20' }),
+      tx({ cat: 'lazer', val: 45, data: '2026-08-20' }),
+      tx({ cat: 'mercado', val: 999, data: '2026-09-20' }), // mês de referência: fora
+      tx({ tipo: 'salario', val: 12000, isEntrada: true, data: '2026-08-15' }),
+    ];
+    const r = orcamentoSugerido(transacoes, '2026-09');
+    expect(r.meses).toEqual(['2026-08', '2026-07']);
+    expect(r.sugestao).toEqual({ mercado: 530, lazer: 30 });
+  });
+
+  it('sem histórico, sem sugestão', () => {
+    expect(orcamentoSugerido([], '2026-09')).toEqual({ sugestao: {}, meses: [] });
   });
 });

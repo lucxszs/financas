@@ -32,6 +32,7 @@ export const ModalRecorrente = ({
   const [val, setVal] = useState(recorrente ? String(recorrente.val) : '');
   const [dia, setDia] = useState(recorrente ? String(recorrente.dia) : '');
   const [ativo, setAtivo] = useState(recorrente?.ativo ?? true);
+  const [variavel, setVariavel] = useState(recorrente?.tipo === 'transacao' && Boolean(recorrente.variavel));
   const [comecarEsteMes, setComecarEsteMes] = useState(false);
   const tx = recorrente?.tipo === 'transacao' ? recorrente : undefined;
   const [tipoTransacao, setTipoTransacao] = useState<TipoTransacao | ''>(tx?.tipoTransacao ?? 'pix');
@@ -89,6 +90,7 @@ export const ModalRecorrente = ({
             tipoTransacao: tipoTransacao as TipoTransacao,
             cat,
             cartao: credito ? cartao : null,
+            variavel: variavel || undefined,
           };
 
     void enviar(
@@ -210,6 +212,13 @@ export const ModalRecorrente = ({
               Lançar também este mês ({rotuloDiaMes(dataEsteMes!)} já passou)
             </label>
           )
+        )}
+        {tipo === 'transacao' && (
+          <label className="check">
+            <input type="checkbox" checked={variavel} onChange={(e) => setVariavel(e.target.checked)} />
+            Valor muda todo mês (ex.: financiamento): lança com o último valor confirmado e pede para
+            confirmar
+          </label>
         )}
         <label className="check">
           <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} />

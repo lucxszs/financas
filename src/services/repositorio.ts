@@ -22,6 +22,7 @@ import {
   marcarLancados,
   semRetroativo,
   transacaoDeRecorrente,
+  valorPrevisto,
   type LancamentoRecorrente,
 } from '../domain/recorrentes';
 import type {
@@ -139,7 +140,12 @@ export const salvarConfig = (uid: string, config: Config) =>
  * Os ids são determinísticos: se outro dispositivo já lançou, a regra de edição (criadoEm imutável) recusa o batch
  * inteiro e nada é duplicado.
  */
-export const lancarRecorrentes = async (uid: string, config: Config, itens: LancamentoRecorrente[]) => {
+export const lancarRecorrentes = async (
+  uid: string,
+  config: Config,
+  itens: LancamentoRecorrente[],
+  transacoes: Transacao[],
+) => {
   if (!itens.length) return;
   const agora = new Date().toISOString();
   const batch = writeBatch(db);
@@ -147,7 +153,10 @@ export const lancarRecorrentes = async (uid: string, config: Config, itens: Lanc
     const id = idLancamentoRecorrente(r.id, mes);
     if (r.tipo === 'aporte') batch.set(doc(colecao(uid, 'aportes'), id), aporteDeRecorrente(r, data, agora));
     else
-      batch.set(doc(colecao(uid, 'transacoes'), id), transacaoDeRecorrente(r, data, config.cartoes, agora));
+      batch.set(
+        doc(colecao(uid, 'transacoes'), id),
+        transacaoDeRecorrente(r, data, config.cartoes, agora, valorPrevisto(r, transacoes)),
+      );
   }
   const recorrentes = marcarLancados(config.recorrentes ?? [], itens);
   batch.set(perfilDoc(uid, 'config'), semIndefinidos({ ...config, recorrentes }));

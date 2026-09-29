@@ -1,6 +1,7 @@
 import { mesDaFatura, paraBRL } from './calculos';
 import { isEntrada } from './catalogos';
 import { dataNoMes, somarMeses } from './datas';
+import { valorPrevisto } from './recorrentes';
 import type { Config, Cotacoes, Transacao } from './types';
 
 export type TipoEvento = 'entrada' | 'saida' | 'aporte' | 'fatura';
@@ -13,6 +14,8 @@ export interface EventoCalendario {
   tipo: TipoEvento;
   /** Recorrência já lançada ou fatura já vencida. */
   feito: boolean;
+  /** Valor estimado (recorrência de valor variável). */
+  estimado?: boolean;
 }
 
 const mesesEntre = (inicio: string, fim: string) => {
@@ -52,7 +55,14 @@ export const eventosDoPeriodo = (
         });
       } else {
         const tipo = isEntrada(r.tipoTransacao) ? 'entrada' : 'saida';
-        eventos.push({ data, desc: r.desc, valor: r.val, tipo, feito });
+        eventos.push({
+          data,
+          desc: r.desc,
+          valor: valorPrevisto(r, transacoes),
+          tipo,
+          feito,
+          ...(r.variavel && { estimado: true }),
+        });
       }
     }
     for (const c of config.cartoes) {
