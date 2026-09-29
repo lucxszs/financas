@@ -5,8 +5,9 @@ import {
   recorrentesPendentes,
   semRetroativo,
   transacaoDeRecorrente,
+  valorPrevisto,
 } from './recorrentes';
-import type { Recorrente } from './types';
+import type { Recorrente, Transacao } from './types';
 
 const aluguel = (extra: Partial<Recorrente> = {}): Recorrente =>
   ({
@@ -109,5 +110,47 @@ describe('semRetroativo', () => {
     expect(nova?.inicio).toBe('2026-09');
     expect(lancada?.inicio).toBe('2026-01');
     expect(futura?.inicio).toBe('2026-12');
+  });
+});
+
+describe('recorrente de valor variável', () => {
+  const apto = aluguel({ id: 'apto', val: 2973.13, variavel: true }) as Extract<
+    Recorrente,
+    { tipo: 'transacao' }
+  >;
+  const lanc = (val: number, data: string, aConfirmar?: boolean) =>
+    ({
+      id: data,
+      desc: 'Apartamento',
+      val,
+      tipo: 'pix',
+      cartao: null,
+      cat: 'moradia',
+      data,
+      mesFatura: null,
+      obs: '',
+      isEntrada: false,
+      criadoEm: '',
+      recorrenteId: 'apto',
+      ...(aConfirmar && { aConfirmar }),
+    }) as Transacao;
+
+  it('prevê com o último valor confirmado; ignora os ainda a confirmar', () => {
+    expect(valorPrevisto(apto, [])).toBe(2973.13);
+    expect(valorPrevisto(apto, [lanc(2968.4, '2026-10-15'), lanc(2968.4, '2026-11-15', true)])).toBe(2968.4);
+  });
+
+  it('valor fixo ignora o histórico', () => {
+    expect(valorPrevisto(aluguel(), [lanc(1, '2026-10-15')])).toBe(1500);
+  });
+
+  it('o lançamento automático de uma variável sai marcado "a confirmar"', () => {
+    expect(transacaoDeRecorrente(apto, '2026-10-15', [], 'agora', 2968.4)).toMatchObject({
+      val: 2968.4,
+      aConfirmar: true,
+    });
+    expect(
+      transacaoDeRecorrente(aluguel() as typeof apto, '2026-10-05', [], 'agora').aConfirmar,
+    ).toBeUndefined();
   });
 });

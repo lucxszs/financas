@@ -262,3 +262,16 @@ describe('fechamento mensal', () => {
     await assertFails(getDoc(ref('2026-09', INTRUSO)));
   });
 });
+
+describe('recorrência de valor variável', () => {
+  const tx = (extra: Record<string, unknown>) =>
+    addDoc(
+      collection(dbDe(DONO), 'users', DONO, 'transacoes'),
+      transacao({ recorrenteId: 'apto', ...extra }),
+    );
+
+  it('aceita aConfirmar booleano e rejeita outro tipo', async () => {
+    await assertSucceeds(tx({ aConfirmar: true }));
+    await assertFails(tx({ aConfirmar: 'sim' }));
+  });
+});

@@ -99,6 +99,8 @@ export type Recorrente =
       tipoTransacao: TipoTransacao;
       cat: Categoria;
       cartao: string | null;
+      /** Valor muda todo mês (ex.: financiamento): lança com o último valor confirmado e marca "a confirmar". */
+      variavel?: boolean;
     })
   | (RecorrenteBase & { tipo: 'aporte'; caixinha: string });
 
@@ -168,6 +170,8 @@ export interface Transacao {
   atualizadoEm?: string;
   /** Preenchido quando foi criado por uma recorrência. */
   recorrenteId?: string;
+  /** Lançado por uma recorrência de valor variável e ainda não revisado (some ao editar). */
+  aConfirmar?: boolean;
   /** Compra parcelada: todas as parcelas compartilham o mesmo grupoId. */
   grupoId?: string;
   parcela?: { atual: number; total: number };

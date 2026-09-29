@@ -55,16 +55,29 @@ export const semRetroativo = (recorrentes: Recorrente[], mesAtual: string): Reco
 /** Id determinístico: lançar duas vezes o mesmo mês grava no mesmo documento. */
 export const idLancamentoRecorrente = (recorrenteId: string, mes: string) => `rec_${recorrenteId}_${mes}`;
 
+/**
+ * Valor para lançar ou prever uma recorrência. Fixa: o valor cadastrado. Variável: o último lançamento dela já
+ * confirmado (editado); sem nenhum, o valor cadastrado.
+ */
+export const valorPrevisto = (r: Recorrente, transacoes: Transacao[]) => {
+  if (r.tipo !== 'transacao' || !r.variavel) return r.val;
+  const confirmados = transacoes
+    .filter((t) => t.recorrenteId === r.id && !t.aConfirmar)
+    .sort((a, b) => b.data.localeCompare(a.data));
+  return confirmados[0]?.val ?? r.val;
+};
+
 export const transacaoDeRecorrente = (
   r: Extract<Recorrente, { tipo: 'transacao' }>,
   data: string,
   cartoes: Cartao[],
   criadoEm: string,
+  val = r.val,
 ): Omit<Transacao, 'id'> => {
   const cartao = r.cartao ? cartoes.find((c) => c.id === r.cartao) : undefined;
   return {
     desc: r.desc,
-    val: r.val,
+    val,
     tipo: r.tipoTransacao,
     cartao: r.cartao,
     cat: r.cat,
@@ -74,6 +87,7 @@ export const transacaoDeRecorrente = (
     isEntrada: isEntrada(r.tipoTransacao),
     criadoEm,
     recorrenteId: r.id,
+    ...(r.variavel && { aConfirmar: true }),
   };
 };
 

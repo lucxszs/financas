@@ -3,19 +3,21 @@ import { Lock } from 'lucide-react';
 import { Icone } from '../../components/icones';
 import { ModalConfirmacao, Secao } from '../../components/ui';
 import { hojeIso, rotuloMesLongo } from '../../domain/datas';
-import { mesParaFechar, montarFechamento } from '../../domain/fechamento';
+import { mesesParaFechar, montarFechamento } from '../../domain/fechamento';
 import { patrimonioAtual } from '../../domain/patrimonio';
 import { fecharMes } from '../../services/repositorio';
 import { FechamentoDetalhe } from '../analises/FechamentoDetalhe';
 import { useDadosConfigurados } from '../dados/useDados';
 
-/** Aparece quando há um mês para fechar: o anterior em aberto ou o atual, no último dia. */
+/** Aparece quando há mês para fechar: meses passados em aberto (o mais antigo primeiro) ou o atual, no último dia. */
 export const CardFechamento = () => {
   const { uid, config, saldos, transacoes, aportes, snapshots, fechamentosMes, cotacoes } =
     useDadosConfigurados();
   const [confirmando, setConfirmando] = useState(false);
+  const [escolhido, setEscolhido] = useState<string | null>(null);
   const hoje = hojeIso();
-  const mes = mesParaFechar({ transacoes, aportes, fechamentos: fechamentosMes }, hoje);
+  const abertos = mesesParaFechar({ transacoes, aportes, fechamentos: fechamentosMes }, hoje);
+  const mes = escolhido && abertos.includes(escolhido) ? escolhido : abertos[0];
   if (!mes) return null;
 
   const dados = {
@@ -35,6 +37,20 @@ export const CardFechamento = () => {
   return (
     <Secao titulo={`Fechamento de ${nome}`} icone={Lock}>
       <div className="card">
+        {abertos.length > 1 && (
+          <div className="card-pad">
+            <div className="field">
+              <label htmlFor="fechar-mes">{abertos.length} meses em aberto</label>
+              <select id="fechar-mes" value={mes} onChange={(e) => setEscolhido(e.target.value)}>
+                {abertos.map((m) => (
+                  <option key={m} value={m}>
+                    {rotuloMesLongo(m)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
         <FechamentoDetalhe f={previa} />
         <div className="card-rodape">
           <button className="btn-save largura-total" onClick={() => setConfirmando(true)}>

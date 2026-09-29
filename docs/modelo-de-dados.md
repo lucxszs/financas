@@ -45,7 +45,8 @@ Compra antes do melhor dia cai na fatura que vence no mês; a partir dele, na do
 **Recorrente:** `id`, `desc`, `val`, `dia` (1 a 31; em mês curto vale o último dia), `ativo`, `inicio` (`YYYY-MM`),
 `lancadoAte?` (`YYYY-MM`, último mês já lançado) e `tipo`:
 
-- `transacao`: `tipoTransacao`, `cat`, `cartao` (id ou `null`). Gera uma Transacao.
+- `transacao`: `tipoTransacao`, `cat`, `cartao` (id ou `null`), `variavel?` (boolean). Gera uma Transacao; se
+  variável, com o último valor confirmado e `aConfirmar: true`.
 - `aporte`: `caixinha` (id). Gera um Aporte, com `val` na moeda da caixinha.
 
 O app lança sozinho, ao abrir, cada mês em aberto até hoje (no máximo 12 para trás), com id `rec_{id}_{YYYY-MM}`, e
@@ -55,7 +56,7 @@ atualiza `lancadoAte` no mesmo batch. Mês lançado não volta, mesmo que o lan�
 ## Saldos
 
 ```ts
-{ valores: { [caixinhaId]: number }, updatedAt: string | null }
+{ valores: { [caixinhaId]: number }, cartoes?: { [cartaoId]: { disponivel: number, em: string } }, updatedAt: string | null }
 ```
 
 Valores na moeda da própria caixinha. Dados antigos podem ter `score` (v1): é ignorado.
@@ -70,22 +71,23 @@ Criado ou sobrescrito a cada "Atualizar saldos" no mês. A cotação gravada é 
 
 ## Transacao
 
-| Campo          | Tipo                | Regras (firestore.rules)                  |
-| -------------- | ------------------- | ----------------------------------------- |
-| `desc`         | string              | obrigatório, 1 a 120 caracteres           |
-| `val`          | number              | > 0 e < 10.000.000                        |
-| `tipo`         | string              | um dos tipos de `catalogos.ts`            |
-| `cat`          | string              | uma das categorias de `catalogos.ts`      |
-| `data`         | `YYYY-MM-DD`        | obrigatório                               |
-| `cartao`       | string \| null      | só para crédito/parcelado                 |
-| `mesFatura`    | `YYYY-MM` \| null   | mês do vencimento; vazio = mês de `data`  |
-| `obs`          | string              | até 200 caracteres                        |
-| `isEntrada`    | boolean             | derivado do tipo (recebi, salário)        |
-| `criadoEm`     | ISO string          | obrigatório; **não pode mudar na edição** |
-| `atualizadoEm` | ISO string?         | preenchido ao editar                      |
-| `recorrenteId` | string?             | id da recorrência que criou; até 60 chars |
-| `grupoId`      | string?             | liga as parcelas da mesma compra          |
-| `parcela`      | `{ atual, total }`? | inteiros, 1 ≤ atual ≤ total ≤ 48          |
+| Campo          | Tipo                | Regras (firestore.rules)                       |
+| -------------- | ------------------- | ---------------------------------------------- |
+| `desc`         | string              | obrigatório, 1 a 120 caracteres                |
+| `val`          | number              | > 0 e < 10.000.000                             |
+| `tipo`         | string              | um dos tipos de `catalogos.ts`                 |
+| `cat`          | string              | uma das categorias de `catalogos.ts`           |
+| `data`         | `YYYY-MM-DD`        | obrigatório                                    |
+| `cartao`       | string \| null      | só para crédito/parcelado                      |
+| `mesFatura`    | `YYYY-MM` \| null   | mês do vencimento; vazio = mês de `data`       |
+| `obs`          | string              | até 200 caracteres                             |
+| `isEntrada`    | boolean             | derivado do tipo (recebi, salário)             |
+| `criadoEm`     | ISO string          | obrigatório; **não pode mudar na edição**      |
+| `atualizadoEm` | ISO string?         | preenchido ao editar                           |
+| `recorrenteId` | string?             | id da recorrência que criou; até 60 chars      |
+| `grupoId`      | string?             | liga as parcelas da mesma compra               |
+| `parcela`      | `{ atual, total }`? | inteiros, 1 ≤ atual ≤ total ≤ 48               |
+| `aConfirmar`   | boolean?            | lançado por recorrência variável, não revisado |
 
 ## Aporte
 

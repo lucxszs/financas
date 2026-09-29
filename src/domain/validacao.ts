@@ -101,6 +101,8 @@ export const validarDadosIniciais = (
       exigir(ids.has(r.caixinha as string), `recorrentes[${i}] referencia caixinha inexistente`);
     } else if (r.tipo === 'transacao') {
       exigir(TIPOS_TX.includes(r.tipoTransacao as string), `recorrentes[${i}].tipoTransacao inválido`);
+      if (r.variavel !== undefined)
+        exigir(typeof r.variavel === 'boolean', `recorrentes[${i}].variavel deve ser true/false`);
       exigir(CATS.includes(r.cat as string), `recorrentes[${i}].cat inválida`);
       exigir(
         r.cartao === null || idsCartoes.has(r.cartao as string),

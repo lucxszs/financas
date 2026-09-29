@@ -94,3 +94,29 @@ describe('eventosDoPeriodo', () => {
     expect(feitos).toMatchObject({ Salário: true, Contas: false, 'Fatura Itaú': true });
   });
 });
+
+describe('recorrência de valor variável no calendário', () => {
+  it('usa o último valor confirmado e marca como estimado', () => {
+    const cfg: Config = {
+      ...config,
+      recorrentes: [
+        rec({
+          id: 'apto',
+          desc: 'Apartamento',
+          val: 2973.13,
+          dia: 15,
+          variavel: true,
+        } as Partial<Recorrente> & { id: string }),
+      ],
+    };
+    const confirmado = {
+      ...fatura(2968.4, '2026-10'),
+      cartao: null,
+      mesFatura: null,
+      data: '2026-10-15',
+      recorrenteId: 'apto',
+    };
+    const [e] = eventosDoPeriodo(cfg, [confirmado], {}, '2026-11-01', '2026-11-30', '2026-11-01');
+    expect(e).toMatchObject({ desc: 'Apartamento', valor: 2968.4, estimado: true });
+  });
+});

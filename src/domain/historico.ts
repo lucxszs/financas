@@ -98,3 +98,21 @@ export const orcamentoPorCategoria = (
     })
     .sort((a, b) => b.real - a.real || (b.meta ?? 0) - (a.meta ?? 0));
 };
+
+/**
+ * Orçamento sugerido por categoria: média dos gastos nos `n` meses anteriores a `mes` que tiveram lançamentos,
+ * arredondada para cima de 10 em 10. Categorias sem gasto ficam de fora.
+ */
+export const orcamentoSugerido = (transacoes: Transacao[], mes: string, n = 3) => {
+  const meses = Array.from({ length: n }, (_, i) => somarMeses(mes, -(i + 1))).filter(
+    (m) => transacoesDaCompetencia(transacoes, m).length > 0,
+  );
+  const sugestao: Partial<Record<Categoria, number>> = {};
+  if (!meses.length) return { sugestao, meses };
+  const totais = new Map<Categoria, number>();
+  for (const m of meses)
+    for (const t of transacoesDaCompetencia(transacoes, m))
+      if (!t.isEntrada) totais.set(t.cat, (totais.get(t.cat) ?? 0) + t.val);
+  for (const [cat, total] of totais) sugestao[cat] = Math.ceil(total / meses.length / 10) * 10;
+  return { sugestao, meses };
+};

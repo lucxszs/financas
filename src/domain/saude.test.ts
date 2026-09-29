@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { limiteGastos, resumoMes } from './resumo';
-import { objetivoReserva, saudeFinanceira } from './saude';
+import { objetivosReserva, saudeFinanceira } from './saude';
 import type { Aporte, Config, Transacao } from './types';
 
 const config: Config = {
@@ -70,14 +70,21 @@ const aporte = (caixinha: string, val: number, data: string): Aporte => ({
   criadoEm: '',
 });
 
-describe('objetivoReserva', () => {
-  it('usa o objetivo marcado; sem marcação, procura pelo nome', () => {
-    expect(objetivoReserva(config)?.id).toBe('emerg1');
+describe('objetivosReserva', () => {
+  it('sem marcação, pega todos os objetivos com emergência/reserva no nome', () => {
+    const duas = {
+      ...config,
+      objetivos: [...config.objetivos, { ...config.objetivos[0]!, id: 'emerg2', nome: 'Emergência pt. 2' }],
+    };
+    expect(objetivosReserva(duas).map((o) => o.id)).toEqual(['emerg1', 'emerg2']);
+  });
+
+  it('com marcação, usa só os marcados', () => {
     const marcado = {
       ...config,
       objetivos: [...config.objetivos, { ...config.objetivos[1]!, id: 'x', reservaEmergencia: true }],
     };
-    expect(objetivoReserva(marcado)?.id).toBe('x');
+    expect(objetivosReserva(marcado).map((o) => o.id)).toEqual(['x']);
   });
 });
 

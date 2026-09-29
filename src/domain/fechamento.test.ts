@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mesParaFechar, montarFechamento, type DadosFechamento } from './fechamento';
+import { mesesParaFechar, montarFechamento, type DadosFechamento } from './fechamento';
 import type { Config, FechamentoMes, Transacao } from './types';
 
 const config: Config = {
@@ -83,26 +83,30 @@ describe('montarFechamento', () => {
   });
 });
 
-describe('mesParaFechar', () => {
+describe('mesesParaFechar', () => {
   const fechado = (mes: string) => ({ mes }) as FechamentoMes;
 
-  it('sugere o mês anterior aberto que teve movimento', () => {
-    const d = { transacoes: [tx({ data: '2026-08-10' })], aportes: [], fechamentos: [] };
-    expect(mesParaFechar(d, '2026-09-15')).toBe('2026-08');
+  it('lista todos os meses passados abertos com movimento, do mais antigo ao mais recente', () => {
+    const d = {
+      transacoes: [tx({ data: '2026-07-10' }), tx({ data: '2026-08-10' }), tx({ data: '2026-05-10' })],
+      aportes: [],
+      fechamentos: [fechado('2026-05')],
+    };
+    expect(mesesParaFechar(d, '2026-09-15')).toEqual(['2026-07', '2026-08']);
   });
 
   it('mês atual só no último dia', () => {
     const d = { transacoes: [], aportes: [], fechamentos: [] };
-    expect(mesParaFechar(d, '2026-09-29')).toBeNull();
-    expect(mesParaFechar(d, '2026-09-30')).toBe('2026-09');
+    expect(mesesParaFechar(d, '2026-09-29')).toEqual([]);
+    expect(mesesParaFechar(d, '2026-09-30')).toEqual(['2026-09']);
   });
 
-  it('nada a fechar quando já está fechado', () => {
+  it('não volta mais que 12 meses', () => {
     const d = {
-      transacoes: [tx({ data: '2026-08-10' })],
+      transacoes: [tx({ data: '2025-08-10' }), tx({ data: '2025-09-10' })],
       aportes: [],
-      fechamentos: [fechado('2026-08'), fechado('2026-09')],
+      fechamentos: [],
     };
-    expect(mesParaFechar(d, '2026-09-30')).toBeNull();
+    expect(mesesParaFechar(d, '2026-09-15')).toEqual(['2025-09']);
   });
 });
