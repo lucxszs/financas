@@ -177,14 +177,16 @@ gráficos (gastos, investimentos e taxa de poupança por mês). Passe o mouse ou
 - **Parcelado**: valor total + número de parcelas (2 a 48). O app cria uma parcela por mês de fatura, a partir da
   fatura escolhida, e mostra a prévia ("10x de R$ 150,00 · Out/26 a Jul/27"). Centavos que sobram da divisão vão
   na 1ª parcela. Sem número de parcelas, vira compra à vista.
-- **Navegar**: ‹ › troca o mês; o topo mostra entradas, saídas e saldo. O app carrega os últimos 12 meses. Compra no cartão aparece no mês da fatura, com o selo "fatura Out/26".
+- **Navegar**: ‹ › troca o mês; o topo mostra entradas, saídas e saldo. O app carrega os últimos 12 meses. Compra no cartão aparece no mês da fatura, com o selo "fatura Out/26". A lista mostra os 6 mais recentes e
+  "Mostrar todos (N)" abre o resto; os totais sempre somam o mês inteiro.
 - **Editar**: ✏️ na linha. Numa parcela, valor, data e fatura mudam só nela; descrição, categoria e cartão podem ir
   para todas as parcelas.
 - **Excluir**: 🗑 na linha, com confirmação. Numa parcela: "Só esta parcela" ou "Todas as parcelas".
 
 ## Aportes
 
-Em Análises: criar (🐷 Novo aporte), editar e excluir. O valor é na moeda da caixinha.
+Em Análises: criar (Novo aporte), editar e excluir. O valor é na moeda da caixinha. A lista mostra os 6 mais
+recentes, com "Mostrar todos (N)".
 
 ## Configurações
 

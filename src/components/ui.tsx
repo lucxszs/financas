@@ -213,6 +213,21 @@ export const AcoesModal = ({
   </div>
 );
 
+/** Rodapé de lista com amostra: "Mostrar todos (N)" / "Mostrar menos". */
+export const MostrarMais = ({
+  total,
+  expandido,
+  onAlternar,
+}: {
+  total: number;
+  expandido: boolean;
+  onAlternar: () => void;
+}) => (
+  <button type="button" className="mostrar-mais" onClick={onAlternar} aria-expanded={expandido}>
+    {expandido ? 'Mostrar menos' : `Mostrar todos (${total})`}
+  </button>
+);
+
 /** Botões de editar e excluir de uma linha de lista. */
 export const AcoesItem = ({
   descricao,
