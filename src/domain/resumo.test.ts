@@ -45,7 +45,6 @@ const recorrentes: Recorrente[] = [
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [{ id: 'reserva', nome: 'Reserva', moeda: 'BRL', rendimento: '', cor: 'emerald' }],
   objetivos: [
     {
@@ -104,7 +103,6 @@ describe('resumoMes', () => {
     const r = resumoMes(transacoes, aportes, config, {}, '2026-09');
     expect(r).toMatchObject({ renda: 9000, rendaPrevista: false, gastos: 2200, investimentos: 1191 });
     expect(r.saldoLivre).toBe(5609);
-    expect(r.taxaPoupanca).toBeCloseTo(13.23, 2);
     expect(r.gastosSobreRenda).toBeCloseTo(24.44, 2);
   });
 

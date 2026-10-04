@@ -5,7 +5,6 @@ import type { Config, Transacao } from './types';
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 12000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [{ id: 'reserva', nome: 'Reserva', moeda: 'BRL', rendimento: '', cor: 'emerald' }],
   objetivos: [
     { id: 'viagem', nome: 'Viagem', meta: 10000, caixinhas: ['reserva'], cor: 'violet', aporteMensal: 1000 },

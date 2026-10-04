@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { paraBRL, progressoObjetivo, rendimentoMensalEstimado } from './calculos';
+import { paraBRL, progressoObjetivo } from './calculos';
 import type { Config } from './types';
 
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 5000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [
     { id: 'reserva', nome: 'Reserva', moeda: 'BRL', rendimento: '100% CDI', cor: 'emerald' },
     { id: 'dolar', nome: 'Dólar', moeda: 'USD', rendimento: '3% a.a.', cor: 'sky' },
@@ -39,11 +38,5 @@ describe('progressoObjetivo', () => {
     const p = progressoObjetivo(config.objetivos[0]!, config, { reserva: 500, dolar: 50 }, {});
     expect(p.guardado).toBe(500);
     expect(p.completo).toBe(false);
-  });
-});
-
-describe('rendimentoMensalEstimado', () => {
-  it('considera só caixinhas em BRL', () => {
-    expect(rendimentoMensalEstimado(config, { reserva: 1200, dolar: 1000 })).toBe(12);
   });
 });

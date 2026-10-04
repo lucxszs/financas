@@ -167,15 +167,12 @@ const FormGeral = () => {
   const salvar = useSalvarConfig();
   const { msg, erro, salvando, avisar, enviar, limpar } = useEnvio(() => undefined, 1500);
   const [renda, setRenda] = useState(String(config.rendaMensal));
-  const [taxa, setTaxa] = useState(String(Math.round(config.taxaAnualEstimada * 10000) / 100));
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const r = numeroOuNulo(renda);
-    const t = numeroOuNulo(taxa);
     if (r === null || !Number.isFinite(r) || r < 0) return avisar('Renda inválida');
-    if (t === null || !Number.isFinite(t) || t < 0 || t > 100) return avisar('Taxa deve ser de 0 a 100%');
-    void enviar(() => salvar((c) => ({ ...c, rendaMensal: r, taxaAnualEstimada: t / 100 })), 'Salvo!');
+    void enviar(() => salvar((c) => ({ ...c, rendaMensal: r })), 'Salvo!');
   };
 
   return (
@@ -192,19 +189,6 @@ const FormGeral = () => {
               inputMode="decimal"
               value={renda}
               onChange={(e) => setRenda(e.target.value)}
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="cf-taxa">Rendimento estimado (% ao ano)</label>
-            <input
-              id="cf-taxa"
-              type="number"
-              step="0.01"
-              min="0"
-              max="100"
-              inputMode="decimal"
-              value={taxa}
-              onChange={(e) => setTaxa(e.target.value)}
             />
           </div>
         </div>

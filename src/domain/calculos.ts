@@ -40,13 +40,6 @@ export const progressoObjetivo = (
   };
 };
 
-/** Rendimento mensal estimado das caixinhas em BRL (juros simples mensais sobre a taxa anual). */
-export const rendimentoMensalEstimado = (config: Config, valores: Record<string, number>) => {
-  const emReais = config.caixinhas.filter((c) => c.moeda === 'BRL');
-  const { total } = somarEmBRL(emReais, valores, {});
-  return Math.round((total * config.taxaAnualEstimada) / 12);
-};
-
 /** Mês de fatura de uma transação: o informado ou o mês da própria data. */
 export const mesDaFatura = (t: Transacao) => t.mesFatura ?? t.data.slice(0, 7);
 

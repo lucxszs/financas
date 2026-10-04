@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { acumulado, rentabilidadeCaixinhas, totalRentabilidade } from './rentabilidade';
+import { rentabilidadeCaixinhas, totalRentabilidade } from './rentabilidade';
 import type { Config, Snapshot } from './types';
 
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [
     { id: 'nubank', nome: 'Nubank', moeda: 'BRL', rendimento: '', cor: 'violet' },
     { id: 'mp', nome: 'Mercado Pago', moeda: 'BRL', rendimento: '', cor: 'sky' },
@@ -41,19 +40,5 @@ describe('rentabilidadeCaixinhas', () => {
     const t = totalRentabilidade(itens, { USD: 5 });
     expect(t).toMatchObject({ atual: 7096, rendimento: 217, inicio: '2026-05' });
     expect(t.alocacao.nubank).toBeCloseTo(74.83, 2);
-  });
-});
-
-describe('acumulado', () => {
-  it('compõe mês a mês no intervalo e diz até onde havia dado', () => {
-    const cdi = [
-      { mes: '2026-06', valor: 1 },
-      { mes: '2026-07', valor: 1 },
-      { mes: '2026-08', valor: 1 },
-    ];
-    const r = acumulado(cdi, '2026-07', '2026-09');
-    expect(r?.pct).toBeCloseTo(2.01, 2);
-    expect(r).toMatchObject({ ate: '2026-08', meses: 2 });
-    expect(acumulado(cdi, '2027-01', '2027-02')).toBeNull();
   });
 });

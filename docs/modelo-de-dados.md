@@ -16,17 +16,16 @@ users/{uid}/historico/{id}         RegistroHistorico (imutável)
 
 ## Config
 
-| Campo               | Tipo                       | Descrição                                                                 |
-| ------------------- | -------------------------- | ------------------------------------------------------------------------- |
-| `nome`              | string                     | Nome do plano (não é exibido na tela)                                     |
-| `rendaMensal`       | number                     | Renda de referência                                                       |
-| `taxaAnualEstimada` | number                     | Ex.: `0.147`; usada para estimar o rendimento mensal das caixinhas em BRL |
-| `caixinhas`         | Caixinha[]                 | Onde o dinheiro está                                                      |
-| `objetivos`         | Objetivo[]                 | Metas que somam uma ou mais caixinhas                                     |
-| `cartoes`           | Cartao[]                   | Cartões de crédito e limites                                              |
-| `alocacaoDesde`     | `YYYY-MM`?                 | Rótulo "a partir de" da alocação mensal                                   |
-| `orcamentos`        | `{ [categoria]: number }`? | Orçamento mensal por categoria, em BRL                                    |
-| `recorrentes`       | Recorrente[]?              | Lançamentos e aportes criados automaticamente todo mês                    |
+| Campo           | Tipo                       | Descrição                                              |
+| --------------- | -------------------------- | ------------------------------------------------------ |
+| `nome`          | string                     | Nome do plano (não é exibido na tela)                  |
+| `rendaMensal`   | number                     | Renda de referência                                    |
+| `caixinhas`     | Caixinha[]                 | Onde o dinheiro está                                   |
+| `objetivos`     | Objetivo[]                 | Metas que somam uma ou mais caixinhas                  |
+| `cartoes`       | Cartao[]                   | Cartões de crédito e limites                           |
+| `alocacaoDesde` | `YYYY-MM`?                 | Rótulo "a partir de" da alocação mensal                |
+| `orcamentos`    | `{ [categoria]: number }`? | Orçamento mensal por categoria, em BRL                 |
+| `recorrentes`   | Recorrente[]?              | Lançamentos e aportes criados automaticamente todo mês |
 
 **Caixinha:** `id`, `nome`, `emoji?`, `moeda` (`BRL` \| `USD` \| `EUR`), `rendimento` (texto, ex.: "115% CDI"),
 `descricao?`, `cor` (`emerald` \| `amber` \| `violet` \| `coral` \| `sky`), `tipo?` (`investimento` \| `conta`;
@@ -96,7 +95,7 @@ Criado ou sobrescrito a cada "Atualizar saldos" no mês. A cotação gravada é 
 
 ```ts
 {
-  mes: 'YYYY-MM', fechadoEm: string, renda, rendaPrevista, gastos, investimentos, saldo, taxaPoupanca,
+  mes: 'YYYY-MM', fechadoEm: string, renda, rendaPrevista, gastos, investimentos, saldo,
   maiorCategoria: { cat, valor } | null, maiorGasto: { desc, valor } | null,
   aportesPorMeta: [{ objetivoId, nome, emoji?, valor }], patrimonio: number | null, variacaoPatrimonio: number | null
 }
@@ -118,26 +117,11 @@ Regras: só cria (id = `mes`, totais numéricos) ou apaga; nunca edita. Fechar o
 Gravado no mesmo batch de cada operação (`services/repositorio.ts`): ou entram os dois, ou nenhum. Regras: só cria;
 ninguém edita nem apaga, nem o dono. O `lancadoAte` das recorrências é controle interno e não gera registro.
 
-## Arquivo de importação
+## Dados de exemplo
 
-Usado no primeiro acesso. Exemplo completo em [`seed/exemplo.json`](../seed/exemplo.json).
+[`seed/exemplo.json`](../seed/exemplo.json) tem uma config fictícia completa (caixinhas, objetivos, cartões,
+orçamentos e recorrentes), saldos e fotos mensais. É usado pelo emulador (`npm run dev:emulador`) e pelos testes; o
+app em si não importa arquivos: cada pessoa começa do zero e configura dentro dele.
 
-```json
-{
-  "config": {
-    "nome": "...",
-    "rendaMensal": 0,
-    "taxaAnualEstimada": 0.14,
-    "caixinhas": [],
-    "objetivos": [],
-    "cartoes": []
-  },
-  "saldos": { "valores": { "reserva": 1000 } },
-  "snapshots": [{ "mes": "2026-08", "valores": { "reserva": 900 } }]
-}
-```
-
-Apenas `config` é obrigatório. A validação (`validacao.ts`) confere tipos, moedas, cores, formatos de data e se os
-objetivos apontam para caixinhas existentes.
-
-> Guarde seus dados reais em `seed/*.json` (exceto `exemplo.json`): o `.gitignore` impede que sejam versionados.
+A validação da config (`validacao.ts`) roda sempre que as Configurações são salvas: confere tipos, moedas, cores,
+formatos de data e se objetivos e recorrentes apontam para caixinhas e cartões existentes.

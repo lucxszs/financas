@@ -20,25 +20,15 @@ import {
   type OrigemHistorico,
   type RegistroHistorico,
 } from '../domain/auditoria';
-import { mesAtualIso } from '../domain/datas';
 import {
   aporteDeRecorrente,
   idLancamentoRecorrente,
   marcarLancados,
-  semRetroativo,
   transacaoDeRecorrente,
   valorPrevisto,
   type LancamentoRecorrente,
 } from '../domain/recorrentes';
-import type {
-  Aporte,
-  Config,
-  DadosIniciais,
-  FechamentoMes,
-  Saldos,
-  Snapshot,
-  Transacao,
-} from '../domain/types';
+import type { Aporte, Config, FechamentoMes, Saldos, Snapshot, Transacao } from '../domain/types';
 
 // Todos os dados ficam em /users/{uid}/..., protegidos por firestore.rules.
 const perfilDoc = (uid: string, id: 'config' | 'saldos') => doc(db, 'users', uid, 'perfil', id);
@@ -266,16 +256,11 @@ export const lancarRecorrentes = async (
   });
 };
 
-/** Grava config, saldos e snapshots de uma vez (primeiro acesso). */
-export const importarDados = (uid: string, dados: DadosIniciais) =>
+/** Primeiro acesso: cria o plano em branco (config e saldos vazios). */
+export const criarPlano = (uid: string, config: Config) =>
   gravar((b) => {
-    const recorrentes = dados.config.recorrentes && semRetroativo(dados.config.recorrentes, mesAtualIso());
-    const config = semIndefinidos({ ...dados.config, recorrentes });
-    b.set(perfilDoc(uid, 'config'), config);
-    b.set(perfilDoc(uid, 'saldos'), {
-      valores: dados.saldos?.valores ?? {},
-      updatedAt: null,
-    } satisfies Saldos);
-    for (const s of dados.snapshots ?? []) b.set(doc(colecao(uid, 'snapshots'), s.mes), s);
-    registrar(b, uid, 'config', 'config', null, config, 'importacao');
+    const nova = semIndefinidos(config);
+    b.set(perfilDoc(uid, 'config'), nova);
+    b.set(perfilDoc(uid, 'saldos'), { valores: {}, updatedAt: null } satisfies Saldos);
+    registrar(b, uid, 'config', 'config', null, nova);
   });

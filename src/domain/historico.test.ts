@@ -5,7 +5,6 @@ import type { Config, Transacao } from './types';
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [{ id: 'reserva', nome: 'Reserva', moeda: 'BRL', rendimento: '', cor: 'emerald' }],
   objetivos: [],
   cartoes: [],
@@ -46,7 +45,6 @@ describe('serieMensal', () => {
       gastos: 5400,
       investimentos: 1000,
       saldo: 2600,
-      taxaPoupanca: (1000 / 9000) * 100,
       patrimonio: 6300,
       fechado: false,
     });
@@ -64,7 +62,6 @@ describe('serieMensal com fechamento', () => {
       gastos: 5000,
       investimentos: 1191,
       saldo: 2809,
-      taxaPoupanca: 13.2,
       maiorCategoria: null,
       maiorGasto: null,
       aportesPorMeta: [],

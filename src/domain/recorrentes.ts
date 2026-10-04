@@ -48,10 +48,6 @@ export const recorrentesPendentes = (recorrentes: Recorrente[], hoje: string): L
     .filter((l) => l.data > hoje);
 };
 
-/** Na importação, recorrências nunca lançam meses passados: o início vira, no mínimo, o mês atual. */
-export const semRetroativo = (recorrentes: Recorrente[], mesAtual: string): Recorrente[] =>
-  recorrentes.map((r) => (r.lancadoAte || r.inicio >= mesAtual ? r : { ...r, inicio: mesAtual }));
-
 /** Id determinístico: lançar duas vezes o mesmo mês grava no mesmo documento. */
 export const idLancamentoRecorrente = (recorrenteId: string, mes: string) => `rec_${recorrenteId}_${mes}`;
 

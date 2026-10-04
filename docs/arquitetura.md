@@ -6,8 +6,7 @@
 Navegador (React SPA)
  ├─ Firebase Auth (Google) ............ identidade
  ├─ Cloud Firestore ................... dados, protegidos por firestore.rules
- ├─ AwesomeAPI ........................ cotações USD/EUR → BRL
- └─ Banco Central (SGS) ............... CDI e IPCA mensais
+ └─ AwesomeAPI ........................ cotações USD/EUR → BRL
 Firebase Hosting ...................... serve o build estático (dist/)
 GitHub Actions ........................ CI (qualidade + regras) e CD (preview e produção)
 ```
@@ -43,7 +42,7 @@ src/
     simulacao.ts     simulações "e se..." e valor futuro
     compra.ts        análise "Posso comprar?"
     auditoria.ts     histórico de alterações: resumo, campos alterados e restauração
-    rentabilidade.ts rendimento por caixinha, alocação e CDI/IPCA acumulados
+    rentabilidade.ts rendimento por caixinha e alocação
     calendario.ts    entradas e saídas previstas por dia
     recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
     ids.ts           ids legíveis a partir do nome
@@ -56,8 +55,7 @@ src/
   services/        acesso a dados externos
     repositorio.ts   leitura/escrita no Firestore (CRUD e listeners em tempo real)
     cotacao.ts       AwesomeAPI + última cotação guardada
-    indicadores.ts   CDI e IPCA do Banco Central, com cache de 24h
-  hooks/           useCotacoes (polling de 5 min), useIndicadores (CDI/IPCA), useEnvio (estado de formulários)
+  hooks/           useCotacoes (polling de 5 min), useAmostra (listas com "mostrar todos"), useEnvio (estado de formulários)
   features/        telas, uma pasta por funcionalidade
     auth/            AuthProvider, login (Google e e-mail/senha), confirmação de e-mail
     dados/           DadosProvider: assina as coleções do usuário e expõe via contexto

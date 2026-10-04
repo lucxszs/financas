@@ -2,7 +2,6 @@
   "config": {
     "nome": "Exemplo",
     "rendaMensal": 6000,
-    "taxaAnualEstimada": 0.14,
     "alocacaoDesde": "2026-01",
     "caixinhas": [
       {

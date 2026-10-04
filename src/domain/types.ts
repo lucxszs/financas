@@ -59,8 +59,6 @@ export interface Cartao {
 export interface Config {
   nome: string;
   rendaMensal: number;
-  /** Taxa anual usada para estimar o rendimento mensal das caixinhas em BRL (ex.: 0.147). */
-  taxaAnualEstimada: number;
   caixinhas: Caixinha[];
   objetivos: Objetivo[];
   cartoes: Cartao[];
@@ -180,7 +178,6 @@ export interface FechamentoMes {
   gastos: number;
   investimentos: number;
   saldo: number;
-  taxaPoupanca: number;
   maiorCategoria: { cat: Categoria; valor: number } | null;
   maiorGasto: { desc: string; valor: number } | null;
   aportesPorMeta: { objetivoId: string; nome: string; emoji?: string; valor: number }[];

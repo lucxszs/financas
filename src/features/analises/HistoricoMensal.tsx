@@ -1,22 +1,19 @@
-import { GraficoColunas, GraficoLinha } from '../../components/graficos';
+import { GraficoColunas } from '../../components/graficos';
 import { Lock } from 'lucide-react';
 import { Icone } from '../../components/icones';
 import { Secao } from '../../components/ui';
 import { mesAtualIso, rotuloMesCurto } from '../../domain/datas';
-import { fmt, fmtCompacto, fmtPct } from '../../domain/formatadores';
+import { fmt, fmtCompacto } from '../../domain/formatadores';
 import { serieMensal, type LinhaHistorico } from '../../domain/historico';
 import { useDadosConfigurados } from '../dados/useDados';
 
 const MESES = 6;
-const pct = (v: number) => fmtPct(v, 1);
-const pctEixo = (v: number) => fmtPct(v);
 
 const LINHAS: { rotulo: string; valor: (l: LinhaHistorico) => string }[] = [
   { rotulo: 'Renda', valor: (l) => `${fmt(l.renda)}${l.rendaPrevista ? '*' : ''}` },
   { rotulo: 'Gastos', valor: (l) => fmt(l.gastos) },
   { rotulo: 'Investimentos', valor: (l) => fmt(l.investimentos) },
   { rotulo: 'Saldo', valor: (l) => fmt(l.saldo) },
-  { rotulo: 'Poupança', valor: (l) => pct(l.taxaPoupanca) },
   { rotulo: 'Patrimônio', valor: (l) => (l.patrimonio === null ? '·' : fmt(l.patrimonio)) },
 ];
 
@@ -93,16 +90,6 @@ export const HistoricoMensal = () => {
             formatar={fmt}
             formatarEixo={fmtCompacto}
             descricao="Investimentos por mês"
-          />
-        </div>
-        <div className="card card-pad mt-8">
-          <div className="grafico-titulo">Taxa de poupança</div>
-          <GraficoLinha
-            pontos={pontos((l) => l.taxaPoupanca)}
-            cor="var(--violet)"
-            formatar={pct}
-            formatarEixo={pctEixo}
-            descricao="Taxa de poupança por mês"
           />
         </div>
       </Secao>

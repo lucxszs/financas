@@ -87,16 +87,3 @@ export const totalRentabilidade = (
     alocacao,
   };
 };
-
-/**
- * Variação acumulada (%) de uma série mensal entre dois meses (inclusive), compondo mês a mês.
- * `ate` diz até onde havia dado (a série do mês corrente costuma sair só no mês seguinte).
- */
-export const acumulado = (serie: { mes: string; valor: number }[], desde: string, ate: string) => {
-  const meses = serie
-    .filter((p) => p.mes >= desde && p.mes <= ate)
-    .sort((a, b) => a.mes.localeCompare(b.mes));
-  if (!meses.length) return null;
-  const fator = meses.reduce((f, p) => f * (1 + p.valor / 100), 1);
-  return { pct: (fator - 1) * 100, ate: meses.at(-1)!.mes, meses: meses.length };
-};

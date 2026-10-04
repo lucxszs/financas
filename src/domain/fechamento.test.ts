@@ -5,7 +5,6 @@ import type { Config, FechamentoMes, Transacao } from './types';
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [
     { id: 'nubank', nome: 'Nubank', moeda: 'BRL', rendimento: '', cor: 'violet' },
     { id: 'mp', nome: 'Mercado Pago', moeda: 'BRL', rendimento: '', cor: 'sky' },
@@ -64,7 +63,6 @@ describe('montarFechamento', () => {
       gastos: 4380,
       investimentos: 1191,
       saldo: 3429,
-      taxaPoupanca: (1191 / 9000) * 100,
       maiorCategoria: { cat: 'outro', valor: 2840 },
       maiorGasto: { desc: 'Fatura Itaú', valor: 2840 },
       aportesPorMeta: [

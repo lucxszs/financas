@@ -6,7 +6,6 @@ import type { Aporte, Config, Transacao } from './types';
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [
     { id: 'nubank', nome: 'Nubank', moeda: 'BRL', rendimento: '', cor: 'violet' },
     { id: 'mp', nome: 'Mercado Pago', moeda: 'BRL', rendimento: '', cor: 'sky' },

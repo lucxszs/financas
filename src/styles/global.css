@@ -551,14 +551,6 @@ code {
   opacity: 0.7;
   margin-top: 4px;
 }
-.tc-rend-val {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--emerald);
-}
-.tc-right {
-  text-align: right;
-}
 
 .invest-grid {
   display: grid;
@@ -1725,10 +1717,6 @@ code {
   .tc-val {
     font-size: 26px;
   }
-  .tc-right {
-    text-align: left;
-  }
-
   .invest-grid,
   .field-row {
     grid-template-columns: 1fr;

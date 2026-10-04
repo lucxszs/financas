@@ -14,8 +14,6 @@ export interface ResumoMes {
   gastos: number;
   investimentos: number;
   saldoLivre: number;
-  /** % da renda que foi investida. */
-  taxaPoupanca: number;
   /** % da renda que foi gasta. */
   gastosSobreRenda: number;
 }
@@ -54,7 +52,6 @@ export const resumoMes = (
     gastos,
     investimentos,
     saldoLivre: renda - gastos - investimentos,
-    taxaPoupanca: renda > 0 ? (investimentos / renda) * 100 : 0,
     gastosSobreRenda: renda > 0 ? (gastos / renda) * 100 : 0,
   };
 };

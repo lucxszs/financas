@@ -19,7 +19,6 @@ const rec = (p: Partial<Recorrente> & { id: string }): Recorrente =>
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [{ id: 'mp', nome: 'Mercado Pago', moeda: 'BRL', rendimento: '', cor: 'sky' }],
   objetivos: [],
   cartoes: [{ id: 'itau', nome: 'Itaú', limite: 5500, cor: 'amber', diaVencimento: 13 }],

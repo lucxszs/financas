@@ -1,7 +1,7 @@
 import { categoriaPorId } from '../../domain/catalogos';
 import { IconeCategoria } from '../../components/icones';
 import { EmojiItem } from '../../components/marcas';
-import { fmt, fmtPct } from '../../domain/formatadores';
+import { fmt } from '../../domain/formatadores';
 import type { FechamentoMes } from '../../domain/types';
 
 const sinal = (v: number) => `${v < 0 ? '− ' : '+ '}${fmt(Math.abs(v))}`;
@@ -26,10 +26,6 @@ export const FechamentoDetalhe = ({ f }: { f: FechamentoMes }) => {
       <div className={`brow total ${f.saldo >= 0 ? 'positivo' : 'deficit'}`}>
         <span className="bname">Saldo</span>
         <span className="bval">{f.saldo < 0 ? `− ${fmt(-f.saldo)}` : fmt(f.saldo)}</span>
-      </div>
-      <div className="brow">
-        <span className="bname">Taxa de poupança</span>
-        <span className="bval">{fmtPct(f.taxaPoupanca, 1)}</span>
       </div>
       {f.maiorCategoria && (
         <div className="brow">

@@ -2,10 +2,9 @@ import { Percent } from 'lucide-react';
 import { NomeCaixinha } from '../../components/marcas';
 import { Barra, Secao } from '../../components/ui';
 import { corVar } from '../../components/cor';
-import { mesAtualIso, rotuloMesCurto } from '../../domain/datas';
+import { rotuloMesCurto } from '../../domain/datas';
 import { fmt, fmtPct, formatarMoeda } from '../../domain/formatadores';
-import { acumulado, rentabilidadeCaixinhas, totalRentabilidade } from '../../domain/rentabilidade';
-import { useIndicadores } from '../../hooks/useIndicadores';
+import { rentabilidadeCaixinhas, totalRentabilidade } from '../../domain/rentabilidade';
 import { useDadosConfigurados } from '../dados/useDados';
 
 const pctSinal = (v: number) => `${v >= 0 ? '+' : ''}${fmtPct(v, 2)}`;
@@ -14,12 +13,6 @@ export const Rentabilidade = () => {
   const { config, saldos, snapshots, cotacoes } = useDadosConfigurados();
   const itens = rentabilidadeCaixinhas(config, saldos.valores, snapshots, cotacoes);
   const total = totalRentabilidade(itens, cotacoes);
-  // Período: do primeiro mês com rendimento informado até hoje.
-  const desde = total.inicio;
-  const { cdi, ipca, status } = useIndicadores(desde);
-  const mes = mesAtualIso();
-  const cdiPeriodo = desde ? acumulado(cdi, desde, mes) : null;
-  const ipcaPeriodo = desde ? acumulado(ipca, desde, mes) : null;
 
   if (!itens.length) return null;
 
@@ -45,21 +38,6 @@ export const Rentabilidade = () => {
             {total.pct === null || !total.inicio ? 'sem rendimentos informados' : pctSinal(total.pct)}
           </span>
         </div>
-        {desde && (
-          <div className="brow">
-            <span className="bname">
-              CDI · IPCA no período
-              {cdiPeriodo && ` (até ${rotuloMesCurto(cdiPeriodo.ate)})`}
-            </span>
-            <span className="bval">
-              {status === 'erro' || (!cdiPeriodo && status !== 'loading')
-                ? 'indisponível'
-                : status === 'loading' && !cdiPeriodo
-                  ? 'buscando...'
-                  : `${cdiPeriodo ? pctSinal(cdiPeriodo.pct) : '·'} · ${ipcaPeriodo ? pctSinal(ipcaPeriodo.pct) : '·'}`}
-            </span>
-          </div>
-        )}
       </div>
 
       <div className="card mt-8">
@@ -83,10 +61,7 @@ export const Rentabilidade = () => {
       </div>
       <div className="nota">
         Rendimentos = soma do &quot;rendimento do mês&quot; informado no &quot;Atualizar saldos&quot;; mês sem
-        rendimento informado conta zero. Investido = saldo atual − rendimentos. CDI e IPCA: Banco Central,
-        compostos mês a mês desde o primeiro rendimento informado; comparação aproximada, porque os depósitos
-        entram ao longo do período.
-        {status === 'antiga' && ' Banco Central indisponível: usando os últimos valores guardados.'}
+        rendimento informado conta zero. Investido = saldo atual − rendimentos.
       </div>
     </Secao>
   );
