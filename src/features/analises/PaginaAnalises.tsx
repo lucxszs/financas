@@ -2,7 +2,8 @@ import { useState, type CSSProperties } from 'react';
 import { PiggyBank } from 'lucide-react';
 import { Icone } from '../../components/icones';
 import { MarcaItem } from '../../components/marcas';
-import { AcoesItem, ModalConfirmacao, Secao, Vazio } from '../../components/ui';
+import { AcoesItem, ModalConfirmacao, MostrarMais, Secao, Vazio } from '../../components/ui';
+import { useAmostra } from '../../hooks/useAmostra';
 import { corVar } from '../../components/cor';
 import { totalSnapshot } from '../../domain/calculos';
 import { rotuloDiaMes, rotuloMesCurto } from '../../domain/datas';
@@ -12,6 +13,7 @@ import { excluirAporte } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 import { HistoricoMensal } from './HistoricoMensal';
 import { MesesFechados } from './MesesFechados';
+import { PossoComprar } from './PossoComprar';
 import { Simulador } from './Simulador';
 
 export const PaginaAnalises = ({
@@ -23,6 +25,7 @@ export const PaginaAnalises = ({
 }) => {
   const { uid, config, aportes, snapshots, cotacoes } = useDadosConfigurados();
   const [aExcluir, setAExcluir] = useState<Aporte | null>(null);
+  const amostraAportes = useAmostra(aportes, 6);
   const caixinha = (id: string) => config.caixinhas.find((c) => c.id === id);
   const valorAporte = (a: Aporte) => formatarMoeda(a.val, caixinha(a.caixinha)?.moeda ?? 'BRL');
 
@@ -30,6 +33,7 @@ export const PaginaAnalises = ({
     <>
       <HistoricoMensal />
       <MesesFechados />
+      <PossoComprar />
       <Simulador />
 
       <Secao titulo="Aportes lançados">
@@ -43,7 +47,7 @@ export const PaginaAnalises = ({
           {aportes.length === 0 ? (
             <Vazio>Nenhum aporte lançado ainda.</Vazio>
           ) : (
-            aportes.map((a) => {
+            amostraAportes.visiveis.map((a) => {
               const c = caixinha(a.caixinha);
               const nome = c?.nome ?? a.caixinha;
               return (
@@ -64,6 +68,13 @@ export const PaginaAnalises = ({
                 </div>
               );
             })
+          )}
+          {amostraAportes.temMais && (
+            <MostrarMais
+              total={amostraAportes.total}
+              expandido={amostraAportes.expandido}
+              onAlternar={amostraAportes.alternar}
+            />
           )}
         </div>
       </Secao>

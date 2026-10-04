@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AcoesItem, ModalConfirmacao, Secao } from '../../components/ui';
+import { AcoesItem, ModalConfirmacao, MostrarMais, Secao } from '../../components/ui';
 import { categoriaPorId, tipoPorId } from '../../domain/catalogos';
 import { mesCompetencia, resumoTransacoes, transacoesDaCompetencia } from '../../domain/calculos';
 import { mesAtualIso, rotuloDiaMes, rotuloMesCurto, rotuloMesLongo, somarMeses } from '../../domain/datas';
@@ -7,6 +7,7 @@ import { fmt } from '../../domain/formatadores';
 import type { Transacao } from '../../domain/types';
 import { Repeat } from 'lucide-react';
 import { Icone, IconeCategoria, IconeTipo } from '../../components/icones';
+import { useAmostra } from '../../hooks/useAmostra';
 import { excluirTransacao, excluirTransacoes } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 
@@ -24,6 +25,8 @@ export const ListaLancamentos = ({
 
   // Compras no cartão aparecem no mês da fatura.
   const doMes = transacoesDaCompetencia(transacoes, mes);
+  // Os totais somam o mês inteiro; a lista mostra os 6 mais recentes até pedir para ver todos.
+  const amostra = useAmostra(doMes, 6, mes);
   const { entradas, saidas, saldo } = resumoTransacoes(doMes);
   const nomeCartao = (id: string | null) => config.cartoes.find((c) => c.id === id)?.nome;
 
@@ -60,7 +63,7 @@ export const ListaLancamentos = ({
             Toque em &quot;+ Novo&quot; para começar.
           </div>
         ) : (
-          doMes.map((t) => {
+          amostra.visiveis.map((t) => {
             const tipo = tipoPorId(t.tipo);
             // Lançamentos antigos de recorrência guardavam "🔁 automático" na observação: o ícone já diz isso.
             const obs = t.obs === '🔁 automático' ? '' : t.obs;
@@ -95,6 +98,9 @@ export const ListaLancamentos = ({
               </div>
             );
           })
+        )}
+        {amostra.temMais && (
+          <MostrarMais total={amostra.total} expandido={amostra.expandido} onAlternar={amostra.alternar} />
         )}
 
         <div className="tx-summary">

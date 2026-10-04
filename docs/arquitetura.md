@@ -57,9 +57,9 @@ src/
     indicadores.ts   CDI e IPCA do Banco Central, com cache de 24h
   hooks/           useCotacoes (polling de 5 min), useIndicadores (CDI/IPCA), useEnvio (estado de formulários)
   features/        telas, uma pasta por funcionalidade
-    auth/            AuthProvider, login, allowlist
+    auth/            AuthProvider, login (Google e e-mail/senha), confirmação de e-mail
     dados/           DadosProvider: assina as coleções do usuário e expõe via contexto
-    dashboard/ gastos/ patrimonio/ metas/ analises/ onboarding/
+    dashboard/ gastos/ patrimonio/ metas/ analises/ calendario/ onboarding/
     configuracoes/   formulários de caixinhas, cartões, objetivos, orçamento e recorrentes
     modais/          formulários de saldos, transação e aporte (criar e editar)
   components/      UI compartilhada (Modal, ModalConfirmacao, AcoesItem, Barra...), gráficos em SVG,
@@ -74,7 +74,8 @@ docs/              esta documentação
 
 ## Fluxo de dados
 
-1. `AuthProvider` observa o login. Com usuário logado, lê `acessos/{uid}` para saber se ele está liberado.
+1. `AuthProvider` observa o login. Conta Google ou com e-mail confirmado entra; e-mail não confirmado fica na tela de
+   confirmação.
 2. `DadosProvider` abre listeners (`onSnapshot`) em `users/{uid}/...` e mantém tudo em estado React. Qualquer
    gravação (inclusive de outro dispositivo) chega em tempo real. Transações: só dos últimos 12 meses em diante.
    Quando a config chega, ele também lança as recorrências vencidas.
@@ -84,16 +85,7 @@ docs/              esta documentação
 
 ## Decisões
 
-| Decisão                                    | Motivo                                                                                           |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| Sem backend                                | App pessoal de um usuário; as regras do Firestore dão controle de acesso suficiente e testável.  |
-| Allowlist em `acessos/{uid}`               | Login Google aceita qualquer conta; a allowlist impede que desconhecidos criem dados no projeto. |
-| Dados em `users/{uid}/...`                 | Isolamento por usuário simples de expressar e testar nas regras.                                 |
-| Config no Firestore, não no código         | Permite repo público sem dados pessoais.                                                         |
-| Snapshot mensal com cotação                | O total histórico usa o câmbio daquele mês, não o de hoje.                                       |
-| Datas `YYYY-MM-DD` como string, fuso local | Evita o bug de UTC (`toISOString`) que jogava lançamentos noturnos para o dia seguinte.          |
-| Domínio sem dependências                   | Cálculos testáveis sem mock de Firebase nem React.                                               |
-| Sem biblioteca de UI/estado                | O app é pequeno; Context + hooks bastam e mantêm o bundle leve.                                  |
-| Fonte só de bandeiras no Windows           | O Windows não desenha bandeiras emoji; `country-flag-emoji-polyfill` carrega a fonte Twemoji.    |
-| Ícones e bandeiras em SVG                  | `lucide-react` na interface, `country-flag-icons` nas bandeiras e logos do Simple Icons (CC0).   |
-| Última cotação no `localStorage`           | Se a AwesomeAPI cair, o câmbio mostra o último valor conhecido com data e hora.                  |
+| Decisão                              | Motivo                                                                                                            |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Sem backend                          | App pessoal de um usuário; as regras do Firestore dão controle de acesso suficiente e testável.                   |
+| Contas abertas com e-mail verificado | Qualquer pessoa usa o app sem cadastro manual; exigir e-mail verificado nas regras barra contas com e-mail falso. |

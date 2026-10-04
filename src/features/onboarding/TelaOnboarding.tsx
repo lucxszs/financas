@@ -1,11 +1,29 @@
 import { useState, type ChangeEvent } from 'react';
+import type { DadosIniciais } from '../../domain/types';
 import { validarDadosIniciais } from '../../domain/validacao';
+import { useAuth } from '../auth/useAuth';
 import { importarDados } from '../../services/repositorio';
 import { useDados } from '../dados/useDados';
 import exemplo from '../../../seed/exemplo.json';
 
+/** Plano mínimo para quem começa sem arquivo: uma conta corrente; o resto se cadastra em Configurações. */
+const planoInicial = (nome: string): DadosIniciais => ({
+  config: {
+    nome: nome || 'Meu plano',
+    rendaMensal: 0,
+    taxaAnualEstimada: 0.1,
+    caixinhas: [
+      { id: 'conta', nome: 'Conta corrente', moeda: 'BRL', rendimento: '', cor: 'sky', tipo: 'conta' },
+    ],
+    objetivos: [],
+    cartoes: [],
+  },
+});
+
 export const TelaOnboarding = () => {
   const { uid } = useDados();
+  const { estado } = useAuth();
+  const nome = estado.status === 'liberado' ? (estado.user.displayName ?? '') : '';
   const [erros, setErros] = useState<string[]>([]);
   const [salvando, setSalvando] = useState(false);
 
@@ -39,10 +57,13 @@ export const TelaOnboarding = () => {
         <div className="eyebrow">Primeiro acesso</div>
         <h1>Configurar plano</h1>
         <p className="muted">
-          Importe o arquivo JSON com suas caixinhas, metas, cartões e histórico. O formato está em{' '}
-          <code>seed/exemplo.json</code> e no README.
+          Comece do zero e cadastre renda, contas, cartões e metas em Configurações. Se já tiver tudo num
+          arquivo, importe o JSON (formato em <code>seed/exemplo.json</code>).
         </p>
-        <label className="btn-save centro">
+        <button className="btn-save" onClick={() => void importar(planoInicial(nome))} disabled={salvando}>
+          Começar do zero
+        </button>
+        <label className="btn largura-total centro">
           {salvando ? 'Importando...' : 'Importar JSON'}
           <input
             type="file"

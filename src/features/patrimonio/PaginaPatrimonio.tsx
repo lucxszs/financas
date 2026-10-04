@@ -71,9 +71,10 @@ export const PaginaPatrimonio = () => {
           />
         </div>
         <div className="nota">
-          Contas = caixinhas do tipo conta. Dívidas = faturas do cartão ainda não vencidas, incluindo as
-          futuras. Meses anteriores usam a foto do &quot;Atualizar saldos&quot;; fotos antigas não têm dívidas
-          gravadas.
+          Contas = caixinhas do tipo conta. Dívidas = limite em uso de cada cartão: o informado pelo banco no
+          &quot;Atualizar saldos&quot; ou, sem ele, as faturas lançadas ainda não vencidas (incluindo as
+          futuras). Meses anteriores usam a foto do &quot;Atualizar saldos&quot;; fotos antigas não têm
+          dívidas gravadas.
         </div>
       </Secao>
 

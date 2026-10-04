@@ -4,19 +4,19 @@ O repositório é público e não contém dados financeiros. A proteção dos da
 
 ## Camadas
 
-| Camada               | Onde                       | O que garante                                                                       |
-| -------------------- | -------------------------- | ----------------------------------------------------------------------------------- |
-| Autenticação         | Firebase Auth (Google)     | Nada no Firestore é acessível sem login                                             |
-| Allowlist            | `acessos/{uid}` + regras   | Só contas liberadas manualmente usam o app; nenhum cliente consegue se autoliberar  |
-| Isolamento           | regras em `users/{uid}/**` | Cada usuário só lê e escreve os próprios dados                                      |
-| Validação            | regras                     | Tipos, tamanhos, formatos de data, valores positivos, `criadoEm` imutável, parcelas |
-| Imutabilidade        | regras                     | Fechamento mensal só pode ser criado ou apagado, nunca editado                      |
-| Restrição da API key | Google Cloud Console       | A chave só é aceita a partir dos domínios do app                                    |
-| Cabeçalhos HTTP      | `firebase.json`            | `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`         |
-| XSS                  | React                      | Texto do usuário é sempre escapado (sem `innerHTML`)                                |
+| Camada               | Onde                       | O que garante                                                                                  |
+| -------------------- | -------------------------- | ---------------------------------------------------------------------------------------------- |
+| Autenticação         | Firebase Auth (Google)     | Nada no Firestore é acessível sem login                                                        |
+| E-mail verificado    | regras (`email_verified`)  | Conta de e-mail e senha só acessa dados depois de confirmar o e-mail; Google já vem verificado |
+| Isolamento           | regras em `users/{uid}/**` | Cada usuário só lê e escreve os próprios dados                                                 |
+| Validação            | regras                     | Tipos, tamanhos, formatos de data, valores positivos, `criadoEm` imutável, parcelas            |
+| Imutabilidade        | regras                     | Fechamento mensal só pode ser criado ou apagado, nunca editado                                 |
+| Restrição da API key | Google Cloud Console       | A chave só é aceita a partir dos domínios do app                                               |
+| Cabeçalhos HTTP      | `firebase.json`            | `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`                    |
+| XSS                  | React                      | Texto do usuário é sempre escapado (sem `innerHTML`)                                           |
 
 As regras estão em [`firestore.rules`](../firestore.rules) e são cobertas por
-[`tests/firestore.rules.test.ts`](../tests/firestore.rules.test.ts): acesso anônimo, allowlist, isolamento entre
+[`tests/firestore.rules.test.ts`](../tests/firestore.rules.test.ts): acesso anônimo, contas sem e-mail verificado, isolamento entre
 usuários, validação de campos e edição.
 
 ## A `apiKey` do Firebase não é segredo
@@ -35,10 +35,13 @@ http://localhost:5173/*
 
 Evite `https://*.web.app/*`: libera qualquer site hospedado no Firebase, de qualquer pessoa.
 
-## Liberar ou revogar acesso
+## Contas
 
-- **Liberar:** Firestore > coleção `acessos` > documento com o `uid` da conta (qualquer campo, ex.: `ativo: true`).
-- **Revogar:** apagar o documento. O efeito é imediato; os dados em `users/{uid}` continuam lá.
+- Qualquer pessoa cria conta (Google ou e-mail e senha) e usa o app; não há cadastro manual.
+- **Bloquear alguém:** Firebase Console > Authentication > Usuários > desativar a conta. O efeito vale no próximo
+  login (o token atual expira em até 1 hora). Os dados em `users/{uid}` continuam lá; apague pelo console se quiser.
+- **Custo:** o plano gratuito do Firebase tem cotas diárias de leitura e gravação. Com muitos usuários, acompanhe o
+  uso em Firestore > Uso; se for preciso, ative o App Check para barrar acessos fora do app.
 
 ## Segredos
 

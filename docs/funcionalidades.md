@@ -2,13 +2,18 @@
 
 ## Acesso
 
-- Login com Google. Só contas liberadas entram; as outras veem "Acesso não liberado" com o próprio `uid`.
+- Qualquer pessoa cria a própria conta: **Continuar com Google** ou **e-mail e senha**.
+- Conta de e-mail e senha: o app envia um link de confirmação e só libera os dados depois que o e-mail é confirmado
+  ("Já confirmei" / "Reenviar e-mail"). "Esqueci a senha" envia um link para criar outra.
+- Cada conta só vê os próprios dados.
 - **Sair** e **Configurações** são os ícones no canto superior direito.
 
 ## Primeiro acesso
 
 Sem configuração, o app abre **Configurar plano**:
 
+- **Começar do zero**: cria um plano com uma conta corrente; renda, cartões, metas e o resto se cadastram em
+  Configurações.
 - **Importar JSON**: carrega caixinhas, objetivos, cartões, saldos, histórico e fechamentos. Arquivo com erro não
   grava nada e mostra a lista de problemas.
 - **Usar dados de exemplo**: carrega dados fictícios.
@@ -28,7 +33,7 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 | Gastos        | Lançamentos, calendário do mês, cartões e gastos por categoria × orçamento                                            |
 | Patrimônio    | Patrimônio líquido e evolução, investimentos, rentabilidade × CDI e IPCA, e câmbio                                    |
 | Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação      |
-| Análises      | Histórico mensal com gráficos, meses fechados, simulações, aportes e evolução dos investimentos                       |
+| Análises      | Histórico mensal com gráficos, meses fechados, "Posso comprar?", simulações, aportes e evolução dos investimentos     |
 | Configurações | Renda, caixinhas, cartões, objetivos, orçamento, recorrentes e limpeza dos dados antigos da v1                        |
 
 **Ícones e marcas**: a interface usa ícones em SVG. Caixinhas e cartões mostram o logo do banco na cor oficial
@@ -40,7 +45,7 @@ inteiro. Nomes e descrições de objetivos e recorrências são texto livre: se 
 
 Se a cotação não carregar, o app usa a última conhecida e mostra a data e a hora dela.
 
-## Dashboard
+## Início
 
 **Resumo do mês**
 
@@ -111,7 +116,7 @@ Na contagem regressiva de cada meta com data:
 
 ## Calendário financeiro
 
-- **Próximos 7 dias** (Dashboard): recorrências que ainda vão cair e vencimentos de fatura, com o saldo previsto
+- **Próximos 7 dias** (Início): recorrências que ainda vão cair e vencimentos de fatura, com o saldo previsto
   (entradas − contas, aportes e faturas).
 - **Calendário do mês** (Gastos): tudo o que entra e sai no mês, por dia; marcado = recorrência já lançada, fatura já
   vencida aparece apagada.
@@ -127,6 +132,17 @@ Em Patrimônio:
 - Total com a rentabilidade desde o primeiro rendimento informado, comparada com o CDI e o IPCA do período (séries mensais do Banco
   Central, compostas mês a mês). A comparação é aproximada: os depósitos entram ao longo do período.
 - CDI e IPCA ficam guardados no navegador por 24h; se o Banco Central cair, usa os últimos guardados.
+
+## Posso comprar?
+
+Em Análises: valor, forma de pagamento (à vista, crédito à vista ou parcelado) e cartão. O app responde 🟢 cabe,
+🟡 apertado ou 🔴 não recomendado, com os motivos:
+
+- **Este mês**: a compra sai do "disponível para gastar" do Início.
+- **Meses seguintes** (fatura ou parcelas): sai da sobra típica = renda − média de gastos − aportes planejados.
+- **Cartão**: o limite disponível precisa cobrir o valor total (o banco bloqueia tudo, mesmo parcelado).
+- 🔴 se faltar limite ou algum mês ficar negativo; 🟡 se algum mês ficar com menos de 10% da renda.
+- Dicas: esperar o melhor dia do cartão para cair na fatura seguinte e em quantos meses dá para juntar e pagar à vista.
 
 ## Simulações
 
@@ -144,8 +160,8 @@ Gasto real do mês em cada categoria. Com orçamento definido em Configurações
 ## Patrimônio líquido
 
 - Ativos (investimentos + contas) − dívidas = patrimônio líquido.
-- Dívidas: faturas do cartão ainda não vencidas, incluindo as futuras. Depois do dia do vencimento, a fatura do mês
-  deixa de contar.
+- Dívidas: o limite em uso de cada cartão. Com o limite informado no "Atualizar saldos", vale o do banco (inclui o
+  que não foi lançado no app); sem ele, as faturas lançadas ainda não vencidas, incluindo as futuras.
 - Evolução dos últimos 6 meses: meses anteriores pela foto do "Atualizar saldos" (que passa a gravar as dívidas do
   dia); mês atual pelo valor de agora.
 
@@ -161,14 +177,16 @@ gráficos (gastos, investimentos e taxa de poupança por mês). Passe o mouse ou
 - **Parcelado**: valor total + número de parcelas (2 a 48). O app cria uma parcela por mês de fatura, a partir da
   fatura escolhida, e mostra a prévia ("10x de R$ 150,00 · Out/26 a Jul/27"). Centavos que sobram da divisão vão
   na 1ª parcela. Sem número de parcelas, vira compra à vista.
-- **Navegar**: ‹ › troca o mês; o topo mostra entradas, saídas e saldo. O app carrega os últimos 12 meses. Compra no cartão aparece no mês da fatura, com o selo "fatura Out/26".
+- **Navegar**: ‹ › troca o mês; o topo mostra entradas, saídas e saldo. O app carrega os últimos 12 meses. Compra no cartão aparece no mês da fatura, com o selo "fatura Out/26". A lista mostra os 6 mais recentes e
+  "Mostrar todos (N)" abre o resto; os totais sempre somam o mês inteiro.
 - **Editar**: ✏️ na linha. Numa parcela, valor, data e fatura mudam só nela; descrição, categoria e cartão podem ir
   para todas as parcelas.
 - **Excluir**: 🗑 na linha, com confirmação. Numa parcela: "Só esta parcela" ou "Todas as parcelas".
 
 ## Aportes
 
-Em Análises: criar (🐷 Novo aporte), editar e excluir. O valor é na moeda da caixinha.
+Em Análises: criar (Novo aporte), editar e excluir. O valor é na moeda da caixinha. A lista mostra os 6 mais
+recentes, com "Mostrar todos (N)".
 
 ## Configurações
 
