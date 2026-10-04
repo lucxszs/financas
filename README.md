@@ -8,13 +8,13 @@ Dashboard pessoal de finanças: investimentos em BRL, USD e EUR, metas, lançame
 
 ## Funcionalidades
 
-- 🔐 Login com Google, só para contas liberadas
-- 🏠 Dashboard: resumo do mês, saúde financeira, quanto ainda dá para gastar e fechamento mensal
+- 🔐 Conta própria com Google ou e-mail e senha (com confirmação de e-mail); cada pessoa só vê os próprios dados
+- 🏠 Início: resumo do mês, saúde financeira, quanto ainda dá para gastar, próximos 7 dias e fechamento mensal
 - 💳 Lançamentos, compras parceladas, cartões com faturas futuras e orçamento por categoria
 - 🔁 Contas fixas, salário e aportes lançados sozinhos todo mês, com calendário e próximos 7 dias
 - 📈 Patrimônio líquido e evolução, rentabilidade × CDI e IPCA, investimentos e câmbio
 - 🎯 Metas com contagem regressiva e ritmo necessário × atual
-- 📊 Histórico mensal com gráficos e simulações "e se..."
+- 📊 Histórico mensal com gráficos, "Posso comprar?" e simulações "e se..."
 - 📱 Funciona no computador e no celular
 
 Detalhes em [docs/funcionalidades.md](docs/funcionalidades.md).
@@ -40,7 +40,7 @@ npm run dev:emulador          # requer Java 21+
 | [Funcionalidades](docs/funcionalidades.md) | O que o app faz, tela por tela                                |
 | [Arquitetura](docs/arquitetura.md)         | Stack, pastas, fluxo de dados e decisões                      |
 | [Modelo de dados](docs/modelo-de-dados.md) | Coleções, campos, validações e formato do JSON de importação  |
-| [Segurança](docs/seguranca.md)             | Regras do Firestore, allowlist, API key e segredos            |
+| [Segurança](docs/seguranca.md)             | Regras do Firestore, contas, API key e segredos               |
 | [Desenvolvimento](docs/desenvolvimento.md) | Setup, emuladores, scripts, convenções e solução de problemas |
 | [Deploy e CI/CD](docs/deploy.md)           | Pipeline, configuração do GitHub e Firebase, rollback         |
 
@@ -56,5 +56,5 @@ npm run dev:emulador          # requer Java 21+
 
 ## Segurança em uma linha
 
-Este repositório é público e **não contém dados financeiros**: tudo fica no Firestore, acessível só por contas
-liberadas, cada uma restrita aos próprios dados. Veja [docs/seguranca.md](docs/seguranca.md).
+Este repositório é público e **não contém dados financeiros**: tudo fica no Firestore, e cada conta (com e-mail
+verificado) só lê e grava os próprios dados. Veja [docs/seguranca.md](docs/seguranca.md).

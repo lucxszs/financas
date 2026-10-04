@@ -14,7 +14,7 @@ let env: RulesTestEnvironment;
 
 const DONO = 'dono';
 const INTRUSO = 'intruso';
-const SEM_ACESSO = 'sem-acesso';
+const NAO_VERIFICADO = 'nao-verificado';
 
 const transacao = (extra: Record<string, unknown> = {}) => ({
   desc: 'Mercado',
@@ -43,14 +43,15 @@ beforeEach(async () => {
   await env.clearFirestore();
   await env.withSecurityRulesDisabled(async (ctx) => {
     const db = ctx.firestore();
-    await setDoc(doc(db, 'acessos', DONO), {});
-    await setDoc(doc(db, 'acessos', INTRUSO), {});
     await setDoc(doc(db, 'users', DONO, 'perfil', 'config'), { nome: 'x' });
   });
 });
 
-const dbDe = (uid: string | null) =>
-  uid ? env.authenticatedContext(uid).firestore() : env.unauthenticatedContext().firestore();
+// Por padrão, conta com e-mail verificado (como as contas Google).
+const dbDe = (uid: string | null, emailVerificado = true) =>
+  uid
+    ? env.authenticatedContext(uid, { email_verified: emailVerificado }).firestore()
+    : env.unauthenticatedContext().firestore();
 
 describe('acesso anônimo', () => {
   it('não lê nem escreve nada', async () => {
@@ -66,19 +67,22 @@ describe('acesso anônimo', () => {
   });
 });
 
-describe('allowlist', () => {
-  it('usuário logado sem /acessos não usa o app', async () => {
-    const db = dbDe(SEM_ACESSO);
-    await assertSucceeds(getDoc(doc(db, 'acessos', SEM_ACESSO)));
-    await assertFails(setDoc(doc(db, 'users', SEM_ACESSO, 'perfil', 'config'), { nome: 'x' }));
+describe('contas', () => {
+  it('qualquer conta verificada usa o próprio espaço, sem cadastro manual', async () => {
+    const db = dbDe('novo-usuario');
+    await assertSucceeds(setDoc(doc(db, 'users', 'novo-usuario', 'perfil', 'config'), { nome: 'x' }));
+    await assertSucceeds(getDoc(doc(db, 'users', 'novo-usuario', 'perfil', 'config')));
   });
 
-  it('ninguém se autolibera', async () => {
-    await assertFails(setDoc(doc(dbDe(SEM_ACESSO), 'acessos', SEM_ACESSO), {}));
+  it('conta de e-mail e senha sem e-mail confirmado não acessa dados', async () => {
+    const db = dbDe(NAO_VERIFICADO, false);
+    await assertFails(setDoc(doc(db, 'users', NAO_VERIFICADO, 'perfil', 'config'), { nome: 'x' }));
+    await assertFails(getDoc(doc(db, 'users', NAO_VERIFICADO, 'perfil', 'config')));
   });
 
-  it('não lê o registro de acesso de outra pessoa', async () => {
-    await assertFails(getDoc(doc(dbDe(INTRUSO), 'acessos', DONO)));
+  it('a antiga lista de liberação não é mais acessível', async () => {
+    await assertFails(getDoc(doc(dbDe(DONO), 'acessos', DONO)));
+    await assertFails(setDoc(doc(dbDe(DONO), 'acessos', DONO), {}));
   });
 });
 
@@ -90,7 +94,7 @@ describe('isolamento por usuário', () => {
     await assertSucceeds(setDoc(doc(db, 'users', DONO, 'snapshots', '2026-09'), { mes: '2026-09' }));
   });
 
-  it('outro usuário liberado não acessa dados do dono', async () => {
+  it('outro usuário não acessa dados do dono', async () => {
     const db = dbDe(INTRUSO);
     await assertFails(getDoc(doc(db, 'users', DONO, 'perfil', 'config')));
     await assertFails(addDoc(collection(db, 'users', DONO, 'transacoes'), transacao()));

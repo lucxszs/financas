@@ -76,11 +76,10 @@ de produção é automático.
 
 ## Solução de problemas
 
-| Sintoma                                                    | Causa provável                                                                               |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| "Config do Firebase incompleta"                            | Falta `.env.local` (ou variável vazia)                                                       |
-| `firebase-tools no longer supports Java version before 21` | Instale um JDK 21+ ou rode os testes das regras só no CI                                     |
-| Login abre e fecha com `auth/unauthorized-domain`          | Domínio fora de Authentication > Configurações > Domínios autorizados                        |
-| `Requests from referer ... are blocked`                    | Domínio fora das restrições da API key                                                       |
-| "Acesso não liberado"                                      | Falta o documento `acessos/{uid}`                                                            |
-| `npm ci` com `ERESOLVE` em PR do Dependabot                | Atualização incompatível entre pacotes; feche o PR (ex.: TypeScript 7 x typescript-eslint 8) |
+| Sintoma                                                    | Causa provável                                                        |
+| ---------------------------------------------------------- | --------------------------------------------------------------------- |
+| "Config do Firebase incompleta"                            | Falta `.env.local` (ou variável vazia)                                |
+| `firebase-tools no longer supports Java version before 21` | Instale um JDK 21+ ou rode os testes das regras só no CI              |
+| Login abre e fecha com `auth/unauthorized-domain`          | Domínio fora de Authentication > Configurações > Domínios autorizados |
+| `Requests from referer ... are blocked`                    | Domínio fora das restrições da API key                                |
+| "Este tipo de login não está ativado"                      | Ative o provedor em Authentication > Método de login                  |

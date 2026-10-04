@@ -12,6 +12,7 @@ import { excluirAporte } from '../../services/repositorio';
 import { useDadosConfigurados } from '../dados/useDados';
 import { HistoricoMensal } from './HistoricoMensal';
 import { MesesFechados } from './MesesFechados';
+import { PossoComprar } from './PossoComprar';
 import { Simulador } from './Simulador';
 
 export const PaginaAnalises = ({
@@ -30,6 +31,7 @@ export const PaginaAnalises = ({
     <>
       <HistoricoMensal />
       <MesesFechados />
+      <PossoComprar />
       <Simulador />
 
       <Secao titulo="Aportes lançados">

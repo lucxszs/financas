@@ -44,6 +44,11 @@ Push na main ──► qualidade ──┐
 
 **Settings > Pages:** desativado (o hosting é o Firebase).
 
+## Firebase Authentication
+
+Em Authentication > Método de login, deixe ativos **Google** e **E-mail/senha**. Em Authentication > Modelos, troque
+o idioma para português, para os e-mails de confirmação e de nova senha saírem traduzidos.
+
 ## Previews e login
 
 O preview de um PR mostra a tela de login, mas o login com Google não funciona nele por padrão: o domínio do canal

@@ -1,10 +1,10 @@
 rules_version = '2';
 
 // Modelo de acesso:
-// 1. Só usuários autenticados (Firebase Auth) acessam algo.
-// 2. Só quem tem um documento em /acessos/{uid} pode usar o app. Esse documento é
-//    criado manualmente no Console do Firebase: nenhum cliente consegue se autoliberar.
-// 3. Cada usuário liberado só enxerga a própria árvore /users/{uid}/**.
+// 1. Qualquer pessoa pode criar conta (Google ou e-mail e senha) e usar o app.
+// 2. Só contas com e-mail verificado acessam dados: Google já vem verificado; e-mail e senha
+//    só depois de confirmar o link enviado por e-mail.
+// 3. Cada usuário só enxerga a própria árvore /users/{uid}/**.
 // Todo o resto é negado por padrão.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -13,13 +13,12 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function liberado() {
-      return autenticado()
-        && exists(/databases/$(database)/documents/acessos/$(request.auth.uid));
+    function verificado() {
+      return autenticado() && request.auth.token.email_verified == true;
     }
 
     function dono(uid) {
-      return liberado() && request.auth.uid == uid;
+      return verificado() && request.auth.uid == uid;
     }
 
     function dataIso(v) {
@@ -74,11 +73,6 @@ service cloud.firestore {
       return request.resource.data.criadoEm == resource.data.criadoEm;
     }
 
-    // Allowlist: o usuário só consegue ler o próprio registro (para o app saber se está liberado).
-    match /acessos/{uid} {
-      allow read: if autenticado() && request.auth.uid == uid;
-      allow write: if false;
-    }
 
     match /users/{uid} {
       match /perfil/{docId} {

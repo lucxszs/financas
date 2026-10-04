@@ -3,7 +3,6 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDoc,
   limit,
   onSnapshot,
   orderBy,
@@ -43,8 +42,6 @@ const colecao = (uid: string, nome: Colecao) => collection(db, 'users', uid, nom
 
 type SemId<T> = Omit<T, 'id'>;
 type Erro = (e: Error) => void;
-
-export const temAcesso = async (uid: string) => (await getDoc(doc(db, 'acessos', uid))).exists();
 
 export const observarConfig = (uid: string, cb: (c: Config | null) => void, erro: Erro) =>
   onSnapshot(perfilDoc(uid, 'config'), (s) => cb(s.exists() ? (s.data() as Config) : null), erro);
