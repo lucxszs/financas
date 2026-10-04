@@ -121,7 +121,6 @@ export const Simulador = () => {
                 <select id="sim-meta" value={metaId} onChange={(e) => setMetaId(e.target.value)}>
                   {metas.map(({ o }) => (
                     <option key={o.id} value={o.id}>
-                      {o.emoji ? `${o.emoji} ` : ''}
                       {o.nome}
                     </option>
                   ))}

@@ -59,7 +59,7 @@ export const analisarCompra = (p: PedidoCompra, ctx: ContextoCompra): AnaliseCom
   const resumo = resumoMes(transacoes, aportes, config, cotacoes, mesAtual);
   const disponivelAgora = limiteGastos(resumo, transacoes, config, cotacoes, hoje).disponivel;
   const renda = config.rendaMensal || resumo.renda;
-  const media = mediaGastos(transacoes, config, mesAtual) ?? resumo.gastos;
+  const media = mediaGastos(transacoes, mesAtual) ?? resumo.gastos;
   const sobraTipica = renda - media - aportePlanejado(config, cotacoes);
 
   const cartao = p.forma === 'avista' ? undefined : config.cartoes.find((c) => c.id === p.cartaoId);

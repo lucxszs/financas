@@ -131,16 +131,11 @@ describe('resumoMes', () => {
 describe('mediaGastos', () => {
   it('média dos meses anteriores com lançamentos', () => {
     const hist = [tx({ val: 5000, data: '2026-08-10' }), tx({ val: 6000, data: '2026-07-10' })];
-    expect(mediaGastos(hist, config, '2026-09')).toBe(5500);
+    expect(mediaGastos(hist, '2026-09')).toBe(5500);
   });
 
-  it('sem histórico, usa a média da config; sem nada, null', () => {
-    const cfg: Config = {
-      ...config,
-      mediasGastos: { periodo: 'x', itens: [{ nome: 'a', valor: 3000, cor: 'sky' }] },
-    };
-    expect(mediaGastos([], cfg, '2026-09')).toBe(3000);
-    expect(mediaGastos([], config, '2026-09')).toBeNull();
+  it('sem histórico, null', () => {
+    expect(mediaGastos([], '2026-09')).toBeNull();
   });
 });
 

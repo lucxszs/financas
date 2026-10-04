@@ -59,19 +59,14 @@ export const resumoMes = (
   };
 };
 
-/**
- * Média de gastos dos `n` meses anteriores que tiveram lançamentos. Sem histórico, usa o total da média
- * cadastrada na config (se houver).
- */
-export const mediaGastos = (transacoes: Transacao[], config: Config, mes: string, n = 3): number | null => {
+/** Média de gastos dos `n` meses anteriores que tiveram lançamentos; null sem histórico. */
+export const mediaGastos = (transacoes: Transacao[], mes: string, n = 3): number | null => {
   const totais: number[] = [];
   for (let i = 1; i <= n; i++) {
     const doMes = transacoesDaCompetencia(transacoes, somarMeses(mes, -i));
     if (doMes.length) totais.push(soma(doMes.filter((t) => !t.isEntrada).map((t) => t.val)));
   }
-  if (totais.length) return soma(totais) / totais.length;
-  const itens = config.mediasGastos?.itens ?? [];
-  return itens.length ? soma(itens.map((i) => i.valor)) : null;
+  return totais.length ? soma(totais) / totais.length : null;
 };
 
 /** Aporte mensal planejado em BRL: recorrências de aporte ativas ou, sem elas, o aporte mensal dos objetivos. */
@@ -108,7 +103,7 @@ export const insightsMes = (
 ): Insight[] => {
   const itens: Insight[] = [];
 
-  const media = mediaGastos(transacoes, config, resumo.mes);
+  const media = mediaGastos(transacoes, resumo.mes);
   if (media !== null && media > 0) {
     const dif = media - resumo.gastos;
     itens.push(

@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  paraBRL,
-  progressoObjetivo,
-  rendimentoMensalEstimado,
-  totaisFechamento,
-  usoCartao,
-} from './calculos';
-import type { Config, Transacao } from './types';
+import { paraBRL, progressoObjetivo, rendimentoMensalEstimado } from './calculos';
+import type { Config } from './types';
 
 const config: Config = {
   nome: 'Teste',
@@ -19,21 +13,6 @@ const config: Config = {
   objetivos: [{ id: 'viagem', nome: 'Viagem', meta: 1000, caixinhas: ['reserva', 'dolar'], cor: 'violet' }],
   cartoes: [{ id: 'c1', nome: 'Cartão', limite: 1000, cor: 'amber' }],
 };
-
-const tx = (p: Partial<Transacao>): Transacao => ({
-  id: 'x',
-  desc: 'x',
-  val: 100,
-  tipo: 'credito',
-  cartao: 'c1',
-  cat: 'outro',
-  data: '2026-09-10',
-  mesFatura: null,
-  obs: '',
-  isEntrada: false,
-  criadoEm: '',
-  ...p,
-});
 
 describe('paraBRL', () => {
   it('mantém BRL e converte moedas com cotação', () => {
@@ -66,27 +45,5 @@ describe('progressoObjetivo', () => {
 describe('rendimentoMensalEstimado', () => {
   it('considera só caixinhas em BRL', () => {
     expect(rendimentoMensalEstimado(config, { reserva: 1200, dolar: 1000 })).toBe(12);
-  });
-});
-
-describe('usoCartao', () => {
-  it('usa mesFatura quando informado', () => {
-    const txs = [tx({}), tx({ mesFatura: '2026-10' }), tx({ cartao: 'outro' }), tx({ isEntrada: true })];
-    expect(usoCartao(config.cartoes[0]!, txs, '2026-09').utilizado).toBe(100);
-    expect(usoCartao(config.cartoes[0]!, txs, '2026-10').utilizado).toBe(100);
-  });
-});
-
-describe('totaisFechamento', () => {
-  it('calcula saldo e pendências', () => {
-    const t = totaisFechamento({
-      mes: '2026-09',
-      itens: [
-        { nome: 'Renda', valor: 1000, tipo: 'entrada' },
-        { nome: 'Casa', valor: 700, tipo: 'saida', pago: true },
-        { nome: 'Conta', valor: 400, tipo: 'saida', pago: false },
-      ],
-    });
-    expect(t).toEqual({ entradas: 1000, saidas: 1100, saldo: -100, pendente: 400 });
   });
 });

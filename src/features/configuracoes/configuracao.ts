@@ -12,7 +12,7 @@ export const useSalvarConfig = () => {
       const nova = alterar(config);
       const r = validarDadosIniciais({ config: nova });
       if (!r.ok) throw new Error(r.erros.join('; '));
-      await salvarConfig(uid, nova);
+      await salvarConfig(uid, nova, config);
     },
     [uid, config],
   );

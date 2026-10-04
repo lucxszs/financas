@@ -90,7 +90,7 @@ export const PaginaAnalises = ({
               Essa ação não pode ser desfeita.
             </>
           }
-          onConfirmar={() => excluirAporte(uid, aExcluir.id)}
+          onConfirmar={() => excluirAporte(uid, aExcluir)}
           onFechar={() => setAExcluir(null)}
         />
       )}

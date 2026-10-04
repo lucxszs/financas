@@ -104,18 +104,19 @@ export const ModalTransacao = ({ transacao, onFechar }: { transacao?: Transacao;
       ...(transacao.parcela && { parcela: transacao.parcela }),
     };
     void enviar(async () => {
-      await atualizarTransacao(uid, transacao.id, {
-        ...dados,
-        ...vinculos,
-        criadoEm: transacao.criadoEm,
-        atualizadoEm: agora,
-      });
+      await atualizarTransacao(
+        uid,
+        transacao.id,
+        { ...dados, ...vinculos, criadoEm: transacao.criadoEm, atualizadoEm: agora },
+        transacao,
+      );
       if (irmas.length && aplicarNoGrupo)
-        await atualizarTransacoes(
-          uid,
-          irmas.map((t) => t.id),
-          { desc: dados.desc, cat, cartao: dados.cartao, atualizadoEm: agora },
-        );
+        await atualizarTransacoes(uid, irmas, {
+          desc: dados.desc,
+          cat,
+          cartao: dados.cartao,
+          atualizadoEm: agora,
+        });
     }, 'Atualizado!');
   };
 

@@ -11,9 +11,8 @@
   --violet: #a78bfa;
   --coral: #ff6b6b;
   --sky: #38bdf8;
-  /* 'Twemoji Country Flags' só cobre os códigos de bandeira (unicode-range); o resto cai na fonte seguinte. */
-  --font: 'Twemoji Country Flags', 'Sora', sans-serif;
-  --mono: 'Twemoji Country Flags', 'JetBrains Mono', monospace;
+  --font: 'Sora', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
   --r: 14px;
   --r-lg: 20px;
   color-scheme: dark;
@@ -507,15 +506,15 @@ code {
 }
 
 /* status (ícone + título + texto) */
-.score-icon {
+.status-icone {
   font-size: 26px;
 }
-.score-title {
+.status-titulo {
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 2px;
 }
-.score-sub {
+.status-sub {
   font-family: var(--mono);
   font-size: 11px;
   color: var(--muted);
@@ -1417,13 +1416,13 @@ code {
   display: grid;
   place-items: center;
 }
-.status-limite.verde .score-icon {
+.status-limite.verde .status-icone {
   color: var(--emerald);
 }
-.status-limite.amarelo .score-icon {
+.status-limite.amarelo .status-icone {
   color: var(--amber);
 }
-.status-limite.vermelho .score-icon {
+.status-limite.vermelho .status-icone {
   color: var(--coral);
 }
 .saude-nome {
@@ -1535,6 +1534,52 @@ code {
 }
 .mostrar-mais:hover {
   background: var(--surface2);
+}
+
+/* histórico de alterações */
+.hist-row {
+  border-top: 1px solid var(--border);
+}
+.hist-topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 18px;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hist-topo:hover {
+  background: var(--surface2);
+}
+.hist-icone {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface2);
+  flex-shrink: 0;
+}
+.hist-icone.azul {
+  color: var(--sky);
+}
+.hist-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.hist-detalhe {
+  padding: 4px 18px 12px 58px;
+}
+.hist-campo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
 }
 
 /* configurações */

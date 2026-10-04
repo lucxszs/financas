@@ -15,6 +15,7 @@ Dashboard pessoal de finanças: investimentos em BRL, USD e EUR, metas, lançame
 - 📈 Patrimônio líquido e evolução, rentabilidade × CDI e IPCA, investimentos e câmbio
 - 🎯 Metas com contagem regressiva e ritmo necessário × atual
 - 📊 Histórico mensal com gráficos, "Posso comprar?" e simulações "e se..."
+- 🧾 Histórico de tudo o que foi criado, editado e excluído, com opção de desfazer exclusões
 - 📱 Funciona no computador e no celular
 
 Detalhes em [docs/funcionalidades.md](docs/funcionalidades.md).

@@ -4,16 +4,16 @@ O repositório é público e não contém dados financeiros. A proteção dos da
 
 ## Camadas
 
-| Camada               | Onde                       | O que garante                                                                                  |
-| -------------------- | -------------------------- | ---------------------------------------------------------------------------------------------- |
-| Autenticação         | Firebase Auth (Google)     | Nada no Firestore é acessível sem login                                                        |
-| E-mail verificado    | regras (`email_verified`)  | Conta de e-mail e senha só acessa dados depois de confirmar o e-mail; Google já vem verificado |
-| Isolamento           | regras em `users/{uid}/**` | Cada usuário só lê e escreve os próprios dados                                                 |
-| Validação            | regras                     | Tipos, tamanhos, formatos de data, valores positivos, `criadoEm` imutável, parcelas            |
-| Imutabilidade        | regras                     | Fechamento mensal só pode ser criado ou apagado, nunca editado                                 |
-| Restrição da API key | Google Cloud Console       | A chave só é aceita a partir dos domínios do app                                               |
-| Cabeçalhos HTTP      | `firebase.json`            | `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`                    |
-| XSS                  | React                      | Texto do usuário é sempre escapado (sem `innerHTML`)                                           |
+| Camada               | Onde                       | O que garante                                                                                                |
+| -------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Autenticação         | Firebase Auth (Google)     | Nada no Firestore é acessível sem login                                                                      |
+| E-mail verificado    | regras (`email_verified`)  | Conta de e-mail e senha só acessa dados depois de confirmar o e-mail; Google já vem verificado               |
+| Isolamento           | regras em `users/{uid}/**` | Cada usuário só lê e escreve os próprios dados                                                               |
+| Validação            | regras                     | Tipos, tamanhos, formatos de data, valores positivos, `criadoEm` imutável, parcelas                          |
+| Imutabilidade        | regras                     | Fechamento mensal só pode ser criado ou apagado, nunca editado; o histórico de alterações só pode ser criado |
+| Restrição da API key | Google Cloud Console       | A chave só é aceita a partir dos domínios do app                                                             |
+| Cabeçalhos HTTP      | `firebase.json`            | `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`                                  |
+| XSS                  | React                      | Texto do usuário é sempre escapado (sem `innerHTML`)                                                         |
 
 As regras estão em [`firestore.rules`](../firestore.rules) e são cobertas por
 [`tests/firestore.rules.test.ts`](../tests/firestore.rules.test.ts): acesso anônimo, contas sem e-mail verificado, isolamento entre

@@ -14,7 +14,7 @@ Sem configuração, o app abre **Configurar plano**:
 
 - **Começar do zero**: cria um plano com uma conta corrente; renda, cartões, metas e o resto se cadastram em
   Configurações.
-- **Importar JSON**: carrega caixinhas, objetivos, cartões, saldos, histórico e fechamentos. Arquivo com erro não
+- **Importar JSON**: carrega caixinhas, objetivos, cartões, saldos e histórico de saldos. Arquivo com erro não
   grava nada e mostra a lista de problemas.
 - **Usar dados de exemplo**: carrega dados fictícios.
 
@@ -34,7 +34,7 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 | Patrimônio    | Patrimônio líquido e evolução, investimentos, rentabilidade × CDI e IPCA, e câmbio                                    |
 | Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação      |
 | Análises      | Histórico mensal com gráficos, meses fechados, "Posso comprar?", simulações, aportes e evolução dos investimentos     |
-| Configurações | Renda, caixinhas, cartões, objetivos, orçamento, recorrentes e limpeza dos dados antigos da v1                        |
+| Configurações | Renda, caixinhas, cartões, objetivos, orçamento, recorrentes e histórico de alterações                                |
 
 **Ícones e marcas**: a interface usa ícones em SVG. Caixinhas e cartões mostram o logo do banco na cor oficial
 (Nubank, Mercado Pago e Wise com logo; Itaú e Inter com as iniciais). Bandeiras (ex.: 🇦🇷 no emoji de um objetivo)
@@ -207,6 +207,16 @@ recentes, com "Mostrar todos (N)".
   - Pausar não apaga; ao reativar, os meses da pausa não são lançados.
   - Lançamento automático excluído à mão não volta.
   - "Criar aportes a partir da alocação mensal" transforma o aporte planejado de cada objetivo em recorrência.
+
+## Histórico de alterações
+
+Em Configurações: tudo o que foi criado, editado ou excluído (lançamentos, aportes, configurações, saldos, fotos do
+mês e fechamentos), com data, hora e origem (você, uma recorrência automática, a importação ou uma restauração).
+
+- Filtros: tudo, lançamentos, aportes ou o resto.
+- Toque num item para ver cada campo que mudou, com o valor de antes e o de depois.
+- **Desfazer exclusão**: um lançamento ou aporte excluído volta como estava, com o mesmo id.
+- O histórico fica no banco (`users/{uid}/historico`) e não pode ser editado nem apagado, nem pelo app.
 
 ## Atualizar saldos
 

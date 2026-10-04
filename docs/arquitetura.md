@@ -41,6 +41,8 @@ src/
     metas.ts         ritmo das metas: necessário × atual e previsão
     saude.ts         os 5 sinais da saúde financeira
     simulacao.ts     simulações "e se..." e valor futuro
+    compra.ts        análise "Posso comprar?"
+    auditoria.ts     histórico de alterações: resumo, campos alterados e restauração
     rentabilidade.ts rendimento por caixinha, alocação e CDI/IPCA acumulados
     calendario.ts    entradas e saídas previstas por dia
     recorrentes.ts   o que lançar em cada mês e como montar cada lançamento
@@ -85,7 +87,16 @@ docs/              esta documentação
 
 ## Decisões
 
-| Decisão                              | Motivo                                                                                                            |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| Sem backend                          | App pessoal de um usuário; as regras do Firestore dão controle de acesso suficiente e testável.                   |
-| Contas abertas com e-mail verificado | Qualquer pessoa usa o app sem cadastro manual; exigir e-mail verificado nas regras barra contas com e-mail falso. |
+| Decisão                                    | Motivo                                                                                                            |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Sem backend                                | App pessoal de um usuário; as regras do Firestore dão controle de acesso suficiente e testável.                   |
+| Contas abertas com e-mail verificado       | Qualquer pessoa usa o app sem cadastro manual; exigir e-mail verificado nas regras barra contas com e-mail falso. |
+| Dados em `users/{uid}/...`                 | Isolamento por usuário simples de expressar e testar nas regras.                                                  |
+| Config no Firestore, não no código         | Permite repo público sem dados pessoais.                                                                          |
+| Snapshot mensal com cotação                | O total histórico usa o câmbio daquele mês, não o de hoje.                                                        |
+| Datas `YYYY-MM-DD` como string, fuso local | Evita o bug de UTC (`toISOString`) que jogava lançamentos noturnos para o dia seguinte.                           |
+| Domínio sem dependências                   | Cálculos testáveis sem mock de Firebase nem React.                                                                |
+| Sem biblioteca de UI/estado                | O app é pequeno; Context + hooks bastam e mantêm o bundle leve.                                                   |
+| Ícones e bandeiras em SVG                  | `lucide-react` na interface, `country-flag-icons` nas bandeiras e logos do Simple Icons (CC0).                    |
+| Última cotação no `localStorage`           | Se a AwesomeAPI cair, o câmbio mostra o último valor conhecido com data e hora.                                   |
+| Histórico de alterações imutável           | Cada operação grava, no mesmo batch, um registro com o antes e o depois; as regras só deixam criar.               |

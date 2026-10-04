@@ -120,13 +120,6 @@ export const validarDadosIniciais = (
     );
   });
 
-  (Array.isArray(entrada.fechamentos) ? entrada.fechamentos : []).forEach((f: unknown, i) => {
-    exigir(
-      isObj(f) && MES.test(String(f.mes)) && Array.isArray(f.itens),
-      `fechamentos[${i}] precisa de mes e itens`,
-    );
-  });
-
   if (!Array.isArray(c.objetivos)) erros.push('config.objetivos deve ser lista');
   if (!Array.isArray(c.cartoes)) erros.push('config.cartoes deve ser lista');
 

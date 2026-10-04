@@ -1,14 +1,4 @@
-import type {
-  Caixinha,
-  Cartao,
-  Config,
-  Cotacoes,
-  Fechamento,
-  Moeda,
-  Objetivo,
-  Snapshot,
-  Transacao,
-} from './types';
+import type { Caixinha, Config, Cotacoes, Moeda, Objetivo, Snapshot, Transacao } from './types';
 
 /** Converte para BRL. Retorna null quando falta a cotação da moeda. */
 export const paraBRL = (valor: number, moeda: Moeda, cotacoes: Cotacoes): number | null => {
@@ -60,13 +50,6 @@ export const rendimentoMensalEstimado = (config: Config, valores: Record<string,
 /** Mês de fatura de uma transação: o informado ou o mês da própria data. */
 export const mesDaFatura = (t: Transacao) => t.mesFatura ?? t.data.slice(0, 7);
 
-export const usoCartao = (cartao: Cartao, transacoes: Transacao[], mes: string) => {
-  const utilizado = transacoes
-    .filter((t) => t.cartao === cartao.id && !t.isEntrada && mesDaFatura(t) === mes)
-    .reduce((acc, t) => acc + t.val, 0);
-  return { utilizado, disponivel: cartao.limite - utilizado, pct: pct(utilizado, cartao.limite) };
-};
-
 /**
  * Mês em que a transação pesa no orçamento: compra no cartão conta no mês da fatura (quando se paga),
  * o resto no mês da data.
@@ -80,15 +63,6 @@ export const resumoTransacoes = (transacoes: Transacao[]) => {
   const entradas = transacoes.filter((t) => t.isEntrada).reduce((a, t) => a + t.val, 0);
   const saidas = transacoes.filter((t) => !t.isEntrada).reduce((a, t) => a + t.val, 0);
   return { entradas, saidas, saldo: entradas - saidas };
-};
-
-export const totaisFechamento = (f: Fechamento) => {
-  const entradas = f.itens.filter((i) => i.tipo === 'entrada').reduce((a, i) => a + i.valor, 0);
-  const saidas = f.itens.filter((i) => i.tipo === 'saida').reduce((a, i) => a + i.valor, 0);
-  const pendente = f.itens
-    .filter((i) => i.tipo === 'saida' && i.pago === false)
-    .reduce((a, i) => a + i.valor, 0);
-  return { entradas, saidas, saldo: entradas - saidas, pendente };
 };
 
 /** Total em BRL de um snapshot, usando a cotação gravada nele (ou a atual, se não houver). */
