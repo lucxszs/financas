@@ -32,7 +32,12 @@ export const ModalAporte = ({ aporte, onFechar }: { aporte?: Aporte; onFechar: (
     void enviar(
       () =>
         aporte
-          ? atualizarAporte(uid, aporte.id, { ...dados, criadoEm: aporte.criadoEm, atualizadoEm: agora })
+          ? atualizarAporte(
+              uid,
+              aporte.id,
+              { ...dados, criadoEm: aporte.criadoEm, atualizadoEm: agora },
+              aporte,
+            )
           : criarAporte(uid, { ...dados, criadoEm: agora }),
       editando ? 'Aporte atualizado!' : 'Aporte lançado!',
     );

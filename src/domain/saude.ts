@@ -105,7 +105,7 @@ export const saudeFinanceira = (e: EntradaSaude): Indicador[] => {
   }
 
   const reservas = objetivosReserva(config);
-  const media = mediaGastos(e.transacoes, config, resumo.mes) ?? resumo.gastos;
+  const media = mediaGastos(e.transacoes, resumo.mes) ?? resumo.gastos;
   if (reservas.length && media > 0) {
     const guardado = reservas.reduce(
       (a, o) => a + progressoObjetivo(o, config, e.valores, e.cotacoes).guardado,

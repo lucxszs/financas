@@ -68,6 +68,20 @@ service cloud.firestore {
         && recorrenteIdValido(d);
     }
 
+    // Histórico de alterações: o que foi feito, em quê, quando e o documento antes/depois.
+    function registroValido(d) {
+      return d.keys().hasAll(['em', 'acao', 'entidade', 'docId', 'resumo', 'origem'])
+        && d.keys().hasOnly(['em', 'acao', 'entidade', 'docId', 'resumo', 'origem', 'antes', 'depois'])
+        && d.em is string
+        && d.acao in ['criar', 'editar', 'excluir']
+        && d.entidade in ['transacao', 'aporte', 'config', 'saldos', 'snapshot', 'fechamentoMes']
+        && d.origem in ['usuario', 'recorrencia', 'importacao', 'restauracao']
+        && textoCurto(d.docId, 100) && d.docId.size() > 0
+        && textoCurto(d.resumo, 200)
+        && (!('antes' in d) || d.antes == null || d.antes is map)
+        && (!('depois' in d) || d.depois == null || d.depois is map);
+    }
+
     // Na edição, a data de criação original não pode ser alterada.
     function criadoEmMantido() {
       return request.resource.data.criadoEm == resource.data.criadoEm;
@@ -83,9 +97,6 @@ service cloud.firestore {
         allow read, write: if dono(uid);
       }
 
-      match /fechamentos/{mes} {
-        allow read, write: if dono(uid);
-      }
 
       // Fechamento mensal: foto imutável. Só cria (uma vez por mês) ou apaga para reabrir; nunca edita.
       match /fechamentosMes/{mes} {
@@ -98,6 +109,13 @@ service cloud.firestore {
           && request.resource.data.gastos is number
           && request.resource.data.investimentos is number;
         allow update: if false;
+      }
+
+      // Histórico imutável: só cria; ninguém edita nem apaga (nem o próprio dono).
+      match /historico/{id} {
+        allow read: if dono(uid);
+        allow create: if dono(uid) && registroValido(request.resource.data);
+        allow update, delete: if false;
       }
 
       match /transacoes/{id} {

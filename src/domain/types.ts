@@ -56,23 +56,13 @@ export interface Cartao {
   instituicao?: Instituicao;
 }
 
-export interface MediaGasto {
-  nome: string;
-  emoji?: string;
-  valor: number;
-  cor: Cor;
-}
-
 export interface Config {
   nome: string;
   rendaMensal: number;
-  /** Taxa anual usada para estimar o rendimento mensal das caixinhas em BRL (ex.: 0.147). */
-  taxaAnualEstimada: number;
   caixinhas: Caixinha[];
   objetivos: Objetivo[];
   cartoes: Cartao[];
   alocacaoDesde?: string;
-  mediasGastos?: { periodo: string; itens: MediaGasto[] };
   /** Orçamento mensal por categoria, em BRL. */
   orcamentos?: Partial<Record<Categoria, number>>;
   /** Lançamentos e aportes criados automaticamente todo mês. */
@@ -104,15 +94,6 @@ export type Recorrente =
     })
   | (RecorrenteBase & { tipo: 'aporte'; caixinha: string });
 
-export type Resposta = 'sim' | 'parcial' | 'nao';
-
-/** Legado da v1 (score 0/3). Não é mais gravado nem exibido; mantido para ler dados antigos. */
-export interface ScoreMes {
-  pagou?: Resposta;
-  positivo?: Resposta;
-  aporte?: Resposta;
-}
-
 /** Limite disponível que o app do banco mostra, informado no "Atualizar saldos". */
 export interface LimiteInformado {
   disponivel: number;
@@ -125,7 +106,6 @@ export interface Saldos {
   valores: Record<string, number>;
   /** Limite disponível por cartão (id do cartão). */
   cartoes?: Record<string, LimiteInformado>;
-  score?: ScoreMes;
   updatedAt: string | null;
 }
 
@@ -188,22 +168,6 @@ export interface Aporte {
   recorrenteId?: string;
 }
 
-export interface ItemFechamento {
-  nome: string;
-  emoji?: string;
-  valor: number;
-  tipo: 'entrada' | 'saida';
-  /** true = pago, false = pendente, ausente = não se aplica. */
-  pago?: boolean;
-}
-
-/** Fechamento manual de um mês. Id do documento = "YYYY-MM". */
-export interface Fechamento {
-  mes: string;
-  itens: ItemFechamento[];
-  notas?: string[];
-}
-
 /** Foto imutável de um mês, gravada no "Fechar mês". Id do documento = "YYYY-MM". */
 export interface FechamentoMes {
   mes: string;
@@ -214,7 +178,6 @@ export interface FechamentoMes {
   gastos: number;
   investimentos: number;
   saldo: number;
-  taxaPoupanca: number;
   maiorCategoria: { cat: Categoria; valor: number } | null;
   maiorGasto: { desc: string; valor: number } | null;
   aportesPorMeta: { objetivoId: string; nome: string; emoji?: string; valor: number }[];
@@ -229,5 +192,4 @@ export interface DadosIniciais {
   config: Config;
   saldos?: Omit<Saldos, 'updatedAt'>;
   snapshots?: Snapshot[];
-  fechamentos?: Fechamento[];
 }

@@ -3,7 +3,6 @@ import {
   marcarLancados,
   recorrentesALancar,
   recorrentesPendentes,
-  semRetroativo,
   transacaoDeRecorrente,
   valorPrevisto,
 } from './recorrentes';
@@ -94,22 +93,6 @@ describe('transacaoDeRecorrente', () => {
     expect(t.mesFatura).toBe('2026-11');
     expect(t.recorrenteId).toBe('aluguel');
     expect(t.isEntrada).toBe(false);
-  });
-});
-
-describe('semRetroativo', () => {
-  it('leva o início para o mês atual só quando nada foi lançado ainda', () => {
-    const [nova, lancada, futura] = semRetroativo(
-      [
-        aluguel({ inicio: '2026-01' }),
-        aluguel({ inicio: '2026-01', lancadoAte: '2026-08' }),
-        aluguel({ inicio: '2026-12' }),
-      ],
-      '2026-09',
-    );
-    expect(nova?.inicio).toBe('2026-09');
-    expect(lancada?.inicio).toBe('2026-01');
-    expect(futura?.inicio).toBe('2026-12');
   });
 });
 

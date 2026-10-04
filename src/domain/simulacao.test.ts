@@ -1,17 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { impactoNaMeta, mesesParaJuntar, valorFuturo } from './simulacao';
-
-describe('valorFuturo', () => {
-  it('sem rendimento é só a soma', () => {
-    expect(valorFuturo(500, 12, 0)).toBe(6000);
-  });
-
-  it('com rendimento, rende mais que a soma', () => {
-    const v = valorFuturo(500, 36, 0.12);
-    expect(v).toBeGreaterThan(18000);
-    expect(v).toBeCloseTo(21_337.17, 2);
-  });
-});
+import { impactoNaMeta, mesesParaJuntar } from './simulacao';
 
 describe('mesesParaJuntar', () => {
   it('arredonda para cima; sem aporte não há prazo', () => {

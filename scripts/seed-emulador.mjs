@@ -109,11 +109,9 @@ const recorrentes = (exemplo.config.recorrentes ?? []).map((r) => ({ ...r, inici
 await gravar(`users/${uid}/perfil/config`, { ...exemplo.config, recorrentes });
 await gravar(`users/${uid}/perfil/saldos`, {
   ...exemplo.saldos,
-  score: { pagou: 'sim', positivo: 'sim', aporte: 'parcial' },
   updatedAt: criadoEm,
 });
 for (const s of exemplo.snapshots) await gravar(`users/${uid}/snapshots/${s.mes}`, s);
-for (const f of exemplo.fechamentos) await gravar(`users/${uid}/fechamentos/${f.mes}`, f);
 for (const [i, t] of transacoes.entries()) {
   await gravar(`users/${uid}/transacoes/tx${i}`, { cartao: null, mesFatura: null, obs: '', criadoEm, ...t });
 }

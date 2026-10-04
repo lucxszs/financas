@@ -10,15 +10,9 @@
 
 ## Primeiro acesso
 
-Sem configuração, o app abre **Configurar plano**:
-
-- **Começar do zero**: cria um plano com uma conta corrente; renda, cartões, metas e o resto se cadastram em
-  Configurações.
-- **Importar JSON**: carrega caixinhas, objetivos, cartões, saldos, histórico e fechamentos. Arquivo com erro não
-  grava nada e mostra a lista de problemas.
-- **Usar dados de exemplo**: carrega dados fictícios.
-
-Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação).
+Quem entra pela primeira vez vê uma tela de boas-vindas com o próprio nome. Informa a renda mensal (opcional) e
+toca em **Começar**: o app cria um plano em branco com uma conta corrente. Contas, cartões, metas e contas fixas se
+cadastram em Configurações.
 
 ## Navegação
 
@@ -31,10 +25,10 @@ Formato do arquivo: [modelo de dados](modelo-de-dados.md#arquivo-de-importação
 | ------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Início        | Fechamento do mês (quando há um para fechar), resumo, saúde financeira, próximos 7 dias e quanto ainda dá para gastar |
 | Gastos        | Lançamentos, calendário do mês, cartões e gastos por categoria × orçamento                                            |
-| Patrimônio    | Patrimônio líquido e evolução, investimentos, rentabilidade × CDI e IPCA, e câmbio                                    |
+| Patrimônio    | Patrimônio líquido e evolução, investimentos, rentabilidade, e câmbio                                                 |
 | Metas         | Contagem regressiva com ritmo (necessário × atual), câmbio quando a meta usa moeda estrangeira, metas e alocação      |
 | Análises      | Histórico mensal com gráficos, meses fechados, "Posso comprar?", simulações, aportes e evolução dos investimentos     |
-| Configurações | Renda, caixinhas, cartões, objetivos, orçamento, recorrentes e limpeza dos dados antigos da v1                        |
+| Configurações | Renda, caixinhas, cartões, objetivos, orçamento, recorrentes e histórico de alterações                                |
 
 **Ícones e marcas**: a interface usa ícones em SVG. Caixinhas e cartões mostram o logo do banco na cor oficial
 (Nubank, Mercado Pago e Wise com logo; Itaú e Inter com as iniciais). Bandeiras (ex.: 🇦🇷 no emoji de um objetivo)
@@ -49,7 +43,7 @@ Se a cotação não carregar, o app usa a última conhecida e mostra a data e a 
 
 **Resumo do mês**
 
-- Renda, gastos, investimentos e saldo livre, com taxa de poupança (investido ÷ renda) e gastos ÷ renda.
+- Renda, gastos, investimentos e saldo livre, com gastos ÷ renda.
 - Renda = entradas do mês. Enquanto o salário não entra, usa a renda mensal das Configurações e mostra "(prevista)".
 - Avisos: gastos comparados com a média dos 3 meses anteriores, aporte comparado com o planejado, quanto do limite dos cartões está comprometido (faturas vencidas contam como pagas, como na Saúde financeira) e o progresso das metas com data.
 
@@ -98,7 +92,7 @@ Compras parceladas lançadas antes desta versão continuam como um lançamento �
 
 - O Início mostra "Fechamento de <mês>" quando há mês para fechar: meses passados com movimento e ainda abertos
   (até 12 para trás, o mais antigo primeiro, com seletor quando há mais de um) e o mês atual, no último dia dele.
-- A prévia traz renda, gastos, investimentos, saldo, taxa de poupança, maior categoria, maior gasto, aporte em cada
+- A prévia traz renda, gastos, investimentos, saldo, maior categoria, maior gasto, aporte em cada
   meta e patrimônio com a variação sobre o mês anterior.
 - **Fechar** grava uma foto imutável do mês. O histórico mensal passa a usar essa foto (🔒 na tabela), mesmo que os
   lançamentos mudem depois.
@@ -129,9 +123,7 @@ Em Patrimônio:
 - Por caixinha de investimento: saldo, participação no total, rentabilidade e quanto rendeu.
 - Rendimentos = soma do "rendimento do mês" informado no "Atualizar saldos" (mês sem rendimento informado conta
   zero). Investido = saldo atual − rendimentos. Depósitos não lançados como aporte não viram rendimento.
-- Total com a rentabilidade desde o primeiro rendimento informado, comparada com o CDI e o IPCA do período (séries mensais do Banco
-  Central, compostas mês a mês). A comparação é aproximada: os depósitos entram ao longo do período.
-- CDI e IPCA ficam guardados no navegador por 24h; se o Banco Central cair, usa os últimos guardados.
+- Total com a rentabilidade desde o primeiro rendimento informado.
 
 ## Posso comprar?
 
@@ -149,8 +141,7 @@ Em Análises: valor, forma de pagamento (à vista, crédito à vista ou parcelad
 Em Análises, "Simulações: e se...":
 
 - **Ganhar mais**: nova renda mensal. **Gastar menos**: quanto a menos por mês. **Aportar mais**: novo aporte mensal.
-- Mostra o extra por mês, quanto ele vira em 1 e 3 anos (guardado e investindo, com o rendimento estimado das
-  Configurações) e quantos meses adianta a meta escolhida.
+- Mostra o extra por mês, quanto ele soma em 1 e 3 anos e quantos meses adianta a meta escolhida.
 
 ## Gastos por categoria
 
@@ -167,8 +158,8 @@ Gasto real do mês em cada categoria. Com orçamento definido em Configurações
 
 ## Histórico mensal
 
-Em Análises: renda, gastos, investimentos, saldo, taxa de poupança e patrimônio dos últimos 6 meses, em tabela e em
-gráficos (gastos, investimentos e taxa de poupança por mês). Passe o mouse ou toque numa coluna para ver o valor.
+Em Análises: renda, gastos, investimentos, saldo e patrimônio dos últimos 6 meses, em tabela e em gráficos
+(gastos e investimentos por mês). Passe o mouse ou toque numa coluna para ver o valor.
 
 ## Lançamentos
 
@@ -190,7 +181,7 @@ recentes, com "Mostrar todos (N)".
 
 ## Configurações
 
-- **Geral**: renda mensal e rendimento estimado ao ano.
+- **Geral**: renda mensal.
 - **Caixinhas**: conta (dinheiro disponível) ou investimento, moeda, rendimento e cor. A moeda não muda depois de
   criada. Caixinha usada por objetivo ou recorrência não pode ser excluída.
 - **Cartões**: limite, melhor dia de compra e vencimento.
@@ -207,6 +198,16 @@ recentes, com "Mostrar todos (N)".
   - Pausar não apaga; ao reativar, os meses da pausa não são lançados.
   - Lançamento automático excluído à mão não volta.
   - "Criar aportes a partir da alocação mensal" transforma o aporte planejado de cada objetivo em recorrência.
+
+## Histórico de alterações
+
+Em Configurações: tudo o que foi criado, editado ou excluído (lançamentos, aportes, configurações, saldos, fotos do
+mês e fechamentos), com data, hora e origem (você, uma recorrência automática, a importação ou uma restauração).
+
+- Filtros: tudo, lançamentos, aportes ou o resto.
+- Toque num item para ver cada campo que mudou, com o valor de antes e o de depois.
+- **Desfazer exclusão**: um lançamento ou aporte excluído volta como estava, com o mesmo id.
+- O histórico fica no banco (`users/{uid}/historico`) e não pode ser editado nem apagado, nem pelo app.
 
 ## Atualizar saldos
 

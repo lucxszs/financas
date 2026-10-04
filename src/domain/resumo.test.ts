@@ -45,7 +45,6 @@ const recorrentes: Recorrente[] = [
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [{ id: 'reserva', nome: 'Reserva', moeda: 'BRL', rendimento: '', cor: 'emerald' }],
   objetivos: [
     {
@@ -104,7 +103,6 @@ describe('resumoMes', () => {
     const r = resumoMes(transacoes, aportes, config, {}, '2026-09');
     expect(r).toMatchObject({ renda: 9000, rendaPrevista: false, gastos: 2200, investimentos: 1191 });
     expect(r.saldoLivre).toBe(5609);
-    expect(r.taxaPoupanca).toBeCloseTo(13.23, 2);
     expect(r.gastosSobreRenda).toBeCloseTo(24.44, 2);
   });
 
@@ -131,16 +129,11 @@ describe('resumoMes', () => {
 describe('mediaGastos', () => {
   it('média dos meses anteriores com lançamentos', () => {
     const hist = [tx({ val: 5000, data: '2026-08-10' }), tx({ val: 6000, data: '2026-07-10' })];
-    expect(mediaGastos(hist, config, '2026-09')).toBe(5500);
+    expect(mediaGastos(hist, '2026-09')).toBe(5500);
   });
 
-  it('sem histórico, usa a média da config; sem nada, null', () => {
-    const cfg: Config = {
-      ...config,
-      mediasGastos: { periodo: 'x', itens: [{ nome: 'a', valor: 3000, cor: 'sky' }] },
-    };
-    expect(mediaGastos([], cfg, '2026-09')).toBe(3000);
-    expect(mediaGastos([], config, '2026-09')).toBeNull();
+  it('sem histórico, null', () => {
+    expect(mediaGastos([], '2026-09')).toBeNull();
   });
 });
 

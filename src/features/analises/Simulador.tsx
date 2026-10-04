@@ -3,10 +3,10 @@ import { Briefcase, Calculator, Scissors, TrendingUp } from 'lucide-react';
 import { Icone } from '../../components/icones';
 import { GradeOpcoes, Secao } from '../../components/ui';
 import { hojeIso, rotuloMesCurto } from '../../domain/datas';
-import { fmt, fmtPct } from '../../domain/formatadores';
+import { fmt } from '../../domain/formatadores';
 import { ritmoObjetivo } from '../../domain/metas';
 import { aportePlanejado } from '../../domain/resumo';
-import { impactoNaMeta, valorFuturo } from '../../domain/simulacao';
+import { impactoNaMeta } from '../../domain/simulacao';
 import { useDadosConfigurados } from '../dados/useDados';
 
 type Cenario = 'renda' | 'gastar' | 'aporte';
@@ -98,21 +98,11 @@ export const Simulador = () => {
             <div className="sim-destaque">+ {fmt(extra)}/mês</div>
             <div className="brow">
               <span className="bname">Em 1 ano</span>
-              <span className="bval">
-                {fmt(extra * 12)}{' '}
-                <span className="muted">
-                  ({fmt(valorFuturo(extra, 12, config.taxaAnualEstimada))} investindo)
-                </span>
-              </span>
+              <span className="bval">{fmt(extra * 12)}</span>
             </div>
             <div className="brow">
               <span className="bname">Em 3 anos</span>
-              <span className="bval">
-                {fmt(extra * 36)}{' '}
-                <span className="muted">
-                  ({fmt(valorFuturo(extra, 36, config.taxaAnualEstimada))} investindo)
-                </span>
-              </span>
+              <span className="bval">{fmt(extra * 36)}</span>
             </div>
 
             {metas.length > 0 && (
@@ -121,7 +111,6 @@ export const Simulador = () => {
                 <select id="sim-meta" value={metaId} onChange={(e) => setMetaId(e.target.value)}>
                   {metas.map(({ o }) => (
                     <option key={o.id} value={o.id}>
-                      {o.emoji ? `${o.emoji} ` : ''}
                       {o.nome}
                     </option>
                   ))}
@@ -145,11 +134,7 @@ export const Simulador = () => {
           </>
         )}
       </div>
-      <div className="nota">
-        &quot;Investindo&quot; usa o rendimento estimado das Configurações (
-        {fmtPct(config.taxaAnualEstimada * 100, 1)} ao ano). O prazo das metas usa o ritmo atual de aportes
-        mais o extra, sem rendimento.
-      </div>
+      <div className="nota">O prazo das metas usa o ritmo atual de aportes mais o extra, sem rendimento.</div>
     </Secao>
   );
 };

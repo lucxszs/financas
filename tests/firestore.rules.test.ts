@@ -279,3 +279,41 @@ describe('recorrência de valor variável', () => {
     await assertFails(tx({ aConfirmar: 'sim' }));
   });
 });
+
+describe('histórico de alterações', () => {
+  const registro = (extra: Record<string, unknown> = {}) => ({
+    em: '2026-10-04T12:00:00.000Z',
+    acao: 'excluir',
+    entidade: 'transacao',
+    docId: 'abc',
+    resumo: 'Uber · R$ 29,60',
+    origem: 'usuario',
+    antes: { desc: 'Uber', val: 29.6 },
+    depois: null,
+    ...extra,
+  });
+  const col = (uid = DONO) => collection(dbDe(uid), 'users', DONO, 'historico');
+
+  it('dono registra e lê', async () => {
+    const ref = await assertSucceeds(addDoc(col(), registro()));
+    await assertSucceeds(getDoc(ref));
+  });
+
+  it('é imutável: não edita nem apaga, nem o dono', async () => {
+    const ref = await assertSucceeds(addDoc(col(), registro()));
+    await assertFails(setDoc(ref, registro({ resumo: 'outro' })));
+    await assertFails(deleteDoc(ref));
+  });
+
+  it('valida ação, entidade, origem e campos', async () => {
+    await assertFails(addDoc(col(), registro({ acao: 'apagar' })));
+    await assertFails(addDoc(col(), registro({ entidade: 'acessos' })));
+    await assertFails(addDoc(col(), registro({ origem: 'admin' })));
+    await assertFails(addDoc(col(), registro({ extra: 1 })));
+    await assertFails(addDoc(col(), registro({ antes: 'texto' })));
+  });
+
+  it('outro usuário não lê nem grava', async () => {
+    await assertFails(addDoc(col(INTRUSO), registro()));
+  });
+});

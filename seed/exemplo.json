@@ -2,7 +2,6 @@
   "config": {
     "nome": "Exemplo",
     "rendaMensal": 6000,
-    "taxaAnualEstimada": 0.14,
     "alocacaoDesde": "2026-01",
     "caixinhas": [
       {
@@ -91,35 +90,6 @@
         "diaVencimento": 15
       }
     ],
-    "mediasGastos": {
-      "periodo": "últimos 3 meses",
-      "itens": [
-        {
-          "nome": "Faturas cartão",
-          "emoji": "💳",
-          "valor": 2500,
-          "cor": "coral"
-        },
-        {
-          "nome": "Fixos",
-          "emoji": "🏠",
-          "valor": 1800,
-          "cor": "sky"
-        },
-        {
-          "nome": "Mercado",
-          "emoji": "🛒",
-          "valor": 700,
-          "cor": "amber"
-        },
-        {
-          "nome": "Transporte",
-          "emoji": "🚗",
-          "valor": 300,
-          "cor": "emerald"
-        }
-      ]
-    },
     "orcamentos": {
       "alimentacao": 600,
       "mercado": 800,
@@ -218,48 +188,6 @@
         "USD": 5.3,
         "EUR": 5.9
       }
-    }
-  ],
-  "fechamentos": [
-    {
-      "mes": "2026-08",
-      "itens": [
-        {
-          "nome": "Salário",
-          "emoji": "✅",
-          "valor": 6000,
-          "tipo": "entrada"
-        },
-        {
-          "nome": "Aluguel",
-          "emoji": "🏠",
-          "valor": 1800,
-          "tipo": "saida",
-          "pago": true
-        },
-        {
-          "nome": "Cartão A",
-          "emoji": "💳",
-          "valor": 1900,
-          "tipo": "saida",
-          "pago": true
-        },
-        {
-          "nome": "Cartão B",
-          "emoji": "💳",
-          "valor": 700,
-          "tipo": "saida",
-          "pago": false
-        },
-        {
-          "nome": "Aportes",
-          "emoji": "🐷",
-          "valor": 1300,
-          "tipo": "saida",
-          "pago": true
-        }
-      ],
-      "notas": ["Cartão B vence dia 10"]
     }
   ]
 }

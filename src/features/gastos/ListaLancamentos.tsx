@@ -125,16 +125,12 @@ export const ListaLancamentos = ({
             </>
           }
           rotuloConfirmar={grupo.length > 1 ? 'Só esta parcela' : 'Excluir'}
-          onConfirmar={() => excluirTransacao(uid, aExcluir.id)}
+          onConfirmar={() => excluirTransacao(uid, aExcluir)}
           acaoExtra={
             grupo.length > 1
               ? {
                   rotulo: `Todas as ${grupo.length} parcelas`,
-                  onConfirmar: () =>
-                    excluirTransacoes(
-                      uid,
-                      grupo.map((t) => t.id),
-                    ),
+                  onConfirmar: () => excluirTransacoes(uid, grupo),
                 }
               : undefined
           }

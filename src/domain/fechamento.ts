@@ -56,7 +56,6 @@ export const montarFechamento = (mes: string, d: DadosFechamento, fechadoEm: str
     gastos: r.gastos,
     investimentos: r.investimentos,
     saldo: r.saldoLivre,
-    taxaPoupanca: r.taxaPoupanca,
     maiorCategoria: categoria ? { cat: categoria.cat, valor: categoria.real } : null,
     maiorGasto: maior ? { desc: maior.desc, valor: maior.val } : null,
     aportesPorMeta,

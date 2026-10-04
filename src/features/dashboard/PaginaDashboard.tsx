@@ -93,10 +93,6 @@ export const PaginaDashboard = () => {
           </div>
           <div className="resumo-taxas">
             <div>
-              <div className="tc-label">Taxa de poupança</div>
-              <div className="resumo-taxa">{fmtPct(resumo.taxaPoupanca, 1)}</div>
-            </div>
-            <div className="texto-direita">
               <div className="tc-label">Gastos / renda</div>
               <div className="resumo-taxa">{fmtPct(resumo.gastosSobreRenda, 1)}</div>
             </div>
@@ -162,12 +158,12 @@ export const PaginaDashboard = () => {
           </div>
         </div>
         <div className={`status-limite ${status.cls}`}>
-          <span className="score-icon">
+          <span className="status-icone">
             <Icone icone={status.icone} tamanho={26} />
           </span>
           <div>
-            <div className="score-title">{status.titulo}</div>
-            <div className="score-sub">{status.texto}</div>
+            <div className="status-titulo">{status.titulo}</div>
+            <div className="status-sub">{status.texto}</div>
           </div>
         </div>
         <div className="nota">

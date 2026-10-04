@@ -1,43 +1,38 @@
 import {
-  addDoc,
   collection,
-  deleteDoc,
   doc,
   limit,
   onSnapshot,
   orderBy,
   query,
-  setDoc,
   where,
   writeBatch,
   type QueryConstraint,
   type Unsubscribe,
+  type WriteBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { mesAtualIso } from '../domain/datas';
+import {
+  resumoRegistro,
+  semIdDoc,
+  type EntidadeHistorico,
+  type NovoRegistro,
+  type OrigemHistorico,
+  type RegistroHistorico,
+} from '../domain/auditoria';
 import {
   aporteDeRecorrente,
   idLancamentoRecorrente,
   marcarLancados,
-  semRetroativo,
   transacaoDeRecorrente,
   valorPrevisto,
   type LancamentoRecorrente,
 } from '../domain/recorrentes';
-import type {
-  Aporte,
-  Config,
-  DadosIniciais,
-  Fechamento,
-  FechamentoMes,
-  Saldos,
-  Snapshot,
-  Transacao,
-} from '../domain/types';
+import type { Aporte, Config, FechamentoMes, Saldos, Snapshot, Transacao } from '../domain/types';
 
 // Todos os dados ficam em /users/{uid}/..., protegidos por firestore.rules.
 const perfilDoc = (uid: string, id: 'config' | 'saldos') => doc(db, 'users', uid, 'perfil', id);
-type Colecao = 'transacoes' | 'aportes' | 'snapshots' | 'fechamentos' | 'fechamentosMes';
+type Colecao = 'transacoes' | 'aportes' | 'snapshots' | 'fechamentosMes' | 'historico';
 const colecao = (uid: string, nome: Colecao) => collection(db, 'users', uid, nome);
 
 type SemId<T> = Omit<T, 'id'>;
@@ -73,69 +68,167 @@ export const observarAportes = (uid: string, cb: (a: Aporte[]) => void, erro: Er
 export const observarSnapshots = (uid: string, cb: (s: Snapshot[]) => void, erro: Erro) =>
   observarColecao<Snapshot>(uid, 'snapshots', 'mes', limit(36), cb, erro);
 
-export const observarFechamentos = (uid: string, cb: (f: Fechamento[]) => void, erro: Erro) =>
-  observarColecao<Fechamento>(uid, 'fechamentos', 'mes', limit(24), cb, erro);
-
 export const observarFechamentosMes = (uid: string, cb: (f: FechamentoMes[]) => void, erro: Erro) =>
   observarColecao<FechamentoMes>(uid, 'fechamentosMes', 'mes', limit(36), cb, erro);
 
-/** Grava a foto do mês. As regras só permitem criar: se o mês já foi fechado, a gravação é recusada. */
-export const fecharMes = (uid: string, f: FechamentoMes) =>
-  setDoc(doc(colecao(uid, 'fechamentosMes'), f.mes), f);
+export const observarHistorico = (uid: string, cb: (r: RegistroHistorico[]) => void, erro: Erro) =>
+  observarColecao<RegistroHistorico>(uid, 'historico', 'em', limit(300), cb, erro);
 
-export const reabrirMes = (uid: string, mes: string) => deleteDoc(doc(colecao(uid, 'fechamentosMes'), mes));
+// ── Gravações ──
+// Toda gravação vai num batch junto com o registro do histórico (users/{uid}/historico): ou entram os dois, ou
+// nenhum. O histórico guarda o documento antes e depois, para saber o que mudou e desfazer exclusões.
 
-/** Foto de um mês passado (preenche o histórico) sem mexer nos saldos atuais. */
-export const salvarSnapshot = (uid: string, snapshot: Snapshot) =>
-  setDoc(doc(colecao(uid, 'snapshots'), snapshot.mes), snapshot);
-
-export const salvarSaldos = async (uid: string, saldos: Saldos, snapshot: Snapshot) => {
-  const batch = writeBatch(db);
-  batch.set(perfilDoc(uid, 'saldos'), saldos);
-  batch.set(doc(colecao(uid, 'snapshots'), snapshot.mes), snapshot);
-  await batch.commit();
-};
-
-export const criarTransacao = (uid: string, t: SemId<Transacao>) => addDoc(colecao(uid, 'transacoes'), t);
-export const atualizarTransacao = (uid: string, id: string, t: SemId<Transacao>) =>
-  setDoc(doc(colecao(uid, 'transacoes'), id), t);
-export const excluirTransacao = (uid: string, id: string) => deleteDoc(doc(colecao(uid, 'transacoes'), id));
-
-/** Compra parcelada: todas as parcelas em um batch (ou todas ou nenhuma). */
-export const criarParcelas = async (uid: string, parcelas: SemId<Transacao>[]) => {
-  const batch = writeBatch(db);
-  for (const p of parcelas) batch.set(doc(colecao(uid, 'transacoes')), p);
-  await batch.commit();
-};
-
-/** Aplica os mesmos campos em várias transações (ex.: descrição e categoria de todas as parcelas). */
-export const atualizarTransacoes = async (uid: string, ids: string[], campos: Partial<SemId<Transacao>>) => {
-  const batch = writeBatch(db);
-  for (const id of ids) batch.update(doc(colecao(uid, 'transacoes'), id), campos);
-  await batch.commit();
-};
-
-export const excluirTransacoes = async (uid: string, ids: string[]) => {
-  const batch = writeBatch(db);
-  for (const id of ids) batch.delete(doc(colecao(uid, 'transacoes'), id));
-  await batch.commit();
-};
-
-export const criarAporte = (uid: string, a: SemId<Aporte>) => addDoc(colecao(uid, 'aportes'), a);
-export const atualizarAporte = (uid: string, id: string, a: SemId<Aporte>) =>
-  setDoc(doc(colecao(uid, 'aportes'), id), a);
-export const excluirAporte = (uid: string, id: string) => deleteDoc(doc(colecao(uid, 'aportes'), id));
-
-// O Firestore rejeita campos `undefined`; a config só tem tipos JSON, então o round-trip remove esses campos.
+// O Firestore rejeita campos `undefined`; os documentos só têm tipos JSON, então o round-trip remove esses campos.
 const semIndefinidos = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
-export const salvarConfig = (uid: string, config: Config) =>
-  setDoc(perfilDoc(uid, 'config'), semIndefinidos(config));
+const registrar = (
+  batch: WriteBatch,
+  uid: string,
+  entidade: EntidadeHistorico,
+  docId: string,
+  antes: object | null | undefined,
+  depois: object | null | undefined,
+  origem: OrigemHistorico = 'usuario',
+) => {
+  const a = semIdDoc(antes);
+  const d = semIdDoc(depois);
+  const registro: NovoRegistro = {
+    acao: !a ? 'criar' : !d ? 'excluir' : 'editar',
+    entidade,
+    docId,
+    resumo: resumoRegistro(entidade, d ?? a).slice(0, 200),
+    origem,
+    antes: a,
+    depois: d,
+  };
+  batch.set(doc(colecao(uid, 'historico')), semIndefinidos({ ...registro, em: new Date().toISOString() }));
+};
+
+const gravar = async (montar: (batch: WriteBatch) => void) => {
+  const batch = writeBatch(db);
+  montar(batch);
+  await batch.commit();
+};
+
+/** Grava a foto do mês. As regras só permitem criar: se o mês já foi fechado, a gravação é recusada. */
+export const fecharMes = (uid: string, f: FechamentoMes) =>
+  gravar((b) => {
+    b.set(doc(colecao(uid, 'fechamentosMes'), f.mes), f);
+    registrar(b, uid, 'fechamentoMes', f.mes, null, f);
+  });
+
+export const reabrirMes = (uid: string, f: FechamentoMes) =>
+  gravar((b) => {
+    b.delete(doc(colecao(uid, 'fechamentosMes'), f.mes));
+    registrar(b, uid, 'fechamentoMes', f.mes, f, null);
+  });
+
+/** Foto de um mês passado (preenche o histórico) sem mexer nos saldos atuais. */
+export const salvarSnapshot = (uid: string, snapshot: Snapshot, antes: Snapshot | null) =>
+  gravar((b) => {
+    b.set(doc(colecao(uid, 'snapshots'), snapshot.mes), snapshot);
+    registrar(b, uid, 'snapshot', snapshot.mes, antes, snapshot);
+  });
+
+export const salvarSaldos = (
+  uid: string,
+  saldos: Saldos,
+  snapshot: Snapshot,
+  antes: { saldos: Saldos; snapshot: Snapshot | null },
+) =>
+  gravar((b) => {
+    b.set(perfilDoc(uid, 'saldos'), saldos);
+    b.set(doc(colecao(uid, 'snapshots'), snapshot.mes), snapshot);
+    registrar(b, uid, 'saldos', 'saldos', antes.saldos, saldos);
+    registrar(b, uid, 'snapshot', snapshot.mes, antes.snapshot, snapshot);
+  });
+
+export const criarTransacao = (uid: string, t: SemId<Transacao>) =>
+  gravar((b) => {
+    const ref = doc(colecao(uid, 'transacoes'));
+    b.set(ref, t);
+    registrar(b, uid, 'transacao', ref.id, null, t);
+  });
+
+export const atualizarTransacao = (uid: string, id: string, t: SemId<Transacao>, antes: Transacao) =>
+  gravar((b) => {
+    b.set(doc(colecao(uid, 'transacoes'), id), t);
+    registrar(b, uid, 'transacao', id, antes, t);
+  });
+
+export const excluirTransacao = (uid: string, t: Transacao) =>
+  gravar((b) => {
+    b.delete(doc(colecao(uid, 'transacoes'), t.id));
+    registrar(b, uid, 'transacao', t.id, t, null);
+  });
+
+/** Compra parcelada: todas as parcelas em um batch (ou todas ou nenhuma). */
+export const criarParcelas = (uid: string, parcelas: SemId<Transacao>[]) =>
+  gravar((b) => {
+    for (const p of parcelas) {
+      const ref = doc(colecao(uid, 'transacoes'));
+      b.set(ref, p);
+      registrar(b, uid, 'transacao', ref.id, null, p);
+    }
+  });
+
+/** Aplica os mesmos campos em várias transações (ex.: descrição e categoria de todas as parcelas). */
+export const atualizarTransacoes = (uid: string, itens: Transacao[], campos: Partial<SemId<Transacao>>) =>
+  gravar((b) => {
+    for (const t of itens) {
+      b.update(doc(colecao(uid, 'transacoes'), t.id), campos);
+      registrar(b, uid, 'transacao', t.id, t, { ...t, ...campos });
+    }
+  });
+
+export const excluirTransacoes = (uid: string, itens: Transacao[]) =>
+  gravar((b) => {
+    for (const t of itens) {
+      b.delete(doc(colecao(uid, 'transacoes'), t.id));
+      registrar(b, uid, 'transacao', t.id, t, null);
+    }
+  });
+
+export const criarAporte = (uid: string, a: SemId<Aporte>) =>
+  gravar((b) => {
+    const ref = doc(colecao(uid, 'aportes'));
+    b.set(ref, a);
+    registrar(b, uid, 'aporte', ref.id, null, a);
+  });
+
+export const atualizarAporte = (uid: string, id: string, a: SemId<Aporte>, antes: Aporte) =>
+  gravar((b) => {
+    b.set(doc(colecao(uid, 'aportes'), id), a);
+    registrar(b, uid, 'aporte', id, antes, a);
+  });
+
+export const excluirAporte = (uid: string, a: Aporte) =>
+  gravar((b) => {
+    b.delete(doc(colecao(uid, 'aportes'), a.id));
+    registrar(b, uid, 'aporte', a.id, a, null);
+  });
+
+export const salvarConfig = (uid: string, config: Config, antes: Config) =>
+  gravar((b) => {
+    const nova = semIndefinidos(config);
+    b.set(perfilDoc(uid, 'config'), nova);
+    registrar(b, uid, 'config', 'config', antes, nova);
+  });
+
+/** Desfaz a exclusão de um lançamento ou aporte: o documento volta com o mesmo id e o conteúdo de antes. */
+export const restaurarExclusao = (uid: string, r: RegistroHistorico) =>
+  gravar((b) => {
+    if (!r.antes || (r.entidade !== 'transacao' && r.entidade !== 'aporte'))
+      throw new Error('Nada para restaurar');
+    const nome = r.entidade === 'transacao' ? 'transacoes' : 'aportes';
+    b.set(doc(colecao(uid, nome), r.docId), r.antes);
+    registrar(b, uid, r.entidade, r.docId, null, r.antes, 'restauracao');
+  });
 
 /**
  * Grava os lançamentos das recorrências e marca os meses como lançados, tudo no mesmo batch.
  * Os ids são determinísticos: se outro dispositivo já lançou, a regra de edição (criadoEm imutável) recusa o batch
- * inteiro e nada é duplicado.
+ * inteiro e nada é duplicado. O `lancadoAte` da config é controle interno e não entra no histórico.
  */
 export const lancarRecorrentes = async (
   uid: string,
@@ -145,41 +238,29 @@ export const lancarRecorrentes = async (
 ) => {
   if (!itens.length) return;
   const agora = new Date().toISOString();
-  const batch = writeBatch(db);
-  for (const { recorrente: r, mes, data } of itens) {
-    const id = idLancamentoRecorrente(r.id, mes);
-    if (r.tipo === 'aporte') batch.set(doc(colecao(uid, 'aportes'), id), aporteDeRecorrente(r, data, agora));
-    else
-      batch.set(
-        doc(colecao(uid, 'transacoes'), id),
-        transacaoDeRecorrente(r, data, config.cartoes, agora, valorPrevisto(r, transacoes)),
-      );
-  }
-  const recorrentes = marcarLancados(config.recorrentes ?? [], itens);
-  batch.set(perfilDoc(uid, 'config'), semIndefinidos({ ...config, recorrentes }));
-  await batch.commit();
+  await gravar((b) => {
+    for (const { recorrente: r, mes, data } of itens) {
+      const id = idLancamentoRecorrente(r.id, mes);
+      if (r.tipo === 'aporte') {
+        const a = aporteDeRecorrente(r, data, agora);
+        b.set(doc(colecao(uid, 'aportes'), id), a);
+        registrar(b, uid, 'aporte', id, null, a, 'recorrencia');
+      } else {
+        const t = transacaoDeRecorrente(r, data, config.cartoes, agora, valorPrevisto(r, transacoes));
+        b.set(doc(colecao(uid, 'transacoes'), id), t);
+        registrar(b, uid, 'transacao', id, null, t, 'recorrencia');
+      }
+    }
+    const recorrentes = marcarLancados(config.recorrentes ?? [], itens);
+    b.set(perfilDoc(uid, 'config'), semIndefinidos({ ...config, recorrentes }));
+  });
 };
 
-/** Apaga os fechamentos manuais e a média histórica da v1, num batch. */
-export const apagarDadosV1 = async (uid: string, config: Config, mesesFechamentos: string[]) => {
-  const batch = writeBatch(db);
-  for (const mes of mesesFechamentos) batch.delete(doc(colecao(uid, 'fechamentos'), mes));
-  const { mediasGastos: _removida, ...semMedia } = config;
-  batch.set(perfilDoc(uid, 'config'), semIndefinidos(semMedia));
-  await batch.commit();
-};
-
-/** Grava config, saldos, snapshots e fechamentos de uma vez (primeiro acesso). */
-export const importarDados = async (uid: string, dados: DadosIniciais) => {
-  const batch = writeBatch(db);
-  const recorrentes = dados.config.recorrentes && semRetroativo(dados.config.recorrentes, mesAtualIso());
-  batch.set(perfilDoc(uid, 'config'), semIndefinidos({ ...dados.config, recorrentes }));
-  batch.set(perfilDoc(uid, 'saldos'), {
-    valores: dados.saldos?.valores ?? {},
-    ...(dados.saldos?.score ? { score: dados.saldos.score } : {}),
-    updatedAt: null,
-  } satisfies Saldos);
-  for (const s of dados.snapshots ?? []) batch.set(doc(colecao(uid, 'snapshots'), s.mes), s);
-  for (const f of dados.fechamentos ?? []) batch.set(doc(colecao(uid, 'fechamentos'), f.mes), f);
-  await batch.commit();
-};
+/** Primeiro acesso: cria o plano em branco (config e saldos vazios). */
+export const criarPlano = (uid: string, config: Config) =>
+  gravar((b) => {
+    const nova = semIndefinidos(config);
+    b.set(perfilDoc(uid, 'config'), nova);
+    b.set(perfilDoc(uid, 'saldos'), { valores: {}, updatedAt: null } satisfies Saldos);
+    registrar(b, uid, 'config', 'config', null, nova);
+  });

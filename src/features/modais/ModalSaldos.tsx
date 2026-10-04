@@ -91,6 +91,8 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
     if (passado && dividasPassado !== null && (!Number.isFinite(dividasPassado) || dividasPassado < 0))
       return avisar('Faturas em aberto inválidas');
 
+    // Para o histórico: como estava a foto deste mês antes de salvar.
+    const fotoAnterior = snapshots.find((s) => s.mes === mes) ?? null;
     const snapshot: Snapshot = {
       mes,
       valores: novosValores,
@@ -103,7 +105,7 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
     void enviar(
       () =>
         passado
-          ? salvarSnapshot(uid, snapshot)
+          ? salvarSnapshot(uid, snapshot, fotoAnterior)
           : salvarSaldos(
               uid,
               {
@@ -112,6 +114,7 @@ export const ModalSaldos = ({ onFechar }: { onFechar: () => void }) => {
                 updatedAt: agora,
               },
               snapshot,
+              { saldos, snapshot: fotoAnterior },
             ),
       passado ? `Foto de ${rotuloMesLongo(mes)} salva!` : 'Salvo!',
     );

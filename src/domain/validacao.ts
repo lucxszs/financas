@@ -32,7 +32,6 @@ export const validarDadosIniciais = (
 
   exigir(isStr(c.nome), 'config.nome obrigatório');
   exigir(isNum(c.rendaMensal), 'config.rendaMensal deve ser número');
-  exigir(isNum(c.taxaAnualEstimada), 'config.taxaAnualEstimada deve ser número');
 
   const caixinhas = Array.isArray(c.caixinhas) ? c.caixinhas : [];
   exigir(caixinhas.length > 0, 'config.caixinhas precisa de ao menos 1 item');
@@ -117,13 +116,6 @@ export const validarDadosIniciais = (
     exigir(
       isObj(s) && MES.test(String(s.mes)) && isObj(s.valores),
       `snapshots[${i}] precisa de mes (YYYY-MM) e valores`,
-    );
-  });
-
-  (Array.isArray(entrada.fechamentos) ? entrada.fechamentos : []).forEach((f: unknown, i) => {
-    exigir(
-      isObj(f) && MES.test(String(f.mes)) && Array.isArray(f.itens),
-      `fechamentos[${i}] precisa de mes e itens`,
     );
   });
 

@@ -16,7 +16,6 @@ const bariloche: Objetivo = {
 const config: Config = {
   nome: 'Teste',
   rendaMensal: 9000,
-  taxaAnualEstimada: 0.12,
   caixinhas: [{ id: 'mp', nome: 'Mercado Pago', moeda: 'BRL', rendimento: '', cor: 'sky' }],
   objetivos: [bariloche],
   cartoes: [],

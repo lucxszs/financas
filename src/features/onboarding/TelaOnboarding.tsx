@@ -1,88 +1,71 @@
-import { useState, type ChangeEvent } from 'react';
-import type { DadosIniciais } from '../../domain/types';
-import { validarDadosIniciais } from '../../domain/validacao';
+import { useState } from 'react';
+import type { Config } from '../../domain/types';
+import { criarPlano } from '../../services/repositorio';
 import { useAuth } from '../auth/useAuth';
-import { importarDados } from '../../services/repositorio';
 import { useDados } from '../dados/useDados';
-import exemplo from '../../../seed/exemplo.json';
 
-/** Plano mínimo para quem começa sem arquivo: uma conta corrente; o resto se cadastra em Configurações. */
-const planoInicial = (nome: string): DadosIniciais => ({
-  config: {
-    nome: nome || 'Meu plano',
-    rendaMensal: 0,
-    taxaAnualEstimada: 0.1,
-    caixinhas: [
-      { id: 'conta', nome: 'Conta corrente', moeda: 'BRL', rendimento: '', cor: 'sky', tipo: 'conta' },
-    ],
-    objetivos: [],
-    cartoes: [],
-  },
+/** Plano mínimo para começar: uma conta corrente; o resto se cadastra em Configurações. */
+const planoInicial = (nome: string, renda: number): Config => ({
+  nome: nome || 'Meu plano',
+  rendaMensal: renda,
+  caixinhas: [
+    { id: 'conta', nome: 'Conta corrente', moeda: 'BRL', rendimento: '', cor: 'sky', tipo: 'conta' },
+  ],
+  objetivos: [],
+  cartoes: [],
 });
 
+/** Primeiro acesso: boas-vindas e um plano em branco. A configuração toda acontece dentro do app. */
 export const TelaOnboarding = () => {
   const { uid } = useDados();
   const { estado } = useAuth();
   const nome = estado.status === 'liberado' ? (estado.user.displayName ?? '') : '';
-  const [erros, setErros] = useState<string[]>([]);
+  const primeiroNome = nome.split(' ')[0];
+  const [renda, setRenda] = useState('');
+  const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
 
-  const importar = async (json: unknown) => {
-    const r = validarDadosIniciais(json);
-    if (!r.ok) return setErros(r.erros);
-    setErros([]);
+  const comecar = async () => {
+    const valor = renda.trim() === '' ? 0 : Number(renda.replace(',', '.'));
+    if (!Number.isFinite(valor) || valor < 0) return setErro('Renda inválida');
+    setErro('');
     setSalvando(true);
     try {
-      await importarDados(uid, r.dados);
+      await criarPlano(uid, planoInicial(nome, valor));
     } catch (e) {
-      setErros([e instanceof Error ? e.message : String(e)]);
-    } finally {
+      setErro(e instanceof Error ? e.message : String(e));
       setSalvando(false);
-    }
-  };
-
-  const onArquivo = async (e: ChangeEvent<HTMLInputElement>) => {
-    const arquivo = e.target.files?.[0];
-    if (!arquivo) return;
-    try {
-      await importar(JSON.parse(await arquivo.text()));
-    } catch {
-      setErros(['Arquivo não é um JSON válido']);
     }
   };
 
   return (
     <div className="tela-centro">
       <div className="card card-pad tela-login">
-        <div className="eyebrow">Primeiro acesso</div>
-        <h1>Configurar plano</h1>
+        <div className="eyebrow">Plano financeiro</div>
+        <h1>{primeiroNome ? `Bem-vindo, ${primeiroNome}!` : 'Bem-vindo!'}</h1>
         <p className="muted">
-          Comece do zero e cadastre renda, contas, cartões e metas em Configurações. Se já tiver tudo num
-          arquivo, importe o JSON (formato em <code>seed/exemplo.json</code>).
+          Aqui você acompanha gastos, cartões, investimentos e metas, e vê quanto ainda pode gastar no mês.
         </p>
-        <button className="btn-save" onClick={() => void importar(planoInicial(nome))} disabled={salvando}>
-          Começar do zero
-        </button>
-        <label className="btn largura-total centro">
-          {salvando ? 'Importando...' : 'Importar JSON'}
+        <div className="field">
+          <label htmlFor="boas-vindas-renda">Sua renda mensal (opcional)</label>
           <input
-            type="file"
-            accept="application/json"
-            hidden
-            onChange={(e) => void onArquivo(e)}
-            disabled={salvando}
+            id="boas-vindas-renda"
+            type="number"
+            step="0.01"
+            min="0"
+            inputMode="decimal"
+            placeholder="Ex: 5000"
+            value={renda}
+            onChange={(e) => setRenda(e.target.value)}
           />
-        </label>
-        <button className="btn" onClick={() => void importar(exemplo)} disabled={salvando}>
-          Usar dados de exemplo
+        </div>
+        <button className="btn-save" onClick={() => void comecar()} disabled={salvando}>
+          {salvando ? 'Preparando...' : 'Começar'}
         </button>
-        {erros.length > 0 && (
-          <ul className="lista-erros">
-            {erros.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        )}
+        <p className="mono pequeno muted">
+          Depois, em Configurações (ícone de engrenagem), cadastre suas contas, cartões, metas e contas fixas.
+        </p>
+        {erro && <div className="save-msg erro">{erro}</div>}
       </div>
     </div>
   );

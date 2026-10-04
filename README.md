@@ -12,9 +12,10 @@ Dashboard pessoal de finanças: investimentos em BRL, USD e EUR, metas, lançame
 - 🏠 Início: resumo do mês, saúde financeira, quanto ainda dá para gastar, próximos 7 dias e fechamento mensal
 - 💳 Lançamentos, compras parceladas, cartões com faturas futuras e orçamento por categoria
 - 🔁 Contas fixas, salário e aportes lançados sozinhos todo mês, com calendário e próximos 7 dias
-- 📈 Patrimônio líquido e evolução, rentabilidade × CDI e IPCA, investimentos e câmbio
+- 📈 Patrimônio líquido e evolução, rentabilidade, investimentos e câmbio
 - 🎯 Metas com contagem regressiva e ritmo necessário × atual
 - 📊 Histórico mensal com gráficos, "Posso comprar?" e simulações "e se..."
+- 🧾 Histórico de tudo o que foi criado, editado e excluído, com opção de desfazer exclusões
 - 📱 Funciona no computador e no celular
 
 Detalhes em [docs/funcionalidades.md](docs/funcionalidades.md).

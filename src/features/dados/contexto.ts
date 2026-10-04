@@ -4,7 +4,6 @@ import type {
   Aporte,
   Config,
   Cotacoes,
-  Fechamento,
   FechamentoMes,
   Saldos,
   Snapshot,
@@ -19,7 +18,6 @@ export interface Dados {
   transacoes: Transacao[];
   aportes: Aporte[];
   snapshots: Snapshot[];
-  fechamentos: Fechamento[];
   /** Fechamentos imutáveis ("Fechar mês"). */
   fechamentosMes: FechamentoMes[];
   cotacoes: Cotacoes;

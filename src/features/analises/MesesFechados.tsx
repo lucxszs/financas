@@ -51,7 +51,7 @@ export const MesesFechados = () => {
               Os lançamentos não mudam. Dá para fechar de novo depois.
             </>
           }
-          onConfirmar={() => reabrirMes(uid, atual.mes)}
+          onConfirmar={() => reabrirMes(uid, atual)}
           onFechar={() => setReabrindo(false)}
         />
       )}

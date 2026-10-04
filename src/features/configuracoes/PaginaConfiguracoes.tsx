@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { Archive, PiggyBank, Sparkles, Target } from 'lucide-react';
+import { PiggyBank, Sparkles, Target } from 'lucide-react';
 import { Icone, IconeCategoria } from '../../components/icones';
 import { EmojiItem, MarcaItem } from '../../components/marcas';
 import { orcamentoSugerido } from '../../domain/historico';
 import { valorPrevisto } from '../../domain/recorrentes';
-import { apagarDadosV1 } from '../../services/repositorio';
 import { ModalConfirmacao, Secao } from '../../components/ui';
 import { CATEGORIAS, tipoPorId } from '../../domain/catalogos';
 import { hojeIso, rotuloMesCurto, somarMeses } from '../../domain/datas';
@@ -15,6 +14,7 @@ import { useEnvio } from '../../hooks/useEnvio';
 import { useDadosConfigurados } from '../dados/useDados';
 import { ListaConfig } from './componentes';
 import { numeroOuNulo, useSalvarConfig } from './configuracao';
+import { HistoricoAlteracoes } from './HistoricoAlteracoes';
 import { ModalCaixinha } from './ModalCaixinha';
 import { ModalCartao } from './ModalCartao';
 import { ModalObjetivo } from './ModalObjetivo';
@@ -152,7 +152,7 @@ export const PaginaConfiguracoes = () => {
         voltam.
       </div>
 
-      <DadosAntigos />
+      <HistoricoAlteracoes />
 
       {editando?.tipo === 'caixinha' && <ModalCaixinha caixinha={editando.item} onFechar={fechar} />}
       {editando?.tipo === 'cartao' && <ModalCartao cartao={editando.item} onFechar={fechar} />}
@@ -162,72 +162,17 @@ export const PaginaConfiguracoes = () => {
   );
 };
 
-/** Fechamentos manuais e média histórica da v1: dados digitados à mão que não se ligam a nada no app. */
-const DadosAntigos = () => {
-  const { uid, config, fechamentos } = useDadosConfigurados();
-  const [confirmando, setConfirmando] = useState(false);
-  const temMedia = Boolean(config.mediasGastos);
-  if (!fechamentos.length && !temMedia) return null;
-
-  return (
-    <Secao titulo="Dados antigos (v1)" icone={Archive}>
-      <div className="card card-pad">
-        <div className="mono pequeno muted mb-12">
-          {[
-            fechamentos.length > 0 &&
-              `${fechamentos.length} ${fechamentos.length === 1 ? 'fechamento manual' : 'fechamentos manuais'} (${fechamentos
-                .map((f) => rotuloMesCurto(f.mes))
-                .sort()
-                .join(', ')})`,
-            temMedia && 'média histórica de gastos digitada à mão',
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-          . Hoje o app calcula isso a partir dos lançamentos.
-        </div>
-        <button className="btn-perigo" onClick={() => setConfirmando(true)}>
-          Apagar dados antigos
-        </button>
-      </div>
-      {confirmando && (
-        <ModalConfirmacao
-          titulo="Apagar dados antigos da v1?"
-          rotuloConfirmar="Apagar"
-          mensagem={
-            <>
-              Os fechamentos manuais e a média histórica somem do app e do banco de dados.
-              <br />
-              Lançamentos, aportes, saldos e meses fechados não são afetados. Essa ação não pode ser desfeita.
-            </>
-          }
-          onConfirmar={() =>
-            apagarDadosV1(
-              uid,
-              config,
-              fechamentos.map((f) => f.mes),
-            )
-          }
-          onFechar={() => setConfirmando(false)}
-        />
-      )}
-    </Secao>
-  );
-};
-
 const FormGeral = () => {
   const { config } = useDadosConfigurados();
   const salvar = useSalvarConfig();
   const { msg, erro, salvando, avisar, enviar, limpar } = useEnvio(() => undefined, 1500);
   const [renda, setRenda] = useState(String(config.rendaMensal));
-  const [taxa, setTaxa] = useState(String(Math.round(config.taxaAnualEstimada * 10000) / 100));
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const r = numeroOuNulo(renda);
-    const t = numeroOuNulo(taxa);
     if (r === null || !Number.isFinite(r) || r < 0) return avisar('Renda inválida');
-    if (t === null || !Number.isFinite(t) || t < 0 || t > 100) return avisar('Taxa deve ser de 0 a 100%');
-    void enviar(() => salvar((c) => ({ ...c, rendaMensal: r, taxaAnualEstimada: t / 100 })), 'Salvo!');
+    void enviar(() => salvar((c) => ({ ...c, rendaMensal: r })), 'Salvo!');
   };
 
   return (
@@ -244,19 +189,6 @@ const FormGeral = () => {
               inputMode="decimal"
               value={renda}
               onChange={(e) => setRenda(e.target.value)}
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="cf-taxa">Rendimento estimado (% ao ano)</label>
-            <input
-              id="cf-taxa"
-              type="number"
-              step="0.01"
-              min="0"
-              max="100"
-              inputMode="decimal"
-              value={taxa}
-              onChange={(e) => setTaxa(e.target.value)}
             />
           </div>
         </div>

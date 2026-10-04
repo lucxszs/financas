@@ -11,7 +11,6 @@ export interface LinhaHistorico {
   gastos: number;
   investimentos: number;
   saldo: number;
-  taxaPoupanca: number;
   /** Patrimônio líquido do mês; null se não houver foto dos saldos naquele mês. */
   patrimonio: number | null;
   /** true = veio do fechamento imutável do mês, não do cálculo ao vivo. */
@@ -42,7 +41,6 @@ export const serieMensal = (
         gastos: f.gastos,
         investimentos: f.investimentos,
         saldo: f.saldo,
-        taxaPoupanca: f.taxaPoupanca,
         patrimonio: f.patrimonio,
         fechado: true,
       };
@@ -55,7 +53,6 @@ export const serieMensal = (
       gastos: r.gastos,
       investimentos: r.investimentos,
       saldo: r.saldoLivre,
-      taxaPoupanca: r.taxaPoupanca,
       patrimonio: foto ? liquidoSnapshot(foto, config, cotacoes) : null,
       fechado: false,
     };
